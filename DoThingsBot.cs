@@ -9,6 +9,8 @@ using DoThingsBot;
 using DoThingsBot.Chat;
 using DoThingsBot.FSM;
 using DoThingsBot.FSM.States;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace DoThingsBot {
     class DoThingsBot {
@@ -143,6 +145,10 @@ namespace DoThingsBot {
                     PrintHelpMessage(e.PlayerName, e.Arguments);
                     break;
 
+                case "about":
+                    PrintAboutMessage(e.PlayerName, e.Arguments);
+                    break;
+
                 case "skills":
                     if (_machine.IsRunning && (_machine.InState("BotIdleState") || skipQueue)) {
                         var itemBundle = new ItemBundle(e.PlayerName);
@@ -273,12 +279,20 @@ namespace DoThingsBot {
                     ChatManager.Tell(playerName, "whereto - I will tell you where my portals are currently tied to.");
                     break;
 
+                case "about":
+                    ChatManager.Tell(playerName, "about - I will tell you about my software.");
+                    break;
+
                 default:
-                    ChatManager.Tell(playerName, "I'm a Tinker Bot running some new software, please be patient with me.  Please double check your tinker chances before confirming!");
-                    ChatManager.Tell(playerName, "Available commands: tinker, lostitems, whereto, message.  Tell me \"<command>\" or \"help <command>\" to get started.");
+                    PrintAboutMessage(playerName, arguments);
                     break;
 
             }
+        }
+
+        void PrintAboutMessage(string playerName, string arguments) {
+            //  - Download the software yourself at https://gitlab.com/trevis/dothingsbot
+            ChatManager.Tell(playerName, String.Format("I'm a Tinker Bot running DoThingsBot v{0}. Available commands: tinker, lostitems, whereto, message, about.  Tell me \"<command>\" or \"help <command>\" to get started.", Util.GetVersion()));
         }
 
         void RemoveFromQueue(string playerName) {

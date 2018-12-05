@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 using Decal.Adapter;
@@ -26,6 +28,17 @@ namespace DoThingsBot
             System.IO.Directory.CreateDirectory(DataDirectory);
             System.IO.Directory.CreateDirectory(GetCharacterDataDirectory());
             System.IO.Directory.CreateDirectory(GetPlayerDataDirectory());
+        }
+
+        public static string GetVersion() {
+            try {
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+                return fileVersionInfo.ProductVersion;
+            }
+            catch (Exception e) { Util.LogException(e); }
+
+            return null;
         }
 
         public static void LogException(Exception ex)
