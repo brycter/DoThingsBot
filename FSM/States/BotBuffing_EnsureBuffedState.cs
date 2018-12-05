@@ -103,17 +103,16 @@ namespace DoThingsBot.FSM.States {
             int currentStamina = CoreManager.Current.CharacterFilter.Stamina;
 
             if (currentStamina < effectiveStamina / 2) {
-                var bestSpell = Spells.GetBestKnownSpellByClass(Spells.SpellClass.REVITALIZE);
+                //var bestSpell = Spells.GetBestKnownSpellByClass(Spells.SpellClass.REVITALIZE);
+                var spellId = Spells.GetIdFromName("Robustification");
 
-                if (bestSpell.id > 0) {
-                    Util.WriteToChat("ERROR: No known castable spell for: SpellsClass.REVITALIZE");
+                if (!CoreManager.Current.CharacterFilter.SpellBook.Contains(spellId)) {
+                    Util.WriteToChat(String.Format("ERROR: No known castable spell for: SpellsClass.REVITALIZE ({0})", spellId));
                     return false;
                 }
 
-                var spellId = bestSpell.id;
-
                 Util.WriteToDebugLog(String.Format("Stamina is: {0}/{1}", currentStamina, effectiveStamina));
-                Util.WriteToChat("Trying to cast: " + spellId + " : " + bestSpell.name);
+                Util.WriteToChat("Trying to cast: " + spellId + " : Robustification");
                 CoreManager.Current.Actions.CastSpell(spellId, CoreManager.Current.CharacterFilter.Id);
                 return false;
             }
@@ -127,16 +126,16 @@ namespace DoThingsBot.FSM.States {
 
             // stam to mana
             if (currentMana < effectiveMana / 2) {
-                var bestSpell = Spells.GetBestKnownSpellByClass(Spells.SpellClass.DRAIN_STAMINA);
+                //var bestSpell = Spells.GetBestKnownSpellByClass(Spells.SpellClass.DRAIN_STAMINA);
+                var spellId = Spells.GetIdFromName("Meditative Trance");
 
-                if (bestSpell.id > 0) {
+                if (!CoreManager.Current.CharacterFilter.SpellBook.Contains(spellId)) {
                     Util.WriteToChat("ERROR: No known castable spell for: SpellsClass.DRAIN_STAMINA");
                     return false;
                 }
 
-                var spellId = bestSpell.id;
                 Util.WriteToDebugLog(String.Format("Mana is: {0}/{1}", currentMana, effectiveMana));
-                Util.WriteToChat("Trying to cast: " + spellId + " : " + bestSpell.name);
+                Util.WriteToChat("Trying to cast: " + spellId + " : Meditative Trance");
 
                 CoreManager.Current.Actions.CastSpell(spellId, CoreManager.Current.CharacterFilter.Id);
                 return false;

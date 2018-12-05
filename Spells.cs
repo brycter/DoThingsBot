@@ -6870,9 +6870,10 @@ new Spell() { id = 6322, name = "Viridian Rise Great Tree Recall", spellClass=Sp
             }
 
             foreach (Spell spell in spellClassSpells) {
-                if (bestSpell.skillRequired < spell.skillRequired && CoreManager.Current.CharacterFilter.EffectiveSkill[Decal.Adapter.Wrappers.CharFilterSkillType.CreatureEnchantment] >= spell.skillRequired) {
-                    if (spell.name.EndsWith(" I") || spell.name.EndsWith(" II") || spell.name.EndsWith(" III") || spell.name.EndsWith(" IV") || spell.name.EndsWith(" V") || spell.name.EndsWith("VI") || spell.name.EndsWith("VII") || spell.name.StartsWith("Incantation of"))
-                        bestSpell = spell;
+                if (bestSpell.skillRequired < spell.skillRequired
+                    && CoreManager.Current.CharacterFilter.EffectiveSkill[Decal.Adapter.Wrappers.CharFilterSkillType.CreatureEnchantment] >= spell.skillRequired
+                    && CoreManager.Current.CharacterFilter.SpellBook.Contains(spell.id)) {
+                     bestSpell = spell;
                 }
             }
 

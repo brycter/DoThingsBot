@@ -20,7 +20,7 @@ namespace DoThingsBot
         }
 
         public static string GetPlayerDataDirectory() {
-            return DataDirectory + CoreManager.Current.CharacterFilter.Server + @"\users\";
+            return GetCharacterDataDirectory() + @"users\";
         }
 
         public static void CreateDataDirectories() {

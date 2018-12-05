@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DoThingsBot.Chat;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -30,7 +31,20 @@ namespace DoThingsBot.FSM.States {
 
         }
 
+        DateTime firstThought = DateTime.UtcNow;
+        bool didFail = false;
+
         public void Think(Machine machine) {
+            if (DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(180)) {
+                if (!didFail) {
+                    didFail = true;
+                    ChatManager.Tell(itemBundle.GetOwner(), "The trade request timed out, probably because something went wrong.");
+                    itemBundle.SetEquipMode(EquipMode.Idle);
+                    machine.ChangeState(new BotEquipItemsState(itemBundle));
+                }
+                return;
+            }
+
             if (itemBundle.GetCraftMode() == CraftMode.GiveBackItems) {
                 if (_machine.InState("BotTrading_TradeCancelledState") || _machine.InState("BotTrading_FinishedState")) {
                     itemBundle.SetEquipMode(EquipMode.Idle);

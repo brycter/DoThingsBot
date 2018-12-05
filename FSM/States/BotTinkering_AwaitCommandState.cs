@@ -57,7 +57,7 @@ namespace DoThingsBot.FSM.States {
         DateTime startTime = DateTime.UtcNow;
 
         public void Think(Machine machine) {
-            if (DateTime.UtcNow - startTime > TimeSpan.FromSeconds(30)) {
+            if (DateTime.UtcNow - startTime > TimeSpan.FromSeconds(15)) {
                 ChatManager.Tell(itemBundle.GetOwner(), "Your request has timed out.");
                 _machine.ChangeState(new BotTinkering_CancelledState(itemBundle));
             }

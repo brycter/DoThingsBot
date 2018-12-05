@@ -62,20 +62,19 @@ namespace DoThingsBot {
             _machine.ChangeState(new BotIdleState());
 
             ChatManager.RaiseChatCommandEvent += new EventHandler<ChatCommandEventArgs>(ChatManager_ChatCommand);
-
-            Util.WriteToChat("DoThingsBot started");
         }
 
         public void Stop() {
             if (!isRunning)
                 return;
-            
+
+            Util.WriteToChat("DoThingsBot stopped");
+
             ChatManager.RaiseChatCommandEvent -= new EventHandler<ChatCommandEventArgs>(ChatManager_ChatCommand);
 
             _machine.Stop();
             isRunning = false;
 
-            Util.WriteToChat("DoThingsBot stopped");
         }
 
         private bool disposed;

@@ -134,8 +134,12 @@ namespace DoThingsBot.Chat {
             commandQueue.Enqueue(command);
         }
 
+        public static DateTime firstThought = DateTime.UtcNow;
+
         public static void Think() {
             if (DateTime.UtcNow - lastAnnouncementTime > TimeSpan.FromMinutes(DoThingsBot.ConfigurationManager().AnnouncementsAnnounceInterval) && DoThingsBot.ConfigurationManager().BotEnabled == true) {
+                if (DateTime.UtcNow - firstThought < TimeSpan.FromSeconds(5)) return;
+
                 lastAnnouncementTime = DateTime.UtcNow;
 
                 var announcements = DoThingsBot.ConfigurationManager().AnnouncementsMessages;

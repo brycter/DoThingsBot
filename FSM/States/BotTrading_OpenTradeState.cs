@@ -82,7 +82,7 @@ namespace DoThingsBot.FSM.States {
         }
 
         public ItemBundle GetItemBundle() {
-            return null;
+            return itemBundle;
         }
     }
 }

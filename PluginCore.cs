@@ -84,8 +84,6 @@ namespace DoThingsBot {
                 Util.CreateDataDirectories();
                 mainView = new MainView();
 
-                Util.WriteToChat("DoThingsBot Loaded");
-
                 bot.IsLoggedIn = true;
 
                 if (DoThingsBot.ConfigurationManager().BotEnabled == true) {

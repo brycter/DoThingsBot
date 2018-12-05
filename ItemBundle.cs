@@ -152,7 +152,7 @@ namespace DoThingsBot {
                     }
                 }
 
-                string json = JsonConvert.SerializeObject(playerData);
+                string json = JsonConvert.SerializeObject(playerData, Formatting.Indented);
                 File.WriteAllText(GetJsonDataPathForOwner(), json);
             }
             catch (Exception ex) { Util.LogException(ex); }
@@ -409,7 +409,7 @@ namespace DoThingsBot {
             List<int> idsIveSeen = new List<int>(playerData.itemNames.Keys);
 
             foreach (var wo in CoreManager.Current.WorldFilter.GetInventory()) {
-                if (idsIveSeen.Contains(wo.Id) && !stolenIds.Contains(wo.Id)) {
+                if (idsIveSeen.Contains(wo.Id) && !stolenIds.Contains(wo.Id) && !destroyedIds.Contains(wo.Id)) {
                     stolenIds.Add(wo.Id);
                 }
             }
@@ -417,8 +417,11 @@ namespace DoThingsBot {
             return stolenIds;
         }
 
+        List<int> destroyedIds = new List<int>();
+
         public void SetItemDestroyed(int id) {
             playerData.itemIds.Remove(id);
+            destroyedIds.Add(id);
             Util.WriteToChat("Item " + id + " marked as destroyed");
 
             SavePlayerData();
@@ -488,8 +491,7 @@ namespace DoThingsBot {
                         itemNames += Util.GetItemShortName(item);
                     }
                 }
-
-                Util.WriteToChat(itemNames);
+                
                 sortedSalvageNames = itemNames;
 
                 if (salvages.Count > 0) {

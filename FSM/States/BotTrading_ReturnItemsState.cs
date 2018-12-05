@@ -17,13 +17,11 @@ namespace DoThingsBot.FSM.States {
         private ItemBundle itemBundle;
         private Machine _machine;
         private List<int> itemsToAddToTrade;
-        private bool hasItemsToAddToTrade;
 
         public BotTrading_ReturnItemsState(ItemBundle items) {
             itemBundle = items;
 
             itemsToAddToTrade = new List<int>(itemBundle.GetStolenItems().ToArray());
-            hasItemsToAddToTrade = itemsToAddToTrade.Count > 0;
         }
 
         public void Enter(Machine machine) {
@@ -79,7 +77,7 @@ namespace DoThingsBot.FSM.States {
             catch (Exception ex) { Util.LogException(ex); }
         }
 
-        private bool tradeWasResetByMe = false;
+        //private bool tradeWasResetByMe = false;
         void WorldFilter_ResetTrade(object sender, ResetTradeEventArgs e) {
             try {
                 if (CoreManager.Current.CharacterFilter.Id != e.TraderId) {
@@ -107,9 +105,7 @@ namespace DoThingsBot.FSM.States {
 
         public void Think(Machine machine) {
             try {
-                if (!hasItemsToAddToTrade) return;
-
-                if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(200)) {
+                if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(300)) {
                     lastThought = DateTime.UtcNow;
 
                     if (DateTime.UtcNow - startTime > TimeSpan.FromSeconds(10)) {
@@ -123,7 +119,7 @@ namespace DoThingsBot.FSM.States {
                             didFinish = true;
 
                             if (itemsIdsAdded.Count > 0) {
-                                tradeWasResetByMe = true;
+                                //tradeWasResetByMe = true;
                                 CoreManager.Current.Actions.TradeAccept();
                                 return;
                             }
@@ -135,7 +131,7 @@ namespace DoThingsBot.FSM.States {
                     }
 
                     if (itemsToAddToTrade.Count > 0) {
-                        Util.WriteToChat(String.Format("Attempting to add {0} to the trade window", itemBundle.GetCachedItemName(itemsToAddToTrade[0])));
+                        Util.WriteToDebugLog(String.Format("Attempting to add {0} to the trade window", itemBundle.GetCachedItemName(itemsToAddToTrade[0])));
                         CoreManager.Current.Actions.TradeAdd(itemsToAddToTrade[0]);
 
                         itemsToAddToTrade.RemoveAt(0);

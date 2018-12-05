@@ -19,15 +19,14 @@ namespace DoThingsBot.FSM.States {
 
             if (itemBundle.GetCraftMode() == CraftMode.PrimaryPortal) {
                 CoreManager.Current.Actions.FaceHeading(DoThingsBot.ConfigurationManager().GetPrimaryPortalHeading(), true);
-                //ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", Config.GetPrimaryPortalLocation()));
-                ChatManager.Say("I am summoning a portal to the Temple of Enlightenment.");
-                //ChatManager.Tell(itemBundle.GetOwner(), "You'll need to stay on the land bridge until 85.5S, 0.8W where it slopes down to the shore. Head east to find the Guardian of the Temple of Enlightenment at 84.5S, 0.0E - Malar = Hyssop.");
+                ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", DoThingsBot.ConfigurationManager().GetPrimaryPortalLocation()));
+                ChatManager.Say(String.Format("I am summoning a portal to {0}.", DoThingsBot.ConfigurationManager().GetPrimaryPortalLocation()));
+
             }
             else {
                 CoreManager.Current.Actions.FaceHeading(DoThingsBot.ConfigurationManager().GetSecondaryPortalHeading(), true);
-                //ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", Config.GetSecondaryPortalLocation()));
-                ChatManager.Say("I am summoning a portal to the Temple of Forgetfulness.");
-                //ChatManager.Tell(itemBundle.GetOwner(), "You'll drop a short run from the Temple of Forgetfulness at 88.8N, 0.0E - Malar = Hyssop.");
+                ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", DoThingsBot.ConfigurationManager().GetSecondaryPortalLocation()));
+                ChatManager.Say(String.Format("I am summoning a portal to {0}.", DoThingsBot.ConfigurationManager().GetSecondaryPortalLocation()));
             }
             
             WorldObject player = Util.FindPlayerWorldObjectByName(itemBundle.GetOwner());
@@ -82,9 +81,17 @@ namespace DoThingsBot.FSM.States {
         }
 
         private DateTime lastThought = DateTime.UtcNow;
+        private DateTime firstThought = DateTime.UtcNow;
         private bool didCastSpell = false;
 
         public void Think(Machine machine) {
+            if (DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(30)) {
+                EnsureCombatState(CombatState.Peace);
+
+                itemBundle.SetEquipMode(EquipMode.Idle);
+                machine.ChangeState(new BotEquipItemsState(machine.CurrentState.GetItemBundle()));
+            }
+
             if (DateTime.UtcNow - lastThought > TimeSpan.FromSeconds(2)) {
                 lastThought = DateTime.UtcNow;
 

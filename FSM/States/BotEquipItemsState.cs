@@ -49,13 +49,13 @@ namespace DoThingsBot.FSM.States {
 
                 string itemNames = "";
 
-                Util.WriteToChat("Equipment mode is: " + itemBundle.GetEquipMode());
+                Util.WriteToDebugLog("Equipment mode is: " + itemBundle.GetEquipMode());
 
                 foreach (var eq in Equipment) {
                     itemNames += eq + ", ";
                 }
 
-                Util.WriteToChat("Items to Equip: " + itemNames);
+                Util.WriteToDebugLog("Items to Equip: " + itemNames);
 
                 // done
                 if (Equipment.Count == 0) {

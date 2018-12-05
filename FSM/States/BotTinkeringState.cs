@@ -37,17 +37,34 @@ namespace DoThingsBot.FSM.States {
             IsRunning = false;
             _machine.Stop();
         }
-        
+
+        DateTime firstThought = DateTime.UtcNow;
+        DateTime lastThought = DateTime.UtcNow;
+        bool didFail = false;
+
         public void Think(Machine machine) {
-            if (_machine.InState("BotTinkering_FinishedState")) {
-                if (itemBundle.GetStolenItems().Count > 0) {
-                    itemBundle.SetCraftMode(CraftMode.GiveBackItems);
-                    machine.ChangeState(new BotTradingState(itemBundle));
-                }
-                else {
-                    machine.ChangeState(new BotFinishState(itemBundle));
+            if (DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(180)) {
+                if (!didFail) {
+                    didFail = true;
+                    ChatManager.Tell(itemBundle.GetOwner(), "The tinkering request timed out, probably because something went wrong.");
+                    _machine.ChangeState(new BotTinkering_CancelledState(itemBundle));
                 }
                 return;
+            }
+
+            if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(200)) {
+                lastThought = DateTime.UtcNow;
+
+                if (_machine.InState("BotTinkering_FinishedState")) {
+                    if (itemBundle.GetItems().Count > 0) {
+                        itemBundle.SetCraftMode(CraftMode.GiveBackItems);
+                        machine.ChangeState(new BotTradingState(itemBundle));
+                    }
+                    else {
+                        machine.ChangeState(new BotFinishState(itemBundle));
+                    }
+                    return;
+                }
             }
 
             if (IsRunning) _machine.Think();

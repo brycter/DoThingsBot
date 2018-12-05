@@ -78,6 +78,7 @@ namespace DoThingsBot.FSM.States {
                     ChatManager.Tell(itemBundle.GetOwner(), "Ouch!  Maybe next time we'll have better luck.");
                     itemBundle.SetItemDestroyed(itemBundle.GetUseItemTarget());
                     itemBundle.SetItemDestroyed(itemBundle.GetUseItemOnTarget());
+                    
                     _machine.ChangeState(new BotTinkering_FinishedState(itemBundle));
                     
 
@@ -91,7 +92,18 @@ namespace DoThingsBot.FSM.States {
             catch (Exception ex) { Util.LogException(ex); }
         }
 
+        DateTime firstThought = DateTime.UtcNow;
+        bool didFail = false;
+
         public void Think(Machine machine) {
+            if (DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(15)) {
+                if (!didFail) {
+                    didFail = true;
+                    ChatManager.Tell(itemBundle.GetOwner(), "The tinkering request timed out, probably because something went wrong.");
+                    _machine.ChangeState(new BotTinkering_CancelledState(itemBundle));
+                }
+                return;
+            }
         }
 
         public ItemBundle GetItemBundle() {

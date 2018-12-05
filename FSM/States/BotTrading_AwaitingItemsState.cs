@@ -66,7 +66,6 @@ namespace DoThingsBot.FSM.States {
         void WorldFilter_AcceptTrade(object sender, AcceptTradeEventArgs e) {
             try {
                 //Util.WriteToChat("Got AcceptTrade: " + e.TargetId + " me: " + CoreManager.Current.CharacterFilter.Id);
-                Util.WriteToChat("Got Trade Accept");
 
                 tradeAccepted = true;
             }
@@ -105,7 +104,7 @@ namespace DoThingsBot.FSM.States {
                     tradeItemsAwaitingIdentity.Remove(e.Changed.Id);
 
                     if (itemBundle.AddWorldObject(worldObject)) {
-                        Util.WriteToChat(itemBundle.GetOwner() + " showed me: " + "(" + worldObject.Id + ")" + Util.GetFullLootName(worldObject));
+                        Util.WriteToDebugLog(itemBundle.GetOwner() + " showed me: " + "(" + worldObject.Id + ")" + Util.GetFullLootName(worldObject));
                         //RespondWithItemRemark(worldObject);
                     }
                     else {
