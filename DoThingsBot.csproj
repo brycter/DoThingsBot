@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C2880823-67E7-4B3D-A481-9ADC9847C39C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DoThingsBot</RootNamespace>
+    <AssemblyName>DoThingsBot</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;VVS_REFERENCED</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;VVS_REFERENCED</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;VVS_REFERENCED</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;VVS_REFERENCED</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Decal.Adapter">
+      <HintPath>C:\Program Files (x86)\Decal 3.0\Decal.Adapter.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.11.0.2\lib\net20\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="VirindiViewService">
+      <HintPath>C:\Games\VirindiPlugins\VirindiViewService\VirindiViewService.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Chat\ChatManager.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="DoThingsBot.cs" />
+    <Compile Include="DecalProxy.cs" />
+    <Compile Include="Emote\Emote.cs" />
+    <Compile Include="FSM\Machine.cs" />
+    <Compile Include="FSM\States\BotBuffingState.cs" />
+    <Compile Include="FSM\States\BotBuffing_EnsureBuffedState.cs" />
+    <Compile Include="FSM\States\BotCheckSkillsState.cs" />
+    <Compile Include="FSM\States\BotEquipItemsState.cs" />
+    <Compile Include="FSM\States\BotBuffing_FinishedState.cs" />
+    <Compile Include="FSM\States\BotCheckStolenItemsState.cs" />
+    <Compile Include="FSM\States\BotFinishState.cs" />
+    <Compile Include="FSM\States\BotTrading_ReturnItemsState.cs" />
+    <Compile Include="FSM\States\BotIdleState.cs" />
+    <Compile Include="FSM\States\BotStartState.cs" />
+    <Compile Include="FSM\States\BotSummonPortalState.cs" />
+    <Compile Include="FSM\States\BotTinkeringState.cs" />
+    <Compile Include="FSM\States\BotTinkering_AwaitCommandState.cs" />
+    <Compile Include="FSM\States\BotTinkering_CancelledState.cs" />
+    <Compile Include="FSM\States\BotTinkering_ConfirmedState.cs" />
+    <Compile Include="FSM\States\BotTinkering_FinishedState.cs" />
+    <Compile Include="FSM\States\BotTinkering_TrySuccessState.cs" />
+    <Compile Include="FSM\States\BotTradingState.cs" />
+    <Compile Include="FSM\States\BotTrading_AwaitingItemsState.cs" />
+    <Compile Include="FSM\States\BotTrading_FinishedState.cs" />
+    <Compile Include="FSM\States\BotTrading_OpenTradeState.cs" />
+    <Compile Include="FSM\States\BotTrading_TradeCancelledState.cs" />
+    <Compile Include="Globals.cs" />
+    <Compile Include="Lib\PostMessageTools.cs" />
+    <Compile Include="Lib\User32.cs" />
+    <Compile Include="PlayerData.cs" />
+    <Compile Include="PluginCore.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="FSM\States\IBotState.cs" />
+    <Compile Include="ItemBundle.cs" />
+    <Compile Include="Salvage.cs" />
+    <Compile Include="Spells.cs" />
+    <Compile Include="Trade\TradeManager.cs" />
+    <Compile Include="Util.cs" />
+    <Compile Include="Views\Pages\Announcements.cs" />
+    <Compile Include="Views\Pages\Config.cs" />
+    <Compile Include="Views\Pages\EquipmentBuffing.cs" />
+    <Compile Include="Views\Pages\EquipmentIdle.cs" />
+    <Compile Include="Views\Pages\EquipmentTinkering.cs" />
+    <Compile Include="Views\Pages\LogsGifts.cs" />
+    <Compile Include="Views\Pages\LogsMessages.cs" />
+    <Compile Include="Views\Pages\LostItems.cs" />
+    <Compile Include="Views\Pages\Main.cs" />
+    <Compile Include="Views\MainView.cs" />
+    <Compile Include="Views\Pages\Portals.cs" />
+    <Compile Include="VirindiViews\ViewSystemSelector.cs" />
+    <Compile Include="VirindiViews\Wrapper.cs" />
+    <Compile Include="VirindiViews\Wrapper_Decal.cs" />
+    <Compile Include="VirindiViews\Wrapper_MyHuds.cs" />
+    <Compile Include="VirindiViews\Wrapper_WireupHelper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\mainView.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="Decal">
+      <Guid>{FF7F5F6D-34E0-4B6F-B3BB-8141DE2EF732}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="DecalFilters">
+      <Guid>{DA16DAA9-7F16-45D9-A59F-8C45A7F2ACB1}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="DecalNet">
+      <Guid>{572B87C4-93BD-46B3-A291-CD58181D25DC}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

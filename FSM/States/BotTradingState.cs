@@ -1,0 +1,63 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace DoThingsBot.FSM.States {
+    public class BotTradingState : IBotState {
+        public string Name { get => "BotTradingState"; }
+        public string PlayerName;
+
+        private Machine _machine;
+        private bool IsRunning = false;
+        private ItemBundle itemBundle;
+
+        public BotTradingState(ItemBundle items) {
+            _machine = new Machine();
+            itemBundle = items;
+        }
+
+        public void Enter(Machine machine) {
+            IsRunning = true;
+
+            _machine.SetParentState(this.Name);
+            _machine.ChangeState(new BotTrading_OpenTradeState(itemBundle));
+            _machine.Start();
+        }
+
+        public void Exit(Machine machine) {
+            IsRunning = false;
+            _machine.Stop();
+
+        }
+
+        public void Think(Machine machine) {
+            if (itemBundle.GetCraftMode() == CraftMode.GiveBackItems) {
+                if (_machine.InState("BotTrading_TradeCancelledState") || _machine.InState("BotTrading_FinishedState")) {
+                    itemBundle.SetEquipMode(EquipMode.Idle);
+                    itemBundle.SetCraftMode(CraftMode.None);
+                    machine.ChangeState(new BotEquipItemsState(itemBundle));
+                    return;
+                }
+            }
+            else {
+                if (_machine.InState("BotTrading_TradeCancelledState")) {
+                    itemBundle.SetEquipMode(EquipMode.Idle);
+                    machine.ChangeState(new BotEquipItemsState(itemBundle));
+                    return;
+                }
+                else if (_machine.InState("BotTrading_FinishedState")) {
+                    itemBundle.SetEquipMode(EquipMode.Tinker);
+                    machine.ChangeState(new BotEquipItemsState(itemBundle));
+                    return;
+                }
+            }
+
+            if (IsRunning) _machine.Think();
+            //Util.WriteToChat(String.Format("{0}: Thinking", Name));
+        }
+
+        public ItemBundle GetItemBundle() {
+            return null;
+        }
+    }
+}
