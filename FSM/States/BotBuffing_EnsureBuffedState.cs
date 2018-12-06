@@ -12,6 +12,7 @@ namespace DoThingsBot.FSM.States {
         public Dictionary<string, DateTime> EnchantmentExpireTimes = new Dictionary<string, DateTime>();
         private ItemBundle itemBundle;
         private bool doneCasting = false;
+        
 
         public BotBuffing_EnsureBuffedState(ItemBundle items) {
             try {
@@ -69,6 +70,8 @@ namespace DoThingsBot.FSM.States {
                     // cast next needed buff
                     if (Spells.DoesAnySpellNeedRefresh(WantedEnchantments, DoThingsBot.ConfigurationManager().GetBuffRefreshTime())) {
                         nextSpellId = Spells.GetNextSpellIdToRefresh(WantedEnchantments, DoThingsBot.ConfigurationManager().GetBuffRefreshTime());
+
+
                         Util.WriteToChat("Trying to cast: " + nextSpellId + " : " + Spells.GetNameFromId(nextSpellId));
                         CoreManager.Current.Actions.CastSpell(nextSpellId, CoreManager.Current.CharacterFilter.Id);
 

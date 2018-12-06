@@ -3645,30 +3645,6 @@ new Spell() { id = 3151, name = "Liazk Itzi's Offering Room", spellClass=SpellCl
 new Spell() { id = 3152, name = "Inferior Scythe Aegis", spellClass=SpellClass.BLADE_PROTECTION, selfCast=false, skillRequired=245 },
 new Spell() { id = 3153, name = "Lesser Scythe Aegis", spellClass=SpellClass.BLADE_PROTECTION, selfCast=false, skillRequired=195 },
 new Spell() { id = 3154, name = "Scythe Aegis", spellClass=SpellClass.BLADE_PROTECTION, selfCast=false, skillRequired=295 },
-new Spell() { id = 3155, name = "Lesser Alacrity of the Conclave", spellClass=SpellClass.COORDINATION, selfCast=true, skillRequired=175 },
-new Spell() { id = 3156, name = "Alacrity of the Conclave", spellClass=SpellClass.COORDINATION, selfCast=true, skillRequired=225 },
-new Spell() { id = 3157, name = "Greater Alacrity of the Conclave", spellClass=SpellClass.COORDINATION, selfCast=true, skillRequired=275 },
-new Spell() { id = 3158, name = "Superior Alacrity of the Conclave", spellClass=SpellClass.COORDINATION, selfCast=true, skillRequired=325 },
-new Spell() { id = 3159, name = "Lesser Vivify the Conclave", spellClass=SpellClass.ENDURANCE, selfCast=true, skillRequired=175 },
-new Spell() { id = 3160, name = "Vivify the Conclave", spellClass=SpellClass.ENDURANCE, selfCast=true, skillRequired=225 },
-new Spell() { id = 3161, name = "Greater Vivify the Conclave", spellClass=SpellClass.ENDURANCE, selfCast=true, skillRequired=275 },
-new Spell() { id = 3162, name = "Superior Vivify the Conclave", spellClass=SpellClass.ENDURANCE, selfCast=true, skillRequired=325 },
-new Spell() { id = 3163, name = "Lesser Acumen of the Conclave", spellClass=SpellClass.FOCUS, selfCast=true, skillRequired=175 },
-new Spell() { id = 3164, name = "Acumen of the Conclave", spellClass=SpellClass.FOCUS, selfCast=true, skillRequired=225 },
-new Spell() { id = 3165, name = "Greater Acumen of the Conclave", spellClass=SpellClass.FOCUS, selfCast=true, skillRequired=275 },
-new Spell() { id = 3166, name = "Superior Acumen of the Conclave", spellClass=SpellClass.FOCUS, selfCast=true, skillRequired=325 },
-new Spell() { id = 3167, name = "Lesser Speed the Conclave", spellClass=SpellClass.QUICKNESS, selfCast=true, skillRequired=175 },
-new Spell() { id = 3168, name = "Speed the Conclave", spellClass=SpellClass.QUICKNESS, selfCast=true, skillRequired=225 },
-new Spell() { id = 3169, name = "Greater Speed the Conclave", spellClass=SpellClass.QUICKNESS, selfCast=true, skillRequired=275 },
-new Spell() { id = 3170, name = "Superior Speed the Conclave", spellClass=SpellClass.QUICKNESS, selfCast=true, skillRequired=325 },
-new Spell() { id = 3171, name = "Lesser Volition of the Conclave", spellClass=SpellClass.WILLPOWER, selfCast=true, skillRequired=175 },
-new Spell() { id = 3172, name = "Volition of the Conclave", spellClass=SpellClass.WILLPOWER, selfCast=true, skillRequired=225 },
-new Spell() { id = 3173, name = "Greater Volition of the Conclave", spellClass=SpellClass.WILLPOWER, selfCast=true, skillRequired=275 },
-new Spell() { id = 3174, name = "Superior Volition of the Conclave", spellClass=SpellClass.WILLPOWER, selfCast=true, skillRequired=325 },
-new Spell() { id = 3175, name = "Lesser Empowering the Conclave", spellClass=SpellClass.STRENGTH, selfCast=true, skillRequired=175 },
-new Spell() { id = 3176, name = "Empowering the Conclave", spellClass=SpellClass.STRENGTH, selfCast=true, skillRequired=225 },
-new Spell() { id = 3177, name = "Greater Empowering the Conclave", spellClass=SpellClass.STRENGTH, selfCast=true, skillRequired=275 },
-new Spell() { id = 3178, name = "Superior Empowering the Conclave", spellClass=SpellClass.STRENGTH, selfCast=true, skillRequired=325 },
 new Spell() { id = 3179, name = "Eradicate All Magic Other", spellClass=SpellClass.EVAPORATE_ALL_MAGIC_OTHER, selfCast=false, skillRequired=350 },
 new Spell() { id = 3180, name = "Eradicate All Magic Self", spellClass=SpellClass.EVAPORATE_ALL_MAGIC_OTHER, selfCast=true, skillRequired=350 },
 new Spell() { id = 3181, name = "Nullify All Magic Other", spellClass=SpellClass.EVAPORATE_ALL_MAGIC_OTHER, selfCast=false, skillRequired=300 },
@@ -6835,28 +6811,33 @@ new Spell() { id = 6322, name = "Viridian Rise Great Tree Recall", spellClass=Sp
         }
 
         public static bool DoesSpellNeedRefresh(string spellName, int minutesToTopOff) {
-            int spellId = GetIdFromName(spellName);
-            var enchantments = CoreManager.Current.CharacterFilter.Enchantments;
+            try {
+                int spellId = GetIdFromName(spellName);
+                var enchantments = CoreManager.Current.CharacterFilter.Enchantments;
 
 
-            if (!CoreManager.Current.CharacterFilter.SpellBook.Contains(spellId)) {
-                Util.WriteToChat("I don't know this spell: " + spellName);
-                return false;
-            }
-
-            foreach (var enchantment in enchantments) {
-                string enchantmentName = Spells.GetNameFromId(enchantment.SpellId);
-
-                if (enchantmentName == spellName) {
-                    if (enchantment.Expires - DateTime.Now < TimeSpan.FromMinutes(minutesToTopOff)) {
-                        return true;
-                    }
-
+                if (!CoreManager.Current.CharacterFilter.SpellBook.Contains(spellId)) {
+                    Util.WriteToChat(String.Format("I don't know this spell: {0} ({1})", spellName, spellId));
                     return false;
                 }
-            }
 
-            return true;
+                foreach (var enchantment in enchantments) {
+                    string enchantmentName = Spells.GetNameFromId(enchantment.SpellId);
+
+                    if (enchantmentName == spellName) {
+                        if (enchantment.Expires - DateTime.Now < TimeSpan.FromMinutes(minutesToTopOff)) {
+                            return true;
+                        }
+
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception e) { Util.LogException(e); }
+
+            return false;
         }
 
         public static Spell GetBestKnownSpellByClass(SpellClass spellClass) {
@@ -6873,6 +6854,7 @@ new Spell() { id = 6322, name = "Viridian Rise Great Tree Recall", spellClass=Sp
                 if (bestSpell.skillRequired < spell.skillRequired
                     && CoreManager.Current.CharacterFilter.EffectiveSkill[Decal.Adapter.Wrappers.CharFilterSkillType.CreatureEnchantment] >= spell.skillRequired
                     && CoreManager.Current.CharacterFilter.SpellBook.Contains(spell.id)) {
+
                      bestSpell = spell;
                 }
             }

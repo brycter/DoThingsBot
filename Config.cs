@@ -218,6 +218,8 @@ namespace DoThingsBot {
                     _instance = new Config();
                 }
 
+                //CREATURE_ENCHANTMENT_MASTERY, FOCUS, WILLPOWER, STRENGTH, COORDINATION, ENDURANCE, WEAPON_TINKERING_EXPERTISE, ITEM_TINKERING_EXPERTISE, MAGIC_ITEM_TINKERING_EXPERTISE, ARMOR_TINKERING_EXPERTISE
+
                 _instance.WantedTinkerEnchantments.Add(Spells.SpellClass.CREATURE_ENCHANTMENT_MASTERY);
                 _instance.WantedTinkerEnchantments.Add(Spells.SpellClass.FOCUS);
                 _instance.WantedTinkerEnchantments.Add(Spells.SpellClass.WILLPOWER);
@@ -228,6 +230,7 @@ namespace DoThingsBot {
                 _instance.WantedTinkerEnchantments.Add(Spells.SpellClass.ITEM_TINKERING_EXPERTISE);
                 _instance.WantedTinkerEnchantments.Add(Spells.SpellClass.MAGIC_ITEM_TINKERING_EXPERTISE);
                 _instance.WantedTinkerEnchantments.Add(Spells.SpellClass.ARMOR_TINKERING_EXPERTISE);
+
 
                 _instance.IsLoaded = true;
 
