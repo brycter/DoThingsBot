@@ -18,15 +18,15 @@ namespace DoThingsBot.FSM.States {
         public void Enter(Machine machine) {
 
             if (itemBundle.GetCraftMode() == CraftMode.PrimaryPortal) {
-                CoreManager.Current.Actions.FaceHeading(DoThingsBot.ConfigurationManager().GetPrimaryPortalHeading(), true);
-                ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", DoThingsBot.ConfigurationManager().GetPrimaryPortalLocation()));
-                ChatManager.Say(String.Format("I am summoning a portal to {0}.", DoThingsBot.ConfigurationManager().GetPrimaryPortalLocation()));
+                CoreManager.Current.Actions.FaceHeading(DoThingsBot.ConfigurationManager().PrimaryPortalHeading, true);
+                ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", DoThingsBot.ConfigurationManager().PrimaryPortalLocation));
+                ChatManager.Say(String.Format("I am summoning a portal to {0}.", DoThingsBot.ConfigurationManager().PrimaryPortalLocation));
 
             }
             else {
-                CoreManager.Current.Actions.FaceHeading(DoThingsBot.ConfigurationManager().GetSecondaryPortalHeading(), true);
-                ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", DoThingsBot.ConfigurationManager().GetSecondaryPortalLocation()));
-                ChatManager.Say(String.Format("I am summoning a portal to {0}.", DoThingsBot.ConfigurationManager().GetSecondaryPortalLocation()));
+                CoreManager.Current.Actions.FaceHeading(DoThingsBot.ConfigurationManager().SecondaryPortalHeading, true);
+                ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", DoThingsBot.ConfigurationManager().SecondaryPortalLocation));
+                ChatManager.Say(String.Format("I am summoning a portal to {0}.", DoThingsBot.ConfigurationManager().SecondaryPortalLocation));
             }
             
             WorldObject player = Util.FindPlayerWorldObjectByName(itemBundle.GetOwner());
@@ -77,7 +77,7 @@ namespace DoThingsBot.FSM.States {
         public void Exit(Machine machine) {
             //Util.WriteToChat("Exited Idle State.");
 
-            CoreManager.Current.Actions.FaceHeading(DoThingsBot.ConfigurationManager().GetDefaultHeading(), true);
+            CoreManager.Current.Actions.FaceHeading(DoThingsBot.ConfigurationManager().DefaultHeading, true);
         }
 
         private DateTime lastThought = DateTime.UtcNow;

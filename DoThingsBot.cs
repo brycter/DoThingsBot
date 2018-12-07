@@ -54,7 +54,7 @@ namespace DoThingsBot {
         public void Start() {
             Util.WriteToChat("DoThingsBot Started");
 
-            CoreManager.Current.Actions.FaceHeading(ConfigurationManager().GetDefaultHeading(), true);
+            CoreManager.Current.Actions.FaceHeading(ConfigurationManager().DefaultHeading, true);
 
             isRunning = true;
             _machine.Start();
@@ -169,8 +169,8 @@ namespace DoThingsBot {
                     }
 
                     ChatManager.Tell(e.PlayerName, String.Format("I am currently tied to {0} and {1}. '/t {2}, primary' for {0}. '/t {2}, secondary' for {1}",
-                        DoThingsBot.ConfigurationManager().GetPrimaryPortalLocation(),
-                        DoThingsBot.ConfigurationManager().GetSecondaryPortalLocation(),
+                        DoThingsBot.ConfigurationManager().PrimaryPortalLocation,
+                        DoThingsBot.ConfigurationManager().SecondaryPortalLocation,
                         CoreManager.Current.CharacterFilter.Name));
                     break;
 

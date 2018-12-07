@@ -33,8 +33,9 @@ namespace DoThingsBot {
                 try {
                     if (value != _botEnabled) {
                         _botEnabled = value;
-                        Util.WriteToChat(String.Format("Config.BotEnabled = {0}", BotEnabled ? "true" : "false"));
                         if (IsLoaded) {
+                            Util.WriteToChat(String.Format("Config.BotEnabled = {0}", BotEnabled ? "true" : "false"));
+                            
                             BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                             Save();
                         }
@@ -51,8 +52,9 @@ namespace DoThingsBot {
                 try {
                     if (value != _defaultHeading) {
                         _defaultHeading = value;
-                        Util.WriteToChat(String.Format("Config.DefaultHeading = {0}", DefaultHeading));
                         if (IsLoaded) {
+                            Util.WriteToChat(String.Format("Config.DefaultHeading = {0}", DefaultHeading));
+                            
                             BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                             Save();
                         }
@@ -69,8 +71,9 @@ namespace DoThingsBot {
                 try {
                     if (value != _keepTinkerEquipmentWhileIdleDelay) {
                         _keepTinkerEquipmentWhileIdleDelay = value;
-                        Util.WriteToChat(String.Format("Config.KeepTinkerEquipmentWhileIdleDelay = {0}", KeepTinkerEquipmentWhileIdleDelay));
                         if (IsLoaded) {
+                            Util.WriteToChat(String.Format("Config.KeepTinkerEquipmentWhileIdleDelay = {0}", KeepTinkerEquipmentWhileIdleDelay));
+                            
                             BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                             Save();
                         }
@@ -87,8 +90,9 @@ namespace DoThingsBot {
                 try {
                     if (value != _respondToUnknownCommands) {
                         _respondToUnknownCommands = value;
-                        Util.WriteToChat(String.Format("Config.RespondToUnknownCommands = {0}", RespondToUnknownCommands ? "true" : "false"));
                         if (IsLoaded) {
+                            Util.WriteToChat(String.Format("Config.RespondToUnknownCommands = {0}", RespondToUnknownCommands ? "true" : "false"));
+                            
                             BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                             Save();
                         }
@@ -106,8 +110,9 @@ namespace DoThingsBot {
                 try {
                     if (value != _dontResendDuplicateMessagesWindow) {
                         _dontResendDuplicateMessagesWindow = value;
-                        Util.WriteToChat(String.Format("Config.DontResendDuplicateMessagesWindow = {0}", DontResendDuplicateMessagesWindow));
                         if (IsLoaded) {
+                            Util.WriteToChat(String.Format("Config.DontResendDuplicateMessagesWindow = {0}", DontResendDuplicateMessagesWindow));
+
                             BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                             Save();
                         }
@@ -124,8 +129,9 @@ namespace DoThingsBot {
                 try {
                     if (value != _botPortalsEnabled) {
                         _botPortalsEnabled = value;
-                        Util.WriteToChat(String.Format("Config.BotPortalsEnabled = {0}", BotPortalsEnabled ? "true" : "false"));
                         if (IsLoaded) {
+                            Util.WriteToChat(String.Format("Config.BotPortalsEnabled = {0}", BotPortalsEnabled ? "true" : "false"));
+
                             BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                             Save();
                         }
@@ -142,8 +148,9 @@ namespace DoThingsBot {
                 try {
                     if (value != _primaryPortalLocation) {
                         _primaryPortalLocation = value;
-                        Util.WriteToChat(String.Format("Config.PrimaryPortalLocation = {0}", PrimaryPortalLocation));
                         if (IsLoaded) {
+                            Util.WriteToChat(String.Format("Config.PrimaryPortalLocation = {0}", PrimaryPortalLocation));
+
                             BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                             Save();
                         }
@@ -160,8 +167,9 @@ namespace DoThingsBot {
                 try {
                     if (value != _primaryPortalHeading) {
                         _primaryPortalHeading = value;
-                        Util.WriteToChat(String.Format("Config.PrimaryPortalHeading = {0}", PrimaryPortalHeading));
                         if (IsLoaded) {
+                            Util.WriteToChat(String.Format("Config.PrimaryPortalHeading = {0}", PrimaryPortalHeading));
+
                             BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                             Save();
                         }
@@ -178,8 +186,9 @@ namespace DoThingsBot {
                 try {
                     if (value != _secondaryPortalLocation) {
                         _secondaryPortalLocation = value;
-                        Util.WriteToChat(String.Format("Config.SecondaryPortalLocation = {0}", SecondaryPortalLocation));
                         if (IsLoaded) {
+                            Util.WriteToChat(String.Format("Config.SecondaryPortalLocation = {0}", SecondaryPortalLocation));
+
                             BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                             Save();
                         }
@@ -196,8 +205,9 @@ namespace DoThingsBot {
                 try {
                     if (value != _secondaryPortalHeading) {
                         _secondaryPortalHeading = value;
-                        Util.WriteToChat(String.Format("Config.SecondaryPortalHeading = {0}", SecondaryPortalHeading));
                         if (IsLoaded) {
+                            Util.WriteToChat(String.Format("Config.SecondaryPortalHeading = {0}", SecondaryPortalHeading));
+
                             BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                             Save();
                         }
@@ -214,8 +224,9 @@ namespace DoThingsBot {
                 try {
                     if (value != _announcementsAnnounceInterval) {
                         _announcementsAnnounceInterval = value;
-                        Util.WriteToChat(String.Format("Config.AnnouncementsAnnounceInterval = {0}", AnnouncementsAnnounceInterval));
                         if (IsLoaded) {
+                            Util.WriteToChat(String.Format("Config.AnnouncementsAnnounceInterval = {0}", AnnouncementsAnnounceInterval));
+
                             BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                             Save();
                         }
@@ -328,11 +339,11 @@ namespace DoThingsBot {
             try {
                 if (wo != null) {
                     if (!IdleEquipment.Contains(wo.Id)) {
-                        Util.WriteToChat(String.Format("Config.IdleEquipment += {0}", Util.GetGameItemDisplayName(wo)));
-
                         IdleEquipment.Add(wo.Id);
 
                         if (IsLoaded) {
+                            Util.WriteToChat(String.Format("Config.IdleEquipment += {0}", Util.GetGameItemDisplayName(wo)));
+
                             BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                             Save();
                         }
@@ -353,15 +364,15 @@ namespace DoThingsBot {
                 if (wo != null) {
                     itemName = Util.GetGameItemDisplayName(wo);
                 }
-
-                Util.WriteToChat(String.Format("Config.IdleEquipment -= {0}", itemName));
                 
-                    IdleEquipment.RemoveAt(index);
+                IdleEquipment.RemoveAt(index);
 
-                    if (IsLoaded) {
-                        BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                        Save();
-                    }
+                if (IsLoaded) {
+                    Util.WriteToChat(String.Format("Config.IdleEquipment -= {0}", itemName));
+
+                    BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
+                    Save();
+                }
             }
             catch (Exception ex) { Util.LogException(ex); }
         }
@@ -370,11 +381,11 @@ namespace DoThingsBot {
             try {
                 if (wo != null) {
                     if (!BuffEquipment.Contains(wo.Id)) {
-                        Util.WriteToChat(String.Format("Config.BuffingEquipment += {0}", Util.GetGameItemDisplayName(wo)));
-
                         BuffEquipment.Add(wo.Id);
 
                         if (IsLoaded) {
+                            Util.WriteToChat(String.Format("Config.BuffingEquipment += {0}", Util.GetGameItemDisplayName(wo)));
+
                             BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                             Save();
                         }
@@ -396,11 +407,11 @@ namespace DoThingsBot {
                     itemName = Util.GetGameItemDisplayName(wo);
                 }
 
-                Util.WriteToChat(String.Format("Config.BuffEquipment -= {0}", itemName));
-
                 BuffEquipment.RemoveAt(index);
 
                 if (IsLoaded) {
+                    Util.WriteToChat(String.Format("Config.BuffEquipment -= {0}", itemName));
+
                     BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                     Save();
                 }
@@ -412,11 +423,11 @@ namespace DoThingsBot {
             try {
                 if (wo != null) {
                     if (!TinkerEquipment.Contains(wo.Id)) {
-                        Util.WriteToChat(String.Format("Config.TinkerEquipment += {0}", Util.GetGameItemDisplayName(wo)));
-
                         TinkerEquipment.Add(wo.Id);
 
                         if (IsLoaded) {
+                            Util.WriteToChat(String.Format("Config.TinkerEquipment += {0}", Util.GetGameItemDisplayName(wo)));
+
                             BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                             Save();
                         }
@@ -438,11 +449,11 @@ namespace DoThingsBot {
                     itemName = Util.GetGameItemDisplayName(wo);
                 }
 
-                Util.WriteToChat(String.Format("Config.TinkerEquipment -= {0}", itemName));
-
                 TinkerEquipment.RemoveAt(index);
 
                 if (IsLoaded) {
+                    Util.WriteToChat(String.Format("Config.TinkerEquipment -= {0}", itemName));
+
                     BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                     Save();
                 }
@@ -453,11 +464,11 @@ namespace DoThingsBot {
         public void AddAnnouncementsMessage(string message) {
             try {
                 if (message != null && message.Length > 0) {
-                    Util.WriteToChat(String.Format("Config.AnnouncementsMessages += {0}", message));
-
                     AnnouncementsMessages.Add(message);
 
                     if (IsLoaded) {
+                        Util.WriteToChat(String.Format("Config.AnnouncementsMessages += {0}", message));
+
                         BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                         Save();
                     }
@@ -469,12 +480,12 @@ namespace DoThingsBot {
         public void RemoveAnnouncementsMessageAt(int index) {
             try {
                 if (index >= AnnouncementsMessages.Count) return;
-
-                Util.WriteToChat(String.Format("Config.AnnouncementsMessages -= {0}", AnnouncementsMessages[index]));
                     
                 AnnouncementsMessages.RemoveAt(index);
 
                 if (IsLoaded) {
+                    Util.WriteToChat(String.Format("Config.AnnouncementsMessages -= {0}", AnnouncementsMessages[index]));
+
                     BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                     Save();
                 }
@@ -484,26 +495,6 @@ namespace DoThingsBot {
 
         public int GetBuffRefreshTime() {
             return 5; // minutes
-        }
-
-        public int GetDefaultHeading() {
-            return DefaultHeading;
-        }
-
-        public int GetPrimaryPortalHeading() {
-            return PrimaryPortalHeading;
-        }
-
-        public int GetSecondaryPortalHeading() {
-            return SecondaryPortalHeading;
-        }
-
-        public string GetPrimaryPortalLocation() {
-            return PrimaryPortalLocation;
-        }
-
-        public string GetSecondaryPortalLocation() {
-            return SecondaryPortalLocation;
         }
 
         public List<string> GetWantedIdleEnchantments() {
