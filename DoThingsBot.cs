@@ -300,7 +300,7 @@ namespace DoThingsBot {
 
         void PrintAboutMessage(string playerName, string arguments) {
             //  - Download the software yourself at https://gitlab.com/trevis/dothingsbot
-            ChatManager.Tell(playerName, String.Format("I'm a Tinker Bot running DoThingsBot v{0}. Available commands: tinker, lostitems, whereto, message, about.  Tell me \"<command>\" or \"help <command>\" to get started.", Util.GetVersion()));
+            ChatManager.Tell(playerName, String.Format("I'm a Tinker Bot running DoThingsBot v{0} (beta). Available commands: tinker, lostitems, whereto, message, about.  Tell me \"<command>\" or \"help <command>\" to get started.", Util.GetVersion()));
         }
 
         void RemoveFromQueue(string playerName) {
