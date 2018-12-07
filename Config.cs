@@ -80,6 +80,25 @@ namespace DoThingsBot {
             }
         }
 
+        // dont resend the same chat message if it falls within this timespan window (seconds)
+        private int _dontResendDuplicateMessagesWindow = 3;
+        public int DontResendDuplicateMessagesWindow {
+            get { return _dontResendDuplicateMessagesWindow; }
+            set {
+                try {
+                    if (value != _dontResendDuplicateMessagesWindow) {
+                        _dontResendDuplicateMessagesWindow = value;
+                        Util.WriteToChat(String.Format("Config.DontResendDuplicateMessagesWindow = {0}", DontResendDuplicateMessagesWindow));
+                        if (IsLoaded) {
+                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
+                            Save();
+                        }
+                    };
+                }
+                catch (Exception ex) { Util.LogException(ex); }
+            }
+        }
+
         private bool _botPortalsEnabled = false;
         public bool BotPortalsEnabled {
             get { return _botPortalsEnabled; }

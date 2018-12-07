@@ -53,7 +53,7 @@ namespace DoThingsBot.Chat {
         public const int ChatCommandDelay = 500;
         
         private static Queue<string> commandQueue;
-        static DateTime lastChatCommand = DateTime.MinValue;
+        static DateTime lastChatCommandSentAt = DateTime.MinValue;
         static DateTime lastAnnouncementTime = DateTime.MinValue;
 
         public static event EventHandler<ChatCommandEventArgs> RaiseChatCommandEvent;
@@ -122,13 +122,11 @@ namespace DoThingsBot.Chat {
         }
 
         public static void Tell(string playerName, string message) {
-            AddToChatBox(String.Format("/tell {0}, {1}", playerName, message));
-            Util.WriteToDebugLog(String.Format("You tell {0}, \"{1}\"", playerName, message));
+            commandQueue.Enqueue(String.Format("/tell {0}, {1}", playerName, message));
         }
 
         public static void Say(string message) {
-            AddToChatBox(String.Format("/say {0}", message));
-            Util.WriteToDebugLog(String.Format("You say \"{0}\"", message));
+            commandQueue.Enqueue(String.Format("/say {0}", message));
         }
 
         public static void AddToChatBox(string command) {
@@ -139,8 +137,15 @@ namespace DoThingsBot.Chat {
         public static DateTime firstThought = DateTime.UtcNow;
 
         private static readonly Regex PublicChatMessageRegex = new Regex("^([\\/@](cg|ct|s|a|e) |:|^(?![:\\/@\\*])).*$");
+        private static readonly Regex PrivateChatMessageRegex = new Regex("^([\\/@](tell|reply|rt|r|t) ).*$");
+
+        private static string lastMessage = "";
 
         public static void Think() {
+            if (DateTime.UtcNow - lastChatCommandSentAt > TimeSpan.FromSeconds(DoThingsBot.ConfigurationManager().DontResendDuplicateMessagesWindow)) {
+                lastMessage = "";
+            }
+
             if (DateTime.UtcNow - lastAnnouncementTime > TimeSpan.FromMinutes(DoThingsBot.ConfigurationManager().AnnouncementsAnnounceInterval) && DoThingsBot.ConfigurationManager().BotEnabled == true) {
                 if (DateTime.UtcNow - firstThought < TimeSpan.FromSeconds(5)) return;
 
@@ -155,17 +160,28 @@ namespace DoThingsBot.Chat {
                     if (!message.StartsWith("*") && PublicChatMessageRegex.IsMatch(message.ToLower())) {
                         message = String.Format("{0} -b-", announcements[r]);
                     }
-
                     AddToChatBox(message);
-                    Util.WriteToChat(message);
                 }
             }
 
-            if (DateTime.UtcNow - lastChatCommand > TimeSpan.FromMilliseconds(ChatCommandDelay)) {
+            if (DateTime.UtcNow - lastChatCommandSentAt > TimeSpan.FromMilliseconds(ChatCommandDelay)) {
                 if (commandQueue.Count > 0) {
-                    lastChatCommand = DateTime.UtcNow;
+                    var command = commandQueue.Dequeue();
 
-                    DecalProxy.DispatchChatToBoxWithPluginIntercept(commandQueue.Dequeue());
+                    lastChatCommandSentAt = DateTime.UtcNow;
+
+                    Util.WriteToChat(String.Format("dequeue command: {0}", command));
+
+                    if (lastMessage != command
+                        && (PublicChatMessageRegex.IsMatch(command.ToLower()) || PrivateChatMessageRegex.IsMatch(command.ToLower()))) {
+
+                        lastMessage = command;
+
+                        DecalProxy.DispatchChatToBoxWithPluginIntercept(command);
+                    }
+                    else {
+                        Util.WriteToChat("Skipping command because it's a dupe: " + command);
+                    }
                 }
             }
         }
