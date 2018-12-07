@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using Decal.Adapter;
 using Decal.Adapter.Wrappers;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace DoThingsBot.Chat {
     public class ChatCommandEventArgs : EventArgs {
@@ -131,10 +132,13 @@ namespace DoThingsBot.Chat {
         }
 
         public static void AddToChatBox(string command) {
+            Util.WriteToDebugLog(String.Format("Add to chatbox: {0}", command));
             commandQueue.Enqueue(command);
         }
 
         public static DateTime firstThought = DateTime.UtcNow;
+
+        private static readonly Regex PublicChatMessageRegex = new Regex("^([\\/@](cg|ct|s|a|e) |:|^(?![:\\/@\\*])).*$");
 
         public static void Think() {
             if (DateTime.UtcNow - lastAnnouncementTime > TimeSpan.FromMinutes(DoThingsBot.ConfigurationManager().AnnouncementsAnnounceInterval) && DoThingsBot.ConfigurationManager().BotEnabled == true) {
@@ -148,9 +152,8 @@ namespace DoThingsBot.Chat {
                     int r = rnd.Next(announcements.Count);
                     string message = announcements[r];
 
-                    if (!(message.StartsWith("*") || message.StartsWith("/") || message.StartsWith("@"))) {
+                    if (!message.StartsWith("*") && PublicChatMessageRegex.IsMatch(message.ToLower())) {
                         message = String.Format("{0} -b-", announcements[r]);
-
                     }
 
                     AddToChatBox(message);
