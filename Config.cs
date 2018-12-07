@@ -62,6 +62,24 @@ namespace DoThingsBot {
             }
         }
 
+        private bool _respondToUnknownCommands = false;
+        public bool RespondToUnknownCommands {
+            get { return _respondToUnknownCommands; }
+            set {
+                try {
+                    if (value != _respondToUnknownCommands) {
+                        _respondToUnknownCommands = value;
+                        Util.WriteToChat(String.Format("Config.RespondToUnknownCommands = {0}", RespondToUnknownCommands ? "true" : "false"));
+                        if (IsLoaded) {
+                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
+                            Save();
+                        }
+                    };
+                }
+                catch (Exception ex) { Util.LogException(ex); }
+            }
+        }
+
         private bool _botPortalsEnabled = false;
         public bool BotPortalsEnabled {
             get { return _botPortalsEnabled; }

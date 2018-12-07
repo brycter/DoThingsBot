@@ -127,6 +127,9 @@
       <control progid="DecalControls.FixedLayout" clipped="">
         <control progid="DecalControls.StaticText" name="UIDefaultHeadingLabel" left="1" top="5" width="280" height="20" text="Default Heading (0=N, 90=E, 180=S, 270=W):"/>
         <control progid="DecalControls.Edit" name="UIDefaultHeading" left="290" top="5" width="50" height="20" text="0" />
+        
+        <control progid="DecalControls.StaticText" name="UIRespondToUnknownCommandsLabel" left="1" top="30" width="280" height="20" text="Respond to unknown commands:"/>
+        <control progid="DecalControls.Checkbox" name="UIRespondToUnknownCommands" left="290" top="30" width="50" height="20" text=""/>
       </control>
     </page>
   </control>

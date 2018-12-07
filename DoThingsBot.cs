@@ -247,7 +247,16 @@ namespace DoThingsBot {
                     }
                     break;
 
+                case "go":
+                    break;
+
+                case "cancel":
+                    break;
+
                 default:
+                    if (DoThingsBot.ConfigurationManager().RespondToUnknownCommands == true) {
+                        ChatManager.Tell(e.PlayerName, "Sorry, I'm a bot and do not understand that command.  Please tell me \"help\" for a list of available commands.");
+                    }
                     break;
             }
         }
