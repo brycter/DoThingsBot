@@ -6,11 +6,17 @@ using System.Text;
 namespace DoThingsBot.FSM.States {
     public class BotIdleState : IBotState {
         public string Name { get => "BotIdleState"; }
+        private DateTime firstThought = DateTime.UtcNow;
         private DateTime lastThought = DateTime.MinValue;
         private DateTime lastBuffCheck = DateTime.MinValue;
+        private bool needsToEquip = false;
 
         public void Enter(Machine machine) {
             //Util.WriteToChat("Entered Idle State.");
+
+            if (DoThingsBot.ConfigurationManager().KeepTinkerEquipmentWhileIdleDelay > 0) {
+                needsToEquip = true;
+            }
         }
 
         public void Exit(Machine machine) {
@@ -18,6 +24,17 @@ namespace DoThingsBot.FSM.States {
         }
 
         public void Think(Machine machine) {
+            if (needsToEquip && DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(DoThingsBot.ConfigurationManager().KeepTinkerEquipmentWhileIdleDelay)) {
+                needsToEquip = false;
+
+                ItemBundle itemBundle = new ItemBundle();
+                itemBundle.SetCraftMode(CraftMode.None);
+                itemBundle.SetEquipMode(EquipMode.Idle);
+
+                machine.ChangeState(new BotEquipItemsState(itemBundle));
+                return;
+            }
+
             if (DateTime.UtcNow - lastThought > TimeSpan.FromSeconds(5)) {
                 lastThought = DateTime.UtcNow;
                 

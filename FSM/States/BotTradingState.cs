@@ -38,25 +38,21 @@ namespace DoThingsBot.FSM.States {
             if (DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(180)) {
                 if (!didFail) {
                     didFail = true;
-                    ChatManager.Tell(itemBundle.GetOwner(), "The trade request timed out, probably because something went wrong.");
-                    itemBundle.SetEquipMode(EquipMode.Idle);
-                    machine.ChangeState(new BotEquipItemsState(itemBundle));
+                    ChatManager.Tell(itemBundle.GetOwner(), "The trade request timed out, probably because something went wrong.  Tell me 'lostitems' if you think I have something of yours.");
+                    machine.ChangeState(new BotFinishState(itemBundle));
                 }
                 return;
             }
 
             if (itemBundle.GetCraftMode() == CraftMode.GiveBackItems) {
                 if (_machine.InState("BotTrading_TradeCancelledState") || _machine.InState("BotTrading_FinishedState")) {
-                    itemBundle.SetEquipMode(EquipMode.Idle);
-                    itemBundle.SetCraftMode(CraftMode.None);
-                    machine.ChangeState(new BotEquipItemsState(itemBundle));
+                    machine.ChangeState(new BotFinishState(itemBundle));
                     return;
                 }
             }
             else {
                 if (_machine.InState("BotTrading_TradeCancelledState")) {
-                    itemBundle.SetEquipMode(EquipMode.Idle);
-                    machine.ChangeState(new BotEquipItemsState(itemBundle));
+                    machine.ChangeState(new BotFinishState(itemBundle));
                     return;
                 }
                 else if (_machine.InState("BotTrading_FinishedState")) {

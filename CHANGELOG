@@ -1,10 +1,12 @@
 CHANGELOG
 
 0.1.1.0
+	- FEATURE: Add option keep keep tinkering equipment equipped for x seconds while idle, so consecutive tinks are faster (default 30s).
 	- FEATURE: Added option in main config tab to respond to unknown messages
-	- FEATURE: Don't send duplicate sent messages within time window (time window configurable in config file only currently, DontResendDuplicateMessagesWindow, default 2s).
+	- FEATURE: Don't send duplicate messages within time window (time window configurable in config file only currently, DontResendDuplicateMessagesWindow, default 2s).
 	- FIX: Force add -b- to all bot chat/emote spam
 	- FIX: Add seconds to timestamp in debuglog.txt
+	- FIX: Speed up item equip/dequip cycle
 
 0.1.0.0
 	- Initial Release

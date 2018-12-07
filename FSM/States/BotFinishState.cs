@@ -21,8 +21,13 @@ namespace DoThingsBot.FSM.States {
         }
 
         public void Enter(Machine machine) {
-            itemBundle.SetEquipMode(EquipMode.Idle);
-            machine.ChangeState(new BotEquipItemsState(GetItemBundle()));
+            if (DoThingsBot.ConfigurationManager().KeepTinkerEquipmentWhileIdleDelay > 0) {
+                machine.ChangeState(new BotIdleState());
+            }
+            else {
+                itemBundle.SetEquipMode(EquipMode.Idle);
+                machine.ChangeState(new BotEquipItemsState(GetItemBundle()));
+            }
         }
 
         public void Exit(Machine machine) {

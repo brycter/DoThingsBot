@@ -62,6 +62,24 @@ namespace DoThingsBot {
             }
         }
 
+        private int _keepTinkerEquipmentWhileIdleDelay = 60;
+        public int KeepTinkerEquipmentWhileIdleDelay {
+            get { return _keepTinkerEquipmentWhileIdleDelay; }
+            set {
+                try {
+                    if (value != _keepTinkerEquipmentWhileIdleDelay) {
+                        _keepTinkerEquipmentWhileIdleDelay = value;
+                        Util.WriteToChat(String.Format("Config.KeepTinkerEquipmentWhileIdleDelay = {0}", KeepTinkerEquipmentWhileIdleDelay));
+                        if (IsLoaded) {
+                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
+                            Save();
+                        }
+                    };
+                }
+                catch (Exception ex) { Util.LogException(ex); }
+            }
+        }
+
         private bool _respondToUnknownCommands = false;
         public bool RespondToUnknownCommands {
             get { return _respondToUnknownCommands; }
@@ -217,6 +235,9 @@ namespace DoThingsBot {
                     var definition = new {
                         BotEnabled = false,
                         DefaultHeading = 0,
+                        KeepTinkerEquipmentWhileIdleDelay = 30,
+                        RespondToUnknownCommands = false,
+                        DontResendDuplicateMessagesWindow = 2,
                         BotPortalsEnabled = false,
                         PrimaryPortalLocation = "None",
                         PrimaryPortalHeading = 45,
@@ -236,6 +257,9 @@ namespace DoThingsBot {
 
                     _instance.BotEnabled = configData.BotEnabled;
                     _instance.DefaultHeading = configData.DefaultHeading;
+                    _instance.KeepTinkerEquipmentWhileIdleDelay = configData.KeepTinkerEquipmentWhileIdleDelay;
+                    _instance.RespondToUnknownCommands = configData.RespondToUnknownCommands;
+                    _instance.DontResendDuplicateMessagesWindow = configData.DontResendDuplicateMessagesWindow;
                     _instance.BotPortalsEnabled = configData.BotPortalsEnabled;
                     _instance.PrimaryPortalLocation = configData.PrimaryPortalLocation;
                     _instance.PrimaryPortalHeading = configData.PrimaryPortalHeading;

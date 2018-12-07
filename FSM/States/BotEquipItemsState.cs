@@ -101,20 +101,22 @@ namespace DoThingsBot.FSM.States {
         }
 
         private int equipTryCount = 0;
+        private TimeSpan equipItemDelay = TimeSpan.FromMilliseconds(200);
+        private TimeSpan dequipItemDelay = TimeSpan.FromMilliseconds(300);
         private bool hasDequippedAllItems = false;
         private DateTime lastThought = DateTime.MinValue;
+        private DateTime lastEquipItemCommand = DateTime.MinValue;
 
         private List<int> requestedItemIds = new List<int>();
         
         public void Think(Machine machine) {
             try {
-                if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(400)) {
+                if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(20)) {
                     lastThought = DateTime.UtcNow;
 
-                    if (equipTryCount > 3) {
-                        Util.WriteToDebugLog("equip try count > 3, skipping");
+                    // skip this item if its taking too long
+                    if (lastEquipItemCommand > DateTime.MinValue && DateTime.UtcNow - lastEquipItemCommand > TimeSpan.FromSeconds(5)) {
                         currentEquipIndex++;
-                        equipTryCount = 0;
                     }
 
                     //if we are out of euip items, go to the next state
@@ -128,14 +130,21 @@ namespace DoThingsBot.FSM.States {
                         foreach (WorldObject item in CoreManager.Current.WorldFilter.GetInventory()) {
                             // skip items we are just going to equip in a second anyways
                             if (GetEquipment().Contains(item.Id)) continue;
-                            if (item.Values(LongValueKey.EquippedSlots, 0) > 0 || item.Values(LongValueKey.Slot, -1) == -1) {
-                                Util.WriteToDebugLog("Unequipping " + item.Name);
-                                CoreManager.Current.Actions.MoveItem(item.Id, CoreManager.Current.CharacterFilter.Id);
-                                
-                                if (!requestedItemIds.Contains(item.Id)) {
-                                    CoreManager.Current.Actions.RequestId(item.Id);
-                                }
 
+                            if (DateTime.UtcNow - lastEquipItemCommand > dequipItemDelay) {
+                                if (item.Values(LongValueKey.EquippedSlots, 0) > 0 || item.Values(LongValueKey.Slot, -1) == -1) {
+                                    //Util.WriteToDebugLog("Unequipping " + item.Name);
+                                    lastEquipItemCommand = DateTime.UtcNow;
+                                    CoreManager.Current.Actions.MoveItem(item.Id, CoreManager.Current.CharacterFilter.Id);
+
+                                    if (!requestedItemIds.Contains(item.Id)) {
+                                        CoreManager.Current.Actions.RequestId(item.Id);
+                                    }
+
+                                    return;
+                                }
+                            }
+                            else {
                                 return;
                             }
                         }
@@ -148,7 +157,8 @@ namespace DoThingsBot.FSM.States {
                     WorldObject wo = CoreManager.Current.WorldFilter[itemId];
 
                     if (wo == null) {
-                        equipTryCount++;
+                        Util.WriteToDebugLog(String.Format("Could not find item with id ({0}), SKIPPING", itemId));
+                        currentEquipIndex++;
                         return;
                     }
 
@@ -158,12 +168,17 @@ namespace DoThingsBot.FSM.States {
                         currentEquipIndex++;
                     }
                     else {
-                        if (equipTryCount == 0) {
-                            Util.WriteToDebugLog("Equipping " + Util.GetGameItemDisplayName(wo));
+                        if (DateTime.UtcNow - lastEquipItemCommand > equipItemDelay) {
+                            lastEquipItemCommand = DateTime.UtcNow;
+
+                            if (equipTryCount == 0) {
+                                Util.WriteToDebugLog("Equipping " + Util.GetGameItemDisplayName(wo));
+                            }
+
+                            equipTryCount++;
+                            CoreManager.Current.Actions.UseItem(wo.Id, 0);
+                            CoreManager.Current.Actions.RequestId(wo.Id);
                         }
-                        equipTryCount++;
-                        CoreManager.Current.Actions.UseItem(wo.Id, 0);
-                        CoreManager.Current.Actions.RequestId(wo.Id);
                     }
                 }
             }
