@@ -1,0 +1,9 @@
+CHANGELOG
+
+0.1.1.0
+	- FEATURE: Added option in main config tab to respond to unknown messages
+	- FIX: Force add -b- to all bot chat/emote spam
+	- FIX: Add seconds to timestamp in debuglog.txt
+
+0.1.0.0
+	- Initial Release
