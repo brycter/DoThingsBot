@@ -2,6 +2,7 @@ CHANGELOG
 
 0.1.1.0
 	- FEATURE: Added option in main config tab to respond to unknown messages
+	- FEATURE: Don't send duplicate sent messages within time window (time window configurable in config file only currently, DontResendDuplicateMessagesWindow, default 2s).
 	- FIX: Force add -b- to all bot chat/emote spam
 	- FIX: Add seconds to timestamp in debuglog.txt
 
