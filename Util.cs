@@ -79,7 +79,7 @@ namespace DoThingsBot
         }
 
         public static void WriteToDebugLog(string message) {
-            File.AppendAllText(Util.GetCharacterDataDirectory() + @"debuglog.txt", DateTime.Now.ToString("MM/dd/yyyy H:mm") + ": " + message + Environment.NewLine);
+            File.AppendAllText(Util.GetCharacterDataDirectory() + @"debuglog.txt", DateTime.Now.ToString("MM/dd/yyyy H:mm:ss") + ": " + message + Environment.NewLine);
         }
 
         public static void WriteToActionLog(string message) {
