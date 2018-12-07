@@ -81,7 +81,7 @@ namespace DoThingsBot {
         }
 
         // dont resend the same chat message if it falls within this timespan window (seconds)
-        private int _dontResendDuplicateMessagesWindow = 3;
+        private int _dontResendDuplicateMessagesWindow = 2;
         public int DontResendDuplicateMessagesWindow {
             get { return _dontResendDuplicateMessagesWindow; }
             set {
