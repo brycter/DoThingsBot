@@ -92,7 +92,7 @@ namespace DoThingsBot.FSM.States {
                             var spellId = Spells.GetIdFromName(enchantment);
                             currentlyCasting = enchantment;
                             startedCasting = DateTime.UtcNow;
-                            Util.WriteToChat("cast:" + enchantment);
+
                             CoreManager.Current.Actions.CastSpell(spellId, CoreManager.Current.CharacterFilter.Id);
                             return;
                         }
