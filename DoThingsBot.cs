@@ -307,7 +307,7 @@ namespace DoThingsBot {
                     break;
 
                 default:
-                    PrintAboutMessage(playerName, arguments);
+                    ChatManager.Tell(playerName, String.Format("Tell me 'tinker' and I'll open a trade window with you to get started. Other available commands: tinker, lostitems, whereto, message, about.", Util.GetVersion()));
                     break;
 
             }
