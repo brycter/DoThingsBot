@@ -176,8 +176,6 @@ namespace DoThingsBot.Chat {
                 if (commandQueue.Count > 0) {
                     var command = commandQueue.Dequeue();
 
-                    Util.WriteToChat(String.Format("dequeue command: {0}", command));
-
                     if (lastMessage != command) {
                         lastMessage = command;
                         lastChatCommandSentAt = DateTime.UtcNow;
@@ -192,7 +190,7 @@ namespace DoThingsBot.Chat {
                         DecalProxy.DispatchChatToBoxWithPluginIntercept(command);
                     }
                     else {
-                        Util.WriteToChat("Skipping command because it's a dupe: " + command);
+                        Util.WriteToDebug("Skipping command because it's a dupe: " + command);
                     }
                 }
             }
