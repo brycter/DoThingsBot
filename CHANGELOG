@@ -5,6 +5,7 @@ CHANGELOG
 	- FEATURE: Added option keep keep tinkering equipment equipped for x seconds while idle, so consecutive tinks are faster (default 30s).
 	- FEATURE: Added option in main config tab to respond to unknown commands
 	- FEATURE: Don't send duplicate messages within time window (config file only currently, DontResendDuplicateMessagesWindow, default 2s).
+	- FIX: Fix bug where equipment spells could cause infinite buffing loop
 	- FIX: Force add -b- to all bot chat/emote spam
 	- FIX: Add seconds to timestamp in debuglog.txt
 	- FIX: Speed up item equip/dequip cycle
