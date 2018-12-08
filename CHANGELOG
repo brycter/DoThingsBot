@@ -10,6 +10,7 @@ CHANGELOG
 	- FIX: Force add -b- to all bot chat/emote spam
 	- FIX: Add seconds to timestamp in debuglog.txt
 	- FIX: Speed up item equip/dequip cycle
+	- Tested on 1.25 (need rare/foolproof support)
 
 0.1.0.0
 	- Initial Release
