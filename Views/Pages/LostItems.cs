@@ -24,7 +24,7 @@ namespace DoThingsBot.Views.Pages {
                     catch (Exception ex) { Util.LogException(ex); }
                 };
 
-                //RefreshLostItemsList();
+                RefreshLostItemsList();
             }
             catch (Exception ex) { Util.LogException(ex); }
         }

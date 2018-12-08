@@ -6,10 +6,11 @@ CHANGELOG
 	- FEATURE: Added /dtb forcebuff command
 	- FEATURE: Added option keep keep tinkering equipment equipped for x seconds after tink job, so consecutive tinks are faster (default 30s).
 	- FEATURE: Added option in main config tab to respond to unknown commands
+	- FIX: Fixed issue where items added to equipment lists that disappeared caused the list to break.
 	- FIX: Don't send duplicate messages within time window (config file only currently, DontResendDuplicateMessagesWindow, default 2s).
-	- FIX: Fix bug where equipment spells could cause infinite buffing loop
+	- FIX: Fixed bug where equipment spells could cause infinite buffing loop
 	- FIX: Force add -b- to all bot chat/emote spam
-	- FIX: Add seconds to timestamp in debuglog.txt
+	- FIX: Added seconds to timestamp in debuglog.txt
 	- FIX: Speed up item equip/dequip cycle
 	- Tested on 1.25 (need rare/foolproof support)
 

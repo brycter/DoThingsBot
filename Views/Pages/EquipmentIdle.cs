@@ -43,10 +43,17 @@ namespace DoThingsBot.Views.Pages {
                 for (int equipmentIndex = 0; equipmentIndex < idleEquipment.Count; equipmentIndex++) {
                     WorldObject wo = Globals.Core.WorldFilter[idleEquipment[equipmentIndex]];
 
-                    HudList.HudListRowAccessor newRow = UIEquipmentIdleList.AddRow();
-                    ((HudPictureBox)newRow[0]).Image = wo.Icon + 0x6000000;
-                    ((HudStaticText)newRow[1]).Text = Util.GetGameItemDisplayName(wo);
-                    ((HudStaticText)newRow[2]).Text = idleEquipment[equipmentIndex].ToString();
+                    if (wo == null) {
+                        Util.WriteToChat(String.Format("Removing unknown item from idle equipment list: {0}", idleEquipment[equipmentIndex]));
+                        DoThingsBot.ConfigurationManager().RemoveIdleEquipmentAt(equipmentIndex);
+                        continue;
+                    }
+                    else {
+                        HudList.HudListRowAccessor newRow = UIEquipmentIdleList.AddRow();
+                        ((HudPictureBox)newRow[0]).Image = wo.Icon + 0x6000000;
+                        ((HudStaticText)newRow[1]).Text = Util.GetGameItemDisplayName(wo);
+                        ((HudStaticText)newRow[2]).Text = idleEquipment[equipmentIndex].ToString();
+                    }
                 }
             }
             catch (Exception ex) { Util.LogException(ex); }

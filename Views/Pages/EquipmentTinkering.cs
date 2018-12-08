@@ -41,12 +41,19 @@ namespace DoThingsBot.Views.Pages {
                 var tinkeringEquipment = DoThingsBot.ConfigurationManager().TinkerEquipment;
 
                 for (int equipmentIndex = 0; equipmentIndex < tinkeringEquipment.Count; equipmentIndex++) {
-                    WorldObject wo = Globals.Core.WorldFilter[tinkeringEquipment[equipmentIndex]];
 
-                    HudList.HudListRowAccessor newRow = UIEquipmentTinkeringList.AddRow();
-                    ((HudPictureBox)newRow[0]).Image = wo.Icon + 0x6000000;
-                    ((HudStaticText)newRow[1]).Text = Util.GetGameItemDisplayName(wo);
-                    ((HudStaticText)newRow[2]).Text = tinkeringEquipment[equipmentIndex].ToString();
+                    if (!CoreManager.Current.Actions.IsValidObject(tinkeringEquipment[equipmentIndex])) {
+                        Util.WriteToChat(String.Format("Removing unknown item from tinkering equipment list: {0}", tinkeringEquipment[equipmentIndex]));
+                        DoThingsBot.ConfigurationManager().RemoveTinkeringEquipmentAt(equipmentIndex);
+                        continue;
+                    }
+                    else {
+                        WorldObject wo = Globals.Core.WorldFilter[tinkeringEquipment[equipmentIndex]];
+                        HudList.HudListRowAccessor newRow = UIEquipmentTinkeringList.AddRow();
+                        ((HudPictureBox)newRow[0]).Image = wo.Icon + 0x6000000;
+                        ((HudStaticText)newRow[1]).Text = Util.GetGameItemDisplayName(wo);
+                        ((HudStaticText)newRow[2]).Text = tinkeringEquipment[equipmentIndex].ToString();
+                    }
                 }
             }
             catch (Exception ex) { Util.LogException(ex); }
