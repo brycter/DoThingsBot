@@ -6823,7 +6823,12 @@ new Spell() { id = 6322, name = "Viridian Rise Great Tree Recall", spellClass=Sp
                 foreach (var enchantment in enchantments) {
                     string enchantmentName = Spells.GetNameFromId(enchantment.SpellId);
 
+                    // TODO: Don't buff if equipment contains the same buff
+                    if (enchantment.Duration == -1) continue;
+
                     if (enchantmentName == spellName) {
+                        Util.WriteToChat(String.Format("{0}: {1}", spellName, enchantment.Duration));
+
                         if (enchantment.Expires - DateTime.Now < TimeSpan.FromMinutes(DoThingsBot.ConfigurationManager().GetBuffRefreshTime())) {
                             return true;
                         }
