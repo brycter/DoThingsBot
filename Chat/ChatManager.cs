@@ -102,7 +102,11 @@ namespace DoThingsBot.Chat {
 
         void Current_ChatBoxMessage(object sender, ChatTextInterceptEventArgs e) {
             try {
+                if (DoThingsBot.ConfigurationManager().BotEnabled == false) return;
+                
                 if (Util.IsChat(e.Text, Util.ChatFlags.PlayerTellsYou)) {
+                    Util.WriteToDebugLog(Util.CleanMessage(e.Text));
+
                     string playerName = Util.GetSourceOfChat(e.Text);
                     string command = Util.GetMessageFromChat(e.Text);
                     System.Collections.Generic.List<string> args = new List<string>(command.Split(' '));

@@ -93,6 +93,8 @@ namespace DoThingsBot.FSM.States {
                             currentlyCasting = enchantment;
                             startedCasting = DateTime.UtcNow;
 
+                            Util.WriteToDebugLog(String.Format("Attempting to cast {0} ({1})",  enchantment, spellId));
+
                             CoreManager.Current.Actions.CastSpell(spellId, CoreManager.Current.CharacterFilter.Id);
                             return;
                         }
