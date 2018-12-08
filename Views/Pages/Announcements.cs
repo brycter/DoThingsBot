@@ -5,24 +5,39 @@ using VirindiViewService.Controls;
 
 namespace DoThingsBot.Views.Pages {
     class AnnouncementsPage : IDisposable {
+        HudCheckBox UIAnnouncementsEnabled { get; set; }
         HudTextBox UIAnnouncementsAnnounceInterval { get; set; }
         HudTextBox UIAnnouncementsNewMessage { get; set; }
         HudButton UIAnnouncementsAddNewMessage { get; set; }
         HudList UIAnnouncementsList { get; set; }
+        HudTextBox UIStartupCommand { get; set; }
 
         public AnnouncementsPage(MainView mainView) {
             try {
+                UIAnnouncementsEnabled = mainView.view != null ? (HudCheckBox)mainView.view["UIAnnouncementsEnabled"] : new HudCheckBox();
                 UIAnnouncementsAnnounceInterval = mainView.view != null ? (HudTextBox)mainView.view["UIAnnouncementsAnnounceInterval"] : new HudTextBox();
                 UIAnnouncementsNewMessage = mainView.view != null ? (HudTextBox)mainView.view["UIAnnouncementsNewMessage"] : new HudTextBox();
                 UIAnnouncementsAddNewMessage = mainView.view != null ? (HudButton)mainView.view["UIAnnouncementsAddNewMessage"] : new HudButton();
                 UIAnnouncementsList = mainView.view != null ? (HudList)mainView.view["UIAnnouncementsList"] : new HudList();
+                UIStartupCommand = mainView.view != null ? (HudTextBox)mainView.view["UIStartupCommand"] : new HudTextBox();
 
+                UIAnnouncementsEnabled.Checked = DoThingsBot.ConfigurationManager().AnnouncementsEnabled;
                 UIAnnouncementsAnnounceInterval.Text = DoThingsBot.ConfigurationManager().AnnouncementsAnnounceInterval.ToString();
                 UIAnnouncementsNewMessage.Text = "/s ";
+                UIStartupCommand.Text = DoThingsBot.ConfigurationManager().StartupCommand;
 
                 Config.BotConfigChangedEvent += (e, v) => {
+                    UIAnnouncementsEnabled.Checked = DoThingsBot.ConfigurationManager().AnnouncementsEnabled;
                     UIAnnouncementsAnnounceInterval.Text = DoThingsBot.ConfigurationManager().AnnouncementsAnnounceInterval.ToString();
+                    UIStartupCommand.Text = DoThingsBot.ConfigurationManager().StartupCommand;
                     RefreshAnnouncementsMessages();
+                };
+
+                UIAnnouncementsEnabled.Change += (s, e) => {
+                    try {
+                        DoThingsBot.ConfigurationManager().AnnouncementsEnabled = ((HudCheckBox)s).Checked;
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
                 };
 
                 UIAnnouncementsList.Click += new HudList.delClickedControl(UIAnnouncementsList_Click);
@@ -52,6 +67,13 @@ namespace DoThingsBot.Views.Pages {
                         }
 
                         UIAnnouncementsNewMessage.Text = "/s ";
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                };
+
+                UIStartupCommand.LostFocus += (s, e) => {
+                    try {
+                        DoThingsBot.ConfigurationManager().StartupCommand = UIStartupCommand.Text;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };

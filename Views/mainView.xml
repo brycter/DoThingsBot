@@ -77,13 +77,18 @@
     </page>
     <page label="Announcements">
       <control progid="DecalControls.FixedLayout" clipped="">
-        <control progid="DecalControls.StaticText" name="UIAnnouncementsAnnounceIntervalLabel" left="5" top="5" width="230" height="20" text="Announce Interval (minutes):" fontstyle="bold"/>
-        <control progid="DecalControls.Edit" name="UIAnnouncementsAnnounceInterval" left="305" top="5" width="40" height="20" text="15"/>
+        <control progid="DecalControls.Checkbox" name="UIAnnouncementsEnabled" left="5" top="5" width="220" height="20" text="Enable Announcements"/>
 
-        <control progid="DecalControls.Edit" name="UIAnnouncementsNewMessage" left="" top="30" width="300" height="20" text="/s "/>
-        <control progid="DecalControls.PushButton" name="UIAnnouncementsAddNewMessage" left="305" top="30" width="40" height="20" text="Add" fontstyle="bold"/>
+        <control progid="DecalControls.StaticText" name="UIStartupCommandLabel" left="5" top="30" width="120" height="20" text="Startup Announce:"/>
+        <control progid="DecalControls.Edit" name="UIStartupCommand" left="100" top="30" width="245" height="20" text="/s " />
+        
+        <control progid="DecalControls.StaticText" name="UIAnnouncementsAnnounceIntervalLabel" left="5" top="55" width="230" height="20" text="Announce Interval (minutes):" fontstyle="bold"/>
+        <control progid="DecalControls.Edit" name="UIAnnouncementsAnnounceInterval" left="305" top="55" width="40" height="20" text="15"/>
 
-        <control progid="DecalControls.List" name="UIAnnouncementsList" top="55" width="350" height="140">
+        <control progid="DecalControls.Edit" name="UIAnnouncementsNewMessage" left="" top="80" width="300" height="20" text="/s "/>
+        <control progid="DecalControls.PushButton" name="UIAnnouncementsAddNewMessage" left="305" top="80" width="40" height="20" text="Add" fontstyle="bold"/>
+
+        <control progid="DecalControls.List" name="UIAnnouncementsList" top="105" width="350" height="80">
           <column progid="DecalControls.TextColumn" name="UIAnnouncementsListTextCol" fixedwidth="350"/>
           <column progid="DecalControls.TextColumn" name="UIAnnouncementsListIndexCol" fixedwidth="0"/>
         </control>
@@ -137,9 +142,6 @@
 
         <control progid="DecalControls.StaticText" name="UIKeepTinkerEquipmentWhileIdleDelayLabel" left="1" top="55" width="320" height="20" text="Keep equipment on after tink delay (seconds, 0=disable):"/>
         <control progid="DecalControls.Edit" name="UIKeepTinkerEquipmentWhileIdleDelay" left="290" top="55" width="50" height="20" text="0" />
-
-        <control progid="DecalControls.StaticText" name="UIStartupCommandLabel" left="1" top="80" width="100" height="20" text="Startup Message:"/>
-        <control progid="DecalControls.Edit" name="UIStartupCommand" left="110" top="80" width="230" height="20" text="/s " />
       </control>
     </page>
   </control>

@@ -235,7 +235,26 @@ namespace DoThingsBot {
                 catch (Exception ex) { Util.LogException(ex); }
             }
         }
-        
+
+        private bool _announcementsEnabled = true;
+        public bool AnnouncementsEnabled {
+            get { return _announcementsEnabled; }
+            set {
+                try {
+                    if (value != _announcementsEnabled) {
+                        _announcementsEnabled = value;
+                        if (IsLoaded) {
+                            Util.WriteToChat(String.Format("Config.AnnouncementsEnabled = {0}", AnnouncementsEnabled ? "true" : "false"));
+
+                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
+                            Save();
+                        }
+                    };
+                }
+                catch (Exception ex) { Util.LogException(ex); }
+            }
+        }
+
         private int _announcementsAnnounceInterval = 15;
         public int AnnouncementsAnnounceInterval {
             get { return _announcementsAnnounceInterval; }
@@ -274,6 +293,7 @@ namespace DoThingsBot {
                         PrimaryPortalHeading = 45,
                         SecondaryPortalLocation = "None",
                         SecondaryPortalHeading = 315,
+                        AnnouncementsEnabled = true,
                         AnnouncementsAnnounceInterval = 15,
                         AnnouncementsMessages = new List<string>(),
                         IdleEquipment = new List<int>(),
@@ -297,6 +317,7 @@ namespace DoThingsBot {
                     _instance.PrimaryPortalHeading = configData.PrimaryPortalHeading;
                     _instance.SecondaryPortalLocation = configData.SecondaryPortalLocation;
                     _instance.SecondaryPortalHeading = configData.SecondaryPortalHeading;
+                    _instance.AnnouncementsEnabled = configData.AnnouncementsEnabled;
                     _instance.AnnouncementsAnnounceInterval = configData.AnnouncementsAnnounceInterval;
                     _instance.AnnouncementsMessages = configData.AnnouncementsMessages;
                     _instance.IdleEquipment = configData.IdleEquipment;

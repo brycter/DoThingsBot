@@ -157,18 +157,20 @@ namespace DoThingsBot.Chat {
             if (DateTime.UtcNow - lastAnnouncementTime > TimeSpan.FromMinutes(DoThingsBot.ConfigurationManager().AnnouncementsAnnounceInterval) && DoThingsBot.ConfigurationManager().BotEnabled == true) {
                 if (DateTime.UtcNow - firstThought < TimeSpan.FromSeconds(5)) return;
 
-                lastAnnouncementTime = DateTime.UtcNow;
+                if (DoThingsBot.ConfigurationManager().AnnouncementsEnabled == true) {
+                    lastAnnouncementTime = DateTime.UtcNow;
 
-                var announcements = DoThingsBot.ConfigurationManager().AnnouncementsMessages;
+                    var announcements = DoThingsBot.ConfigurationManager().AnnouncementsMessages;
 
-                if (announcements.Count > 0) {
-                    int r = rnd.Next(announcements.Count);
-                    string message = announcements[r];
+                    if (announcements.Count > 0) {
+                        int r = rnd.Next(announcements.Count);
+                        string message = announcements[r];
 
-                    if (!message.StartsWith("*") && PublicChatMessageRegex.IsMatch(message.ToLower())) {
-                        message = String.Format("{0} -b-", announcements[r]);
+                        if (!message.StartsWith("*") && PublicChatMessageRegex.IsMatch(message.ToLower())) {
+                            message = String.Format("{0} -b-", announcements[r]);
+                        }
+                        AddToChatBox(message);
                     }
-                    AddToChatBox(message);
                 }
             }
 
