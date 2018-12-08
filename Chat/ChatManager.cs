@@ -54,7 +54,7 @@ namespace DoThingsBot.Chat {
         
         private static Queue<string> commandQueue;
         static DateTime lastChatCommandSentAt = DateTime.MinValue;
-        static DateTime lastAnnouncementTime = DateTime.MinValue;
+        static DateTime lastAnnouncementTime = DateTime.UtcNow;
 
         public static event EventHandler<ChatCommandEventArgs> RaiseChatCommandEvent;
 
@@ -121,6 +121,10 @@ namespace DoThingsBot.Chat {
             catch (Exception ex) { Util.LogException(ex); }
         }
 
+        public static void ResetAnnouncementTimer() {
+            lastAnnouncementTime = DateTime.UtcNow;
+        }
+
         public static void Tell(string playerName, string message) {
             commandQueue.Enqueue(String.Format("/tell {0}, {1}", playerName, message));
         }
@@ -168,14 +172,18 @@ namespace DoThingsBot.Chat {
                 if (commandQueue.Count > 0) {
                     var command = commandQueue.Dequeue();
 
-                    lastChatCommandSentAt = DateTime.UtcNow;
-
                     Util.WriteToChat(String.Format("dequeue command: {0}", command));
 
-                    if (lastMessage != command
-                        && (PublicChatMessageRegex.IsMatch(command.ToLower()) || PrivateChatMessageRegex.IsMatch(command.ToLower()))) {
-
+                    if (lastMessage != command) {
                         lastMessage = command;
+                        lastChatCommandSentAt = DateTime.UtcNow;
+
+                        DecalProxy.DispatchChatToBoxWithPluginIntercept(command);
+                    }
+                    // this is a command, so always let it through
+                    else if (!(PublicChatMessageRegex.IsMatch(command.ToLower()) || PrivateChatMessageRegex.IsMatch(command.ToLower()))) {
+                        lastMessage = command;
+                        lastChatCommandSentAt = DateTime.UtcNow;
 
                         DecalProxy.DispatchChatToBoxWithPluginIntercept(command);
                     }

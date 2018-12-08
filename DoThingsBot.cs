@@ -61,6 +61,11 @@ namespace DoThingsBot {
 
             _machine.ChangeState(new BotIdleState());
 
+            if (ConfigurationManager().StartupCommand.Length > 0 && ConfigurationManager().StartupCommand != "/s ") {
+                ChatManager.AddToChatBox(ConfigurationManager().StartupCommand);
+            }
+
+            ChatManager.ResetAnnouncementTimer();
             ChatManager.RaiseChatCommandEvent += new EventHandler<ChatCommandEventArgs>(ChatManager_ChatCommand);
         }
 

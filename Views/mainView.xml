@@ -130,9 +130,12 @@
         
         <control progid="DecalControls.StaticText" name="UIRespondToUnknownCommandsLabel" left="1" top="30" width="320" height="20" text="Respond to unknown commands:"/>
         <control progid="DecalControls.Checkbox" name="UIRespondToUnknownCommands" left="290" top="32" width="50" height="20" text=""/>
-        
+
         <control progid="DecalControls.StaticText" name="UIKeepTinkerEquipmentWhileIdleDelayLabel" left="1" top="55" width="320" height="20" text="Keep equipment on after tink delay (seconds, 0=disable):"/>
         <control progid="DecalControls.Edit" name="UIKeepTinkerEquipmentWhileIdleDelay" left="290" top="55" width="50" height="20" text="0" />
+
+        <control progid="DecalControls.StaticText" name="UIStartupCommandLabel" left="1" top="80" width="100" height="20" text="Startup Command:"/>
+        <control progid="DecalControls.Edit" name="UIStartupCommand" left="110" top="80" width="230" height="20" text="/s " />
       </control>
     </page>
   </control>

@@ -92,7 +92,26 @@ namespace DoThingsBot {
                         _respondToUnknownCommands = value;
                         if (IsLoaded) {
                             Util.WriteToChat(String.Format("Config.RespondToUnknownCommands = {0}", RespondToUnknownCommands ? "true" : "false"));
-                            
+
+                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
+                            Save();
+                        }
+                    };
+                }
+                catch (Exception ex) { Util.LogException(ex); }
+            }
+        }
+
+        private string _startupCommand = "/s ";
+        public string StartupCommand {
+            get { return _startupCommand == null ? "/s " : _startupCommand; }
+            set {
+                try {
+                    if (value != _startupCommand) {
+                        _startupCommand = value;
+                        if (IsLoaded) {
+                            Util.WriteToChat(String.Format("Config.StartupCommand = {0}", StartupCommand));
+
                             BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                             Save();
                         }
@@ -248,6 +267,7 @@ namespace DoThingsBot {
                         DefaultHeading = 0,
                         KeepTinkerEquipmentWhileIdleDelay = 30,
                         RespondToUnknownCommands = false,
+                        StartupCommand = "/s ",
                         DontResendDuplicateMessagesWindow = 2,
                         BotPortalsEnabled = false,
                         PrimaryPortalLocation = "None",
@@ -270,6 +290,7 @@ namespace DoThingsBot {
                     _instance.DefaultHeading = configData.DefaultHeading;
                     _instance.KeepTinkerEquipmentWhileIdleDelay = configData.KeepTinkerEquipmentWhileIdleDelay;
                     _instance.RespondToUnknownCommands = configData.RespondToUnknownCommands;
+                    _instance.StartupCommand = configData.StartupCommand;
                     _instance.DontResendDuplicateMessagesWindow = configData.DontResendDuplicateMessagesWindow;
                     _instance.BotPortalsEnabled = configData.BotPortalsEnabled;
                     _instance.PrimaryPortalLocation = configData.PrimaryPortalLocation;
