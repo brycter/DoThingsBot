@@ -64,7 +64,7 @@ namespace DoThingsBot {
             }
         }
 
-        private int _keepTinkerEquipmentWhileIdleDelay = 60;
+        private int _keepTinkerEquipmentWhileIdleDelay = 30;
         public int KeepTinkerEquipmentWhileIdleDelay {
             get { return _keepTinkerEquipmentWhileIdleDelay; }
             set {
@@ -102,9 +102,9 @@ namespace DoThingsBot {
             }
         }
 
-        private string _startupCommand = "/s ";
+        private string _startupCommand = "/s Tinkerbot online.  Tell me 'tinker' to get started.";
         public string StartupCommand {
-            get { return _startupCommand == null ? "/s " : _startupCommand; }
+            get { return _startupCommand == null ? "/s Tinkerbot online.  Tell me 'tinker' to get started." : _startupCommand; }
             set {
                 try {
                     if (value != _startupCommand) {
@@ -286,7 +286,7 @@ namespace DoThingsBot {
                         DefaultHeading = 0,
                         KeepTinkerEquipmentWhileIdleDelay = 30,
                         RespondToUnknownCommands = false,
-                        StartupCommand = "/s ",
+                        StartupCommand = "/s Tinkerbot online.  Tell me 'tinker' to get started.",
                         DontResendDuplicateMessagesWindow = 2,
                         BotPortalsEnabled = false,
                         PrimaryPortalLocation = "None",
