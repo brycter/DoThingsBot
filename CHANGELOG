@@ -1,6 +1,7 @@
 CHANGELOG
 
 0.1.1.0
+	- FEATURE: Added ability to clear/open logs within the plugin window
 	- FEATURE: Added startup command/message to config tab, leave blank for none. (announcements now only go out after inital delay)
 	- FEATURE: Added /dtb forcebuff command
 	- FEATURE: Added option keep keep tinkering equipment equipped for x seconds after tink job, so consecutive tinks are faster (default 30s).
