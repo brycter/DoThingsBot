@@ -37,10 +37,16 @@ namespace DoThingsBot.Views.Pages {
 
                 Util.WriteToChat("Scanning for lost items.");
 
+                int addedItemsCount = 0;
+
                 if (lostItems != null && lostItems.Count > 0) {
                     foreach (string playerName in lostItems.Keys) {
                         foreach (int id in lostItems[playerName]) {
                             WorldObject wo = Globals.Core.WorldFilter[id];
+
+                            if (wo == null) continue;
+
+                            addedItemsCount++;
 
                             HudList.HudListRowAccessor newRow = UILogsLostItemsList.AddRow();
                             ((HudStaticText)newRow[0]).Text = playerName;
@@ -49,9 +55,14 @@ namespace DoThingsBot.Views.Pages {
                         }
                     }
                 }
-                else {
+                
+                if (addedItemsCount == 0) {
                     HudList.HudListRowAccessor newRow = UILogsLostItemsList.AddRow();
                     ((HudStaticText)newRow[2]).Text = "No lost items detected";
+                    Util.WriteToChat("No lost items detected.");
+                }
+                else {
+                    Util.WriteToChat(String.Format("Detected {0} lost items.", addedItemsCount.ToString()));    
                 }
             }
             catch (Exception ex) { Util.LogException(ex); }

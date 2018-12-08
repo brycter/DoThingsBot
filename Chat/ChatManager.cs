@@ -190,7 +190,7 @@ namespace DoThingsBot.Chat {
                         DecalProxy.DispatchChatToBoxWithPluginIntercept(command);
                     }
                     else {
-                        Util.WriteToDebug("Skipping command because it's a dupe: " + command);
+                        Util.WriteToDebugLog("Skipping command because it's a dupe: " + command);
                     }
                 }
             }
