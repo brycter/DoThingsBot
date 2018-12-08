@@ -137,6 +137,14 @@ namespace DoThingsBot.Chat {
             commandQueue.Enqueue(String.Format("/say {0}", message));
         }
 
+        public static void AddSpamToChatBox(string message) {
+            if (!message.StartsWith("*") && PublicChatMessageRegex.IsMatch(message.ToLower())) {
+                message = String.Format("{0} -b-", message);
+            }
+
+            AddToChatBox(message);
+        }
+
         public static void AddToChatBox(string command) {
             Util.WriteToDebugLog(String.Format("Add to chatbox: {0}", command));
             commandQueue.Enqueue(command);
@@ -165,11 +173,7 @@ namespace DoThingsBot.Chat {
                     if (announcements.Count > 0) {
                         int r = rnd.Next(announcements.Count);
                         string message = announcements[r];
-
-                        if (!message.StartsWith("*") && PublicChatMessageRegex.IsMatch(message.ToLower())) {
-                            message = String.Format("{0} -b-", announcements[r]);
-                        }
-                        AddToChatBox(message);
+                        AddSpamToChatBox(message);
                     }
                 }
             }

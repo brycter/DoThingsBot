@@ -63,7 +63,7 @@ namespace DoThingsBot {
 
             if (ConfigurationManager().AnnouncementsEnabled == true) {
                 if (ConfigurationManager().StartupCommand.Length > 0 && ConfigurationManager().StartupCommand != "/s ") {
-                    ChatManager.AddToChatBox(ConfigurationManager().StartupCommand);
+                    ChatManager.AddSpamToChatBox(ConfigurationManager().StartupCommand);
                 }
             }
 

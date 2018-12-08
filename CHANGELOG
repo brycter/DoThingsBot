@@ -1,18 +1,19 @@
 CHANGELOG
 
 0.1.1.0
-	- FEATURE: Added ability to clear/open logs within the plugin window
-	- FEATURE: Added startup command/message to announcements tab, leave blank for none. (announcements now only go out after inital delay)
-	- FEATURE: Added ability to disable all announcements from announcements tab.
-	- FEATURE: Added /dtb forcebuff command
-	- FEATURE: Added option keep tinkering equipment equipped for x seconds after tink job, so consecutive tinks are faster (default 30s).
-	- FEATURE: Added option in main config tab to respond to unknown commands
-	- FIX: Fixed issue where items added to equipment lists that disappeared caused the list to break.
-	- FIX: Don't send duplicate messages within time window (config file only currently, DontResendDuplicateMessagesWindow, default 2s).
-	- FIX: Fixed bug where equipment spells could cause infinite buffing loop
-	- FIX: Force add -b- to all bot chat/emote spam
-	- FIX: Added seconds to timestamp in debuglog.txt
-	- FIX: Speed up item equip/dequip cycle
+	- Added ability to clear/open logs within the plugin window
+	- Added startup command/message to announcements tab, leave blank for none. (announcements now only go out after inital delay)
+	- Added ability to disable all announcements from announcements tab.
+	- Added /dtb forcebuff command
+	- Added option keep tinkering equipment equipped for x seconds after tink job, so consecutive tinks are faster (default 30s).
+	- Added option in main config tab to respond to unknown commands
+	- Fixed issue where items added to equipment lists that disappeared caused the list to break.
+	- Don't send duplicate messages within time window (config file only currently, DontResendDuplicateMessagesWindow, default 2s).
+	- Fixed bug where equipment spells could cause infinite buffing loop
+	- Force add -b- to all bot chat/emote spam
+	- Added seconds to timestamp in debuglog.txt
+	- Speed up item equip/dequip cycle
+	- Clean up help command response
 	- Tested on 1.25 (need rare/foolproof support)
 
 0.1.0.0
