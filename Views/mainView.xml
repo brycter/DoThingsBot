@@ -95,20 +95,24 @@
       <control progid="DecalControls.Notebook" name="logsTabView">
         <page label="Messages">
           <control progid="DecalControls.FixedLayout" clipped="">
-            <control progid="DecalControls.List" name="UILogsMessagesList" top="5" width="350" height="190">
+            <control progid="DecalControls.List" name="UILogsMessagesList" top="5" width="350" height="170">
               <column progid="DecalControls.TextColumn" name="UILogsMessagesListTimeCol" fixedwidth="80"/>
               <column progid="DecalControls.TextColumn" name="UILogsMessagesListSenderCol" fixedwith="100"/>
               <column progid="DecalControls.TextColumn" name="UILogsMessagesListMessageCol" fixedwidth="170"/>
             </control>
+            <control progid="DecalControls.PushButton" name="UILogsMessagesClearLogFile" left="75" top="178" width="90" height="17" text="Clear log file" fontstyle="bold"/>
+            <control progid="DecalControls.PushButton" name="UILogsMessagesOpenLogFile" left="185" top="178" width="90" height="17" text="Open log file" fontstyle="bold"/>
           </control>
         </page>
         <page label="Gifts">
           <control progid="DecalControls.FixedLayout" clipped="">
-            <control progid="DecalControls.List" name="UILogsGiftsList" top="5" width="350" height="190">
+            <control progid="DecalControls.List" name="UILogsGiftsList" top="5" width="350" height="170">
               <column progid="DecalControls.TextColumn" name="UILogsGiftsListTimeCol" fixedwidth="80"/>
               <column progid="DecalControls.TextColumn" name="UILogsGiftsListGiverCol" fixedwith="100"/>
               <column progid="DecalControls.TextColumn" name="UILogsGiftsListItemCol" fixedwidth="170"/>
             </control>
+            <control progid="DecalControls.PushButton" name="UILogsGiftsClearLogFile" left="75" top="178" width="90" height="17" text="Clear log file" fontstyle="bold"/>
+            <control progid="DecalControls.PushButton" name="UILogsGiftsOpenLogFile" left="185" top="178" width="90" height="17" text="Open log file" fontstyle="bold"/>
           </control>
         </page>
         <page label="LostItems">

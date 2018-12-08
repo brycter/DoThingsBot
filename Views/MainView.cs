@@ -30,7 +30,7 @@ namespace DoThingsBot.Views {
 
                 // Display the view
                 view = new VirindiViewService.HudView(properties, controls);
-
+                
                 mainPage = new MainPage(this);
                 logsLostItemsPage = new LogsLostItemsPage(this);
                 logsMessagesPage = new LogsMessagesPage(this);

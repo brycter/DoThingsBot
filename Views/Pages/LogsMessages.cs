@@ -9,13 +9,86 @@ using VirindiViewService.Controls;
 
 namespace DoThingsBot.Views.Pages {
     class LogsMessagesPage : IDisposable {
+        public VirindiViewService.ViewProperties properties;
+        public VirindiViewService.ControlGroup controls;
+        public VirindiViewService.HudView confirmView;
+
         HudList UILogsMessagesList { get; set; }
+        HudButton UILogsMessagesOpenLogFile { get; set; }
+        HudButton UILogsMessagesClearLogFile { get; set; }
+
+        HudStaticText UIConfirmHeading { get; set; }
+        HudButton UICancel { get; set; }
+        HudButton UIConfirm { get; set; }
 
         public LogsMessagesPage(MainView mainView) {
             try {
                 UILogsMessagesList = mainView.view != null ? (HudList)mainView.view["UILogsMessagesList"] : new HudList();
-                
+                UILogsMessagesOpenLogFile = mainView.view != null ? (HudButton)mainView.view["UILogsMessagesOpenLogFile"] : new HudButton();
+                UILogsMessagesClearLogFile = mainView.view != null ? (HudButton)mainView.view["UILogsMessagesClearLogFile"] : new HudButton();
+
                 ChatManager.RaiseChatCommandEvent += new EventHandler<ChatCommandEventArgs>(ChatManager_ChatCommand);
+
+                UILogsMessagesOpenLogFile.Hit += (s, e) => {
+                    try {
+                        System.Diagnostics.Process.Start(Util.GetCharacterDataDirectory() + @"messages.txt");
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                };
+
+                UILogsMessagesClearLogFile.Hit += (s, e) => {
+                    try {
+                        if (confirmView == null) {
+                            // Create the view
+                            VirindiViewService.XMLParsers.Decal3XMLParser parser = new VirindiViewService.XMLParsers.Decal3XMLParser();
+                            parser.ParseFromResource("DoThingsBot.Views.confirmView.xml", out properties, out controls);
+
+                            // Display the view
+                            confirmView = new VirindiViewService.HudView(properties, controls);
+
+                            UIConfirmHeading = confirmView != null ? (HudStaticText)confirmView["UIConfirmHeading"] : new HudStaticText();
+                            UICancel = confirmView != null ? (HudButton)confirmView["UICancel"] : new HudButton();
+                            UIConfirm = confirmView != null ? (HudButton)confirmView["UIConfirm"] : new HudButton();
+
+                            UIConfirmHeading.Text = "Are you sure you want to clear the messages log file?  This action cannot be undone.";
+                            //UIConfirmHeading.TextAlignment = VirindiViewService.WriteTextFormats.Center;
+
+                            int x = (mainView.view.Location.X + (mainView.view.Width / 2)) - (confirmView.Width / 2);
+                            int y = (mainView.view.Location.Y + (mainView.view.Height / 2)) - (confirmView.Height / 2);
+
+                            confirmView.Location = new System.Drawing.Point(x, y);
+
+                            confirmView.ForcedZOrder = 9999;
+                            confirmView.Visible = true;
+
+                            UICancel.Hit += (a, b) => {
+                                try {
+                                    UICancel.Dispose();
+                                    UIConfirm.Dispose();
+                                    confirmView.Dispose();
+                                    confirmView = null;
+                                }
+                                catch (Exception ex) { Util.LogException(ex); }
+                            };
+
+                            UIConfirm.Hit += (a, b) => {
+                                try {
+                                    UICancel.Dispose();
+                                    UIConfirm.Dispose();
+                                    confirmView.Dispose();
+                                    confirmView = null;
+
+                                    System.IO.File.WriteAllText(Util.GetCharacterDataDirectory() + @"messages.txt", string.Empty);
+                                    RefreshMessagesList();
+
+                                    Util.WriteToChat("Messages log file has been cleared.");
+                                }
+                                catch (Exception ex) { Util.LogException(ex); }
+                            };
+                        }
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                };
 
                 RefreshMessagesList();
             }
@@ -100,6 +173,10 @@ namespace DoThingsBot.Views.Pages {
                 if (!disposed) {
                     if (disposing) {
                         ChatManager.RaiseChatCommandEvent -= new EventHandler<ChatCommandEventArgs>(ChatManager_ChatCommand);
+                        if (UICancel != null) UICancel.Dispose();
+                        if (UIConfirm != null) UIConfirm.Dispose();
+                        if (UIConfirmHeading != null) UIConfirmHeading.Dispose();
+                        if (confirmView != null) confirmView.Dispose();
                     }
 
                     disposed = true;
