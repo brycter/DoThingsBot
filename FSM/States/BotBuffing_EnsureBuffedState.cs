@@ -9,46 +9,54 @@ namespace DoThingsBot.FSM.States {
     class BotBuffing_EnsureBuffedState : IBotState {
         public string Name { get => "BotBuffing_EnsureBuffedState"; }
         public List<string> WantedEnchantments = new List<string>();
-        public Dictionary<string, DateTime> EnchantmentExpireTimes = new Dictionary<string, DateTime>();
+        public Dictionary<int, DateTime> EnchantmentExpireTimes = new Dictionary<int, DateTime>();
         private ItemBundle itemBundle;
         private bool doneCasting = false;
-        
+        private List<string> spellsCasted = new List<string>();
 
         public BotBuffing_EnsureBuffedState(ItemBundle items) {
             try {
                 itemBundle = items;
-
-                if (itemBundle.HasOwner()) {
-                    WantedEnchantments = DoThingsBot.ConfigurationManager().GetWantedTinkerEnchantments();
-                }
-                else {
-                    WantedEnchantments = DoThingsBot.ConfigurationManager().GetWantedIdleEnchantments();
-                }
             }
             catch (Exception e) { Util.LogException(e); }
         }
 
         public void Enter(Machine machine) {
             try {
-                
+                CoreManager.Current.ChatBoxMessage += new EventHandler<ChatTextInterceptEventArgs>(Current_ChatBoxMessage);
             }
             catch (Exception e) { Util.LogException(e); }
         }
 
         public void Exit(Machine machine) {
             try {
+                CoreManager.Current.ChatBoxMessage -= new EventHandler<ChatTextInterceptEventArgs>(Current_ChatBoxMessage);
             }
             catch (Exception e) { Util.LogException(e); }
+        }
+
+        void Current_ChatBoxMessage(object sender, ChatTextInterceptEventArgs e) {
+            try {
+                if (e.Text.StartsWith(String.Format("You cast {0}", currentlyCasting))) {
+                    CastedEnchantments.Add(currentlyCasting);
+                    currentlyCasting = "";
+                    lastCasted = DateTime.UtcNow;
+                }
+            }
+            catch (Exception ex) { Util.LogException(ex); }
         }
 
         private DateTime lastThought = DateTime.UtcNow;
         private DateTime firstThought = DateTime.UtcNow;
 
+        private List<string> CastedEnchantments = new List<string>();
+        private string currentlyCasting = "";
+        private DateTime startedCasting = DateTime.MinValue;
+        private DateTime lastCasted = DateTime.MinValue;
+
         public void Think(Machine machine) {
             try {
-                int nextSpellId;
-
-                if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(2000)) {
+                if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(500)) {
                     lastThought = DateTime.UtcNow;
 
                     // enter magic combat state before casting buffs
@@ -60,22 +68,34 @@ namespace DoThingsBot.FSM.States {
                     // make sure we have enough mana
                     if (!EnsureEnoughMana()) return;
 
-                    if (itemBundle.HasOwner()) {
-                        WantedEnchantments = DoThingsBot.ConfigurationManager().GetWantedTinkerEnchantments();
+                    // refresh wanted enchantments in case of skill change
+                    WantedEnchantments.Clear();
+                    if (itemBundle.GetForceBuffMode() == true) {
+                        WantedEnchantments.AddRange(DoThingsBot.ConfigurationManager().GetWantedIdleEnchantments());
+                        WantedEnchantments.AddRange(DoThingsBot.ConfigurationManager().GetWantedTinkerEnchantments());
+                    }
+                    else if (itemBundle.HasOwner()) {
+                        WantedEnchantments.AddRange(DoThingsBot.ConfigurationManager().GetWantedTinkerEnchantments());
                     }
                     else {
-                        WantedEnchantments = DoThingsBot.ConfigurationManager().GetWantedIdleEnchantments();
+                        WantedEnchantments.AddRange(DoThingsBot.ConfigurationManager().GetWantedIdleEnchantments());
                     }
 
+                    if (DateTime.UtcNow - startedCasting < TimeSpan.FromMilliseconds(900)) return;
+                    if (DateTime.UtcNow - lastCasted < TimeSpan.FromMilliseconds(900)) return;
+
                     // cast next needed buff
-                    if (Spells.DoesAnySpellNeedRefresh(WantedEnchantments, DoThingsBot.ConfigurationManager().GetBuffRefreshTime())) {
-                        nextSpellId = Spells.GetNextSpellIdToRefresh(WantedEnchantments, DoThingsBot.ConfigurationManager().GetBuffRefreshTime());
+                    foreach (var enchantment in WantedEnchantments) {
+                        if (CastedEnchantments.Contains(enchantment)) continue;
 
-
-                        Util.WriteToChat("Trying to cast: " + nextSpellId + " : " + Spells.GetNameFromId(nextSpellId));
-                        CoreManager.Current.Actions.CastSpell(nextSpellId, CoreManager.Current.CharacterFilter.Id);
-
-                        return;
+                        if (Spells.DoesSpellNeedRefresh(enchantment) || itemBundle.GetForceBuffMode() == true) {
+                            var spellId = Spells.GetIdFromName(enchantment);
+                            currentlyCasting = enchantment;
+                            startedCasting = DateTime.UtcNow;
+                            Util.WriteToChat("cast:" + enchantment);
+                            CoreManager.Current.Actions.CastSpell(spellId, CoreManager.Current.CharacterFilter.Id);
+                            return;
+                        }
                     }
 
                     doneCasting = true;
@@ -94,7 +114,7 @@ namespace DoThingsBot.FSM.States {
         public bool EnsureCombatState(CombatState state) {
             if (CoreManager.Current.Actions.CombatMode != state) {
                 CoreManager.Current.Actions.SetCombatMode(state);
-                lastThought = DateTime.UtcNow + TimeSpan.FromSeconds(1);
+                //lastThought = DateTime.UtcNow + TimeSpan.FromMilliseconds(1);
                 return false;
             }
 
@@ -115,7 +135,6 @@ namespace DoThingsBot.FSM.States {
                 }
 
                 Util.WriteToDebugLog(String.Format("Stamina is: {0}/{1}", currentStamina, effectiveStamina));
-                Util.WriteToChat("Trying to cast: " + spellId + " : Robustification");
                 CoreManager.Current.Actions.CastSpell(spellId, CoreManager.Current.CharacterFilter.Id);
                 return false;
             }
@@ -138,7 +157,6 @@ namespace DoThingsBot.FSM.States {
                 }
 
                 Util.WriteToDebugLog(String.Format("Mana is: {0}/{1}", currentMana, effectiveMana));
-                Util.WriteToChat("Trying to cast: " + spellId + " : Meditative Trance");
 
                 CoreManager.Current.Actions.CastSpell(spellId, CoreManager.Current.CharacterFilter.Id);
                 return false;

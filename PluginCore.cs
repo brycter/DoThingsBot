@@ -116,6 +116,17 @@ namespace DoThingsBot {
                     DoThingsBot.ConfigurationManager().BotEnabled = false;
                     e.Eat = true;
                 }
+
+                if (e.Text == "/dtb forcebuff") {
+                    e.Eat = true;
+                    if (bot.isRunning) {
+                        Util.WriteToChat("Adding forcebuff to queue");
+                        bot.AddToQueue("forcebuff");
+                    }
+                    else {
+                        Util.WriteToChat("Bot is not running, won't forcebuff.");
+                    }
+                }
             }
             catch (Exception ex) { Util.LogException(ex); }
         }

@@ -41,7 +41,7 @@ namespace DoThingsBot.FSM.States {
                 if (DateTime.UtcNow - machine.GetDateTimeValue("lastBuffCheck") > TimeSpan.FromMinutes(1)) {
                     machine.SetValue("lastBuffCheck", DateTime.UtcNow);
 
-                    if (Spells.DoesAnySpellNeedRefresh(DoThingsBot.ConfigurationManager().GetWantedIdleEnchantments(), DoThingsBot.ConfigurationManager().GetBuffRefreshTime())) {
+                    if (Spells.DoesAnySpellNeedRefresh(DoThingsBot.ConfigurationManager().GetWantedIdleEnchantments())) {
                         ItemBundle itemBundle = new ItemBundle();
                         itemBundle.SetCraftMode(CraftMode.None);
                         itemBundle.SetEquipMode(EquipMode.Buff);

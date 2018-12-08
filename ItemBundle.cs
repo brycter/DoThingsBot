@@ -58,6 +58,8 @@ namespace DoThingsBot {
         private PlayerData playerData;
         private EquipMode equipMode;
 
+        private bool forceBuff = false;
+
         public ItemBundle() {
         }
 
@@ -76,6 +78,14 @@ namespace DoThingsBot {
 
         public void SetCraftMode(CraftMode m) {
             craftMode = m;
+        }
+
+        public bool GetForceBuffMode() {
+            return forceBuff;
+        }
+
+        public void SetForceBuffMode(bool m) {
+            forceBuff = m;
         }
 
         public CraftMode GetCraftMode() {

@@ -32,7 +32,6 @@ namespace DoThingsBot.FSM.States {
 
         public void Think(Machine machine) {
             if (_machine.InState("BotBuffing_FinishedState")) {
-
                 if (itemBundle.GetCraftMode() == CraftMode.None) {
                     itemBundle.SetEquipMode(EquipMode.Idle);
                     machine.ChangeState(new BotEquipItemsState(_machine.CurrentState.GetItemBundle()));

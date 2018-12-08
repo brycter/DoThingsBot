@@ -17,9 +17,17 @@ namespace DoThingsBot.FSM.States {
         }
 
         public void Enter(Machine machine) {
+            if (itemBundle.GetForceBuffMode() == true) {
+                itemBundle.SetEquipMode(EquipMode.Buff);
+                itemBundle.SetCraftMode(CraftMode.None);
+
+                machine.ChangeState(new BotEquipItemsState(itemBundle));
+                return;
+            }
+
             if (itemBundle.HasOwner()) {
-                if (Spells.DoesAnySpellNeedRefresh(DoThingsBot.ConfigurationManager().GetWantedTinkerEnchantments(), DoThingsBot.ConfigurationManager().GetBuffRefreshTime())) {
-                    ChatManager.Tell(itemBundle.GetOwner(), "hold on a sec, gonna buff :)");
+                if (Spells.DoesAnySpellNeedRefresh(DoThingsBot.ConfigurationManager().GetWantedTinkerEnchantments())) {
+                    ChatManager.Tell(itemBundle.GetOwner(), "One moment please, I need to buff.");
 
 
                     if (itemBundle.GetCraftMode() == CraftMode.CheckSkills) {

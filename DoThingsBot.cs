@@ -148,6 +148,14 @@ namespace DoThingsBot {
                     PrintAboutMessage(e.PlayerName, e.Arguments);
                     break;
 
+                case "forcebuff":
+                    if (_machine.IsRunning && (_machine.InState("BotIdleState") || skipQueue) && e.PlayerName == CoreManager.Current.CharacterFilter.Name) {
+                        var itemBundle = new ItemBundle();
+                        itemBundle.SetForceBuffMode(true);
+                        _machine.ChangeState(new BotStartState(itemBundle));
+                    }
+                    break;
+
                 case "skills":
                     if (_machine.IsRunning && (_machine.InState("BotIdleState") || skipQueue)) {
                         var itemBundle = new ItemBundle(e.PlayerName);
@@ -315,7 +323,11 @@ namespace DoThingsBot {
             }
         }
 
-        void AddToQueue(string playerName, string command) {
+        public void AddToQueue(string command) {
+            queue.Add(new PlayerCommand(CoreManager.Current.CharacterFilter.Name, command));
+        }
+
+        public void AddToQueue(string playerName, string command) {
             if (currentItemBundle != null && currentItemBundle.HasOwner() && currentItemBundle.GetOwner() == playerName) {
                 ChatManager.Tell(playerName, "I am already helping you.  Please wait until you are finished before issuing more commands.");
                 return;

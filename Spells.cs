@@ -6790,9 +6790,9 @@ new Spell() { id = 6322, name = "Viridian Rise Great Tree Recall", spellClass=Sp
 
            };
 
-        public static int GetNextSpellIdToRefresh(List<string> spellNames, int minutesToTopOff) {
+        public static int GetNextSpellIdToRefresh(List<string> spellNames) {
             foreach (var name in spellNames) {
-                if (DoesSpellNeedRefresh(name, minutesToTopOff)) {
+                if (DoesSpellNeedRefresh(name)) {
                     return GetIdFromName(name);
                 }
             }
@@ -6800,9 +6800,9 @@ new Spell() { id = 6322, name = "Viridian Rise Great Tree Recall", spellClass=Sp
             return 0;
         }
 
-        public static bool DoesAnySpellNeedRefresh(List<string> spellNames, int minutesToTopOff) {
+        public static bool DoesAnySpellNeedRefresh(List<string> spellNames) {
             foreach (var name in spellNames) {
-                if (DoesSpellNeedRefresh(name, minutesToTopOff)) {
+                if (DoesSpellNeedRefresh(name)) {
                     return true;
                 }
             }
@@ -6810,12 +6810,11 @@ new Spell() { id = 6322, name = "Viridian Rise Great Tree Recall", spellClass=Sp
             return false;
         }
 
-        public static bool DoesSpellNeedRefresh(string spellName, int minutesToTopOff) {
+        public static bool DoesSpellNeedRefresh(string spellName) {
             try {
                 int spellId = GetIdFromName(spellName);
                 var enchantments = CoreManager.Current.CharacterFilter.Enchantments;
-
-
+                
                 if (!CoreManager.Current.CharacterFilter.SpellBook.Contains(spellId)) {
                     Util.WriteToChat(String.Format("I don't know this spell: {0} ({1})", spellName, spellId));
                     return false;
@@ -6825,7 +6824,7 @@ new Spell() { id = 6322, name = "Viridian Rise Great Tree Recall", spellClass=Sp
                     string enchantmentName = Spells.GetNameFromId(enchantment.SpellId);
 
                     if (enchantmentName == spellName) {
-                        if (enchantment.Expires - DateTime.Now < TimeSpan.FromMinutes(minutesToTopOff)) {
+                        if (enchantment.Expires - DateTime.Now < TimeSpan.FromMinutes(DoThingsBot.ConfigurationManager().GetBuffRefreshTime())) {
                             return true;
                         }
 
@@ -6850,6 +6849,7 @@ new Spell() { id = 6322, name = "Viridian Rise Great Tree Recall", spellClass=Sp
                 }
             }
 
+            // TODO: this only works for creature spells. plus this whole thing is shitty
             foreach (Spell spell in spellClassSpells) {
                 if (bestSpell.skillRequired < spell.skillRequired
                     && CoreManager.Current.CharacterFilter.EffectiveSkill[Decal.Adapter.Wrappers.CharFilterSkillType.CreatureEnchantment] >= spell.skillRequired
