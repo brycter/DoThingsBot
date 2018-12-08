@@ -501,11 +501,13 @@ namespace DoThingsBot {
         public void RemoveAnnouncementsMessageAt(int index) {
             try {
                 if (index >= AnnouncementsMessages.Count) return;
-                    
+
+                string oldMessage = AnnouncementsMessages[index];
+
                 AnnouncementsMessages.RemoveAt(index);
 
                 if (IsLoaded) {
-                    Util.WriteToChat(String.Format("Config.AnnouncementsMessages -= {0}", AnnouncementsMessages[index]));
+                    Util.WriteToChat(String.Format("Config.AnnouncementsMessages -= {0}", oldMessage));
 
                     BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                     Save();
