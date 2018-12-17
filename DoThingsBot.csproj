@@ -103,7 +103,6 @@
     <Compile Include="ItemBundle.cs" />
     <Compile Include="Salvage.cs" />
     <Compile Include="Spells.cs" />
-    <Compile Include="Trade\TradeManager.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="Views\Pages\Announcements.cs" />
     <Compile Include="Views\Pages\Config.cs" />

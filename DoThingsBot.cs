@@ -15,8 +15,7 @@ using System.Diagnostics;
 namespace DoThingsBot {
     class DoThingsBot {
         public bool isRunning = false;
-
-        public Trade.TradeManager _tradeManager;
+        
         public Chat.ChatManager _chatManager;
 
         public Machine _machine;
@@ -40,7 +39,6 @@ namespace DoThingsBot {
         }
 
         public DoThingsBot() {
-            _tradeManager = new Trade.TradeManager();
             _chatManager = new Chat.ChatManager();
             _machine = new Machine();
 
