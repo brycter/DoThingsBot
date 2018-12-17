@@ -55,7 +55,7 @@ namespace DoThingsBot.FSM.States {
             if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(200)) {
                 lastThought = DateTime.UtcNow;
 
-                if (_machine.InState("BotTinkering_FinishedState")) {
+                if (_machine.IsInState("BotTinkering_FinishedState")) {
                     if (itemBundle.GetItems().Count > 0) {
                         itemBundle.SetCraftMode(CraftMode.GiveBackItems);
                         machine.ChangeState(new BotTradingState(itemBundle));

@@ -45,17 +45,17 @@ namespace DoThingsBot.FSM.States {
             }
 
             if (itemBundle.GetCraftMode() == CraftMode.GiveBackItems) {
-                if (_machine.InState("BotTrading_TradeCancelledState") || _machine.InState("BotTrading_FinishedState")) {
+                if (_machine.IsInState("BotTrading_TradeCancelledState") || _machine.IsInState("BotTrading_FinishedState")) {
                     machine.ChangeState(new BotFinishState(itemBundle));
                     return;
                 }
             }
             else {
-                if (_machine.InState("BotTrading_TradeCancelledState")) {
+                if (_machine.IsInState("BotTrading_TradeCancelledState")) {
                     machine.ChangeState(new BotFinishState(itemBundle));
                     return;
                 }
-                else if (_machine.InState("BotTrading_FinishedState")) {
+                else if (_machine.IsInState("BotTrading_FinishedState")) {
                     itemBundle.SetEquipMode(EquipMode.Tinker);
                     machine.ChangeState(new BotEquipItemsState(itemBundle));
                     return;

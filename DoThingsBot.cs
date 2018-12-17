@@ -154,7 +154,7 @@ namespace DoThingsBot {
                     break;
 
                 case "forcebuff":
-                    if (_machine.IsRunning && (_machine.InState("BotIdleState") || skipQueue) && e.PlayerName == CoreManager.Current.CharacterFilter.Name) {
+                    if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) && e.PlayerName == CoreManager.Current.CharacterFilter.Name) {
                         var itemBundle = new ItemBundle();
                         itemBundle.SetForceBuffMode(true);
                         _machine.ChangeState(new BotStartState(itemBundle));
@@ -162,7 +162,7 @@ namespace DoThingsBot {
                     break;
 
                 case "skills":
-                    if (_machine.IsRunning && (_machine.InState("BotIdleState") || skipQueue)) {
+                    if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
                         var itemBundle = new ItemBundle(e.PlayerName);
                         currentItemBundle = itemBundle;
 
@@ -197,7 +197,7 @@ namespace DoThingsBot {
                         return;
                     }
 
-                    if (_machine.IsRunning && (_machine.InState("BotIdleState") || skipQueue)) {
+                    if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
                         var itemBundle = new ItemBundle(e.PlayerName);
                         currentItemBundle = itemBundle;
 
@@ -216,7 +216,7 @@ namespace DoThingsBot {
                         return;
                     }
 
-                    if (_machine.IsRunning && (_machine.InState("BotIdleState") || skipQueue)) {
+                    if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
                         var itemBundle = new ItemBundle(e.PlayerName);
                         currentItemBundle = itemBundle;
 
@@ -230,7 +230,7 @@ namespace DoThingsBot {
                     break;
 
                 case "tinker":
-                    if (_machine.IsRunning && (_machine.InState("BotIdleState") || skipQueue)) {
+                    if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
                         var itemBundle = new ItemBundle(e.PlayerName);
                         itemBundle.SetCraftMode(CraftMode.WeaponTinkering);
                         currentItemBundle = itemBundle;
@@ -243,7 +243,7 @@ namespace DoThingsBot {
                     break;
 
                 case "lostitems":
-                    if (_machine.IsRunning && (_machine.InState("BotIdleState") || skipQueue)) {
+                    if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
                         ItemBundle itemBundle = new ItemBundle(e.PlayerName);
                         currentItemBundle = itemBundle;
 
@@ -345,7 +345,7 @@ namespace DoThingsBot {
                 }
             }
 
-            if (_machine.InState("BotBuffingState")) {
+            if (_machine.IsOrWillBeInState("BotBuffingState")) {
                 ChatManager.Tell(playerName, String.Format("I am currently buffing, but you have been added to the queue."));
             }
             else {
@@ -368,8 +368,10 @@ namespace DoThingsBot {
                 }
 
                 if (isRunning) {
-                    if (_machine.InState("BotIdleState")) {
-                        currentItemBundle = null;
+                    if (_machine.IsInState("BotIdleState")) {
+                        if (currentItemBundle != null) {
+                            currentItemBundle = null;
+                        }
 
                         if (queue.Count > 0) {
                             ProcessCommand(new ChatCommandEventArgs(queue[0].PlayerName, queue[0].Command, queue[0].Command), true);

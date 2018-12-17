@@ -106,8 +106,22 @@ namespace DoThingsBot.FSM {
             NextState = NewState;
         }
 
-        public bool InState(string state) {
+        public bool IsInState(string state) {
             return (IsRunning && CurrentState != null && CurrentState.Name == state);
+        }
+
+        public bool IsOrWillBeInState(string state) {
+            if (IsRunning) {
+                if (CurrentState != null && CurrentState.Name == state) {
+                    return true;
+                }
+
+                if (NextState != null && NextState.Name == state) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public void Think() {
