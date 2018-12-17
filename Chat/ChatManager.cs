@@ -146,7 +146,6 @@ namespace DoThingsBot.Chat {
         }
 
         public static void AddToChatBox(string command) {
-            Util.WriteToDebugLog(String.Format("Add to chatbox: {0}", command));
             commandQueue.Enqueue(command);
         }
 
@@ -187,6 +186,7 @@ namespace DoThingsBot.Chat {
                         lastChatCommandSentAt = DateTime.UtcNow;
 
                         DecalProxy.DispatchChatToBoxWithPluginIntercept(command);
+                        Util.WriteToDebugLog(command);
                     }
                     // this is a command, so always let it through
                     else if (!(PublicChatMessageRegex.IsMatch(command.ToLower()) || PrivateChatMessageRegex.IsMatch(command.ToLower()))) {
@@ -194,6 +194,7 @@ namespace DoThingsBot.Chat {
                         lastChatCommandSentAt = DateTime.UtcNow;
 
                         DecalProxy.DispatchChatToBoxWithPluginIntercept(command);
+                        Util.WriteToDebugLog(command);
                     }
                     else {
                         Util.WriteToDebugLog("Skipping command because it's a dupe: " + command);
