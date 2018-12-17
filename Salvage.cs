@@ -49,7 +49,7 @@ namespace DoThingsBot {
         ROSE_QUARTZ = 37,
         RUBY = 38,
         SAPPHIRE = 39,
-        SMOKEY_QUARTZ = 40,
+        SMOKY_QUARTZ = 40,
         SUNSTONE = 41,
         TIGER_EYE = 42,
         TOURMALINE = 43,
@@ -129,6 +129,23 @@ namespace DoThingsBot {
             }
         }
 
+        public static bool IsMagicWeaponImbueSalvage(WorldObject wo) {
+            if (wo.ObjectClass != ObjectClass.Salvage) return false;
+
+            switch (wo.Values(LongValueKey.Material)) {
+                case (int)Material.JET: return true;
+                case (int)Material.EMERALD: return true;
+                case (int)Material.IMPERIAL_TOPAZ: return true;
+                case (int)Material.BLACK_GARNET: return true;
+                case (int)Material.AQUAMARINE: return true;
+                case (int)Material.RED_GARNET: return true;
+                case (int)Material.WHITE_SAPPHIRE: return true;
+                case (int)Material.BLACK_OPAL: return true;
+                case (int)Material.FIRE_OPAL: return true;
+                default: return false;
+            }
+        }
+
         public static bool IsArmorImbueSalvage(WorldObject wo) {
             if (wo.ObjectClass != ObjectClass.Salvage) return false;
 
@@ -156,13 +173,13 @@ namespace DoThingsBot {
                 case (int)Material.BLOODSTONE: return true;
                 case (int)Material.ROSE_QUARTZ: return true;
                 case (int)Material.RED_JADE: return true;
-                case (int)Material.SMOKEY_QUARTZ: return true;
+                case (int)Material.SMOKY_QUARTZ: return true;
                 default: return false;
             }
         }
 
         public static bool IsImbueSalvage(WorldObject wo) {
-            return IsWeaponImbueSalvage(wo) || IsArmorImbueSalvage(wo) || IsJewelryImbueSalvage(wo);
+            return IsMagicWeaponImbueSalvage(wo) || IsWeaponImbueSalvage(wo) || IsArmorImbueSalvage(wo) || IsJewelryImbueSalvage(wo);
         }
 
         public static bool IsAbleToApplyToArmor(WorldObject wo) {
@@ -197,10 +214,10 @@ namespace DoThingsBot {
             }
         }
 
-        public static bool IsAbleToApplyToMagicWeapon(WorldObject wo) {
+        public static bool IsAbleToApplyToAnyMagicWeapon(WorldObject wo) {
             if (wo.ObjectClass != ObjectClass.Salvage) return false;
 
-            if (IsAbleToApplyToAnyWeapon(wo)) {
+            if (IsMagicWeaponImbueSalvage(wo) || IsAbleToApplyToAnyTreasureGeneratedItem(wo)) {
                 return true;
             }
 
@@ -214,7 +231,7 @@ namespace DoThingsBot {
         public static bool IsAbleToApplyToAnyWeapon(WorldObject wo) {
             if (wo.ObjectClass != ObjectClass.Salvage) return false;
 
-            if (IsWeaponImbueSalvage(wo) || IsAbleToApplyToAnyTreasureGeneratedItem(wo)) {
+            if (IsAbleToApplyToAnyTreasureGeneratedItem(wo)) {
                 return true;
             }
 
@@ -232,9 +249,8 @@ namespace DoThingsBot {
             }
 
             switch (wo.Values(LongValueKey.Material)) {
-                case (int)Material.IRON: return true;
-                case (int)Material.BRASS: return true;
                 case (int)Material.OAK: return true;
+                case (int)Material.SUNSTONE: return true;
                 default: return false;
             }
         }
@@ -248,6 +264,7 @@ namespace DoThingsBot {
 
             switch (wo.Values(LongValueKey.Material)) {
                 case (int)Material.GRANITE: return true;
+                case (int)Material.IRON: return true;
                 case (int)Material.VELVET: return true;
                 default: return false;
             }
@@ -329,7 +346,7 @@ namespace DoThingsBot {
                 case 37: return new SalvageData(TinkerType.Unknown, "Rose Quartz");
                 case 38: return new SalvageData(TinkerType.Unknown, "Ruby");
                 case 39: return new SalvageData(TinkerType.Unknown, "Sapphire");
-                case 40: return new SalvageData(TinkerType.Unknown, "Smokey Quartz");
+                case 40: return new SalvageData(TinkerType.Unknown, "Smoky Quartz");
                 case 41: return new SalvageData(TinkerType.Weapon, "Sunstone");
                 case 42: return new SalvageData(TinkerType.Unknown, "Tiger Eye");
                 case 43: return new SalvageData(TinkerType.Unknown, "Tourmaline");

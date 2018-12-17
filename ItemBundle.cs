@@ -261,7 +261,7 @@ namespace DoThingsBot {
                 switch (targetWo.ObjectClass) {
                     case ObjectClass.MeleeWeapon: canApply = Salvage.IsAbleToApplyToMeleeWeapon(salvage); break;
                     case ObjectClass.MissileWeapon: canApply = Salvage.IsAbleToApplyToMissileWeapon(salvage); break;
-                    case ObjectClass.WandStaffOrb: canApply = Salvage.IsAbleToApplyToMagicWeapon(salvage); break;
+                    case ObjectClass.WandStaffOrb: canApply = Salvage.IsAbleToApplyToAnyMagicWeapon(salvage); break;
                     case ObjectClass.Armor: canApply = Salvage.IsAbleToApplyToArmor(salvage); break;
                     case ObjectClass.Jewelry: canApply = Salvage.IsAbleToApplyToJewelry(salvage); break;
                 }
@@ -403,7 +403,7 @@ namespace DoThingsBot {
             switch (targetItem.ObjectClass) {
                 case ObjectClass.MeleeWeapon: return Salvage.IsAbleToApplyToMeleeWeapon(salvage);
                 case ObjectClass.MissileWeapon: return Salvage.IsAbleToApplyToMissileWeapon(salvage);
-                case ObjectClass.WandStaffOrb: return Salvage.IsAbleToApplyToMagicWeapon(salvage);
+                case ObjectClass.WandStaffOrb: return Salvage.IsAbleToApplyToAnyMagicWeapon(salvage);
                 case ObjectClass.Armor: return Salvage.IsAbleToApplyToArmor(salvage);
                 case ObjectClass.Jewelry: return Salvage.IsAbleToApplyToJewelry(salvage);
                 default: return false;
