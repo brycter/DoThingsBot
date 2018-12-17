@@ -29,10 +29,7 @@ namespace DoThingsBot.Views.Pages {
                 Config2.Announcements.StartupMessage.Changed += obj => { UIStartupCommand.Text = obj.Value; };
                 Config2.Announcements.SpamInterval.Changed += obj => { UIAnnouncementsAnnounceInterval.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
                 Config2.Announcements.StartupMessage.Changed += obj => { UIStartupCommand.Text = obj.Value; };
-
-                Config.BotConfigChangedEvent += (e, v) => {
-                    RefreshAnnouncementsMessages();
-                };
+                Config2.Announcements.Messages.Changed += obj => { RefreshAnnouncementsMessages(); };
 
                 UIAnnouncementsEnabled.Change += (s, e) => {
                     try {
@@ -55,7 +52,9 @@ namespace DoThingsBot.Views.Pages {
                 UIAnnouncementsAddNewMessage.Hit += (s, e) => {
                     try {
                         if (UIAnnouncementsNewMessage.Text.Length > 0) {
-                            DoThingsBot.ConfigurationManager().AddAnnouncementsMessage(UIAnnouncementsNewMessage.Text);
+                            var newList = Config2.Announcements.Messages.Value;
+                            newList.Add(UIAnnouncementsNewMessage.Text);
+                            Config2.Announcements.Messages.Value = newList;
                         }
                         else {
                             Util.WriteToChat("Announcement message cannot be blank");
@@ -82,7 +81,12 @@ namespace DoThingsBot.Views.Pages {
             try {
                 UIAnnouncementsList.ClearRows();
 
-                var announcements = DoThingsBot.ConfigurationManager().AnnouncementsMessages;
+                var announcements = Config2.Announcements.Messages.Value;
+
+                Util.WriteToChat("Announcements: ");
+                foreach (var a in announcements) {
+                    Util.WriteToChat(a);
+                }
 
                 for (int announcementIndex = 0; announcementIndex < announcements.Count; announcementIndex++) {
                     HudList.HudListRowAccessor newRow = UIAnnouncementsList.AddRow();
@@ -95,7 +99,19 @@ namespace DoThingsBot.Views.Pages {
 
         private void UIAnnouncementsList_Click(object sender, int row, int col) {
             try {
-                DoThingsBot.ConfigurationManager().RemoveAnnouncementsMessageAt(row);
+                if (Config2.Announcements.Messages.Value.Count > row) {
+                    var newList = Config2.Announcements.Messages.Value;
+                    newList.RemoveAt(row);
+                    Config2.Announcements.Messages.Value = newList;
+                }
+                else {
+                    Util.WriteToDebugLog("Cant remove announcement at index: " + row);
+
+                    Util.WriteToChat("Announcements: ");
+                    foreach (var a in Config2.Announcements.Messages.Value) {
+                        Util.WriteToChat(a);
+                    }
+                }
             }
             catch (Exception ex) { Util.LogException(ex); }
         }

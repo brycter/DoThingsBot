@@ -1,5 +1,6 @@
 ﻿using DoThingsBot;
 using System;
+using System.Collections.Generic;
 
 // https://github.com/Mag-nus/Mag-Plugins/blob/master/Shared/Settings/Setting.cs
 
@@ -34,29 +35,32 @@ namespace Mag.Shared.Settings {
                 return value;
             }
             set {
-                // If we're setting it to the value its already at, don't continue with the set.
-                if (Object.Equals(this.value, value))
-                    return;
-
-                if (Validate != null) {
-                    ValidateSettingEventArgs<T> eventArgs = new ValidateSettingEventArgs<T>(value);
-                    Validate(this, eventArgs);
-
-                    if (!eventArgs.IsValid) {
-                        Util.WriteToChat(String.Format("Cannot set {0} to {1}: {2}", this.Xpath, value, eventArgs.InvalidReason));
+                try {
+                    // If we're setting it to the value its already at, don't continue with the set.
+                    if (Object.Equals(this.value, value) && typeof(T) != typeof(List<string>))
                         return;
+
+                    if (Validate != null) {
+                        ValidateSettingEventArgs<T> eventArgs = new ValidateSettingEventArgs<T>(value);
+                        Validate(this, eventArgs);
+
+                        if (!eventArgs.IsValid) {
+                            Util.WriteToChat(String.Format("Cannot set {0} to {1}: {2}", this.Xpath, value, eventArgs.InvalidReason));
+                            return;
+                        }
                     }
+
+                    // The value differs, set it.
+                    this.value = value;
+
+                    Util.WriteToChat(String.Format("{0} = {1}", this.Xpath, this.value.ToString()));
+
+                    StoreValueInConfigFile();
+
+                    if (Changed != null)
+                        Changed(this);
                 }
-
-                // The value differs, set it.
-                this.value = value;
-
-                Util.WriteToChat(String.Format("{0} = {1}", this.Xpath, this.value.ToString()));
-
-                StoreValueInConfigFile();
-
-                if (Changed != null)
-                    Changed(this);
+                catch (Exception e) { Util.LogException(e); }
             }
         }
 
@@ -64,21 +68,30 @@ namespace Mag.Shared.Settings {
         public event Action<Setting<T>> Changed;
 
         public Setting(string xpath, string description = null, T defaultValue = default(T)) {
-            Xpath = xpath;
+            try {
+                Xpath = xpath;
 
-            Description = description;
+                Description = description;
 
-            DefaultValue = defaultValue;
+                DefaultValue = defaultValue;
 
-            LoadValueFromConfig(defaultValue);
+                LoadValueFromConfig(defaultValue);
+            }
+            catch (Exception e) { Util.LogException(e); }
         }
 
         void LoadValueFromConfig(T defaultValue) {
-            value = SettingsFile.GetSetting(Xpath, defaultValue, Description);
+            try {
+                value = SettingsFile.GetSetting(Xpath, defaultValue, Description);
+            }
+            catch (Exception e) { Util.LogException(e); }
         }
 
         void StoreValueInConfigFile() {
-            SettingsFile.PutSetting(Xpath, value, Description, true);
+            try {
+                SettingsFile.PutSetting(Xpath, value, Description, true);
+            }
+            catch (Exception e) { Util.LogException(e); }
         }
     }
 }

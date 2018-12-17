@@ -88,9 +88,7 @@ namespace DoThingsBot {
 
                 Config2.Init();
 
-                if (!File.Exists(configFilePath)) {
-                    Mag.Shared.Settings.SettingsFile.SaveXmlDocument();
-                }
+                Mag.Shared.Settings.SettingsFile.SaveXmlDocument();
 
                 mainView = new MainView();
                 bot = new DoThingsBot();

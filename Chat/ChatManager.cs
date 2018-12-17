@@ -167,7 +167,7 @@ namespace DoThingsBot.Chat {
                 if (Config2.Announcements.Enabled.Value == true) {
                     lastAnnouncementTime = DateTime.UtcNow;
 
-                    var announcements = DoThingsBot.ConfigurationManager().AnnouncementsMessages;
+                    var announcements = Config2.Announcements.Messages.Value;
 
                     if (announcements.Count > 0) {
                         int r = rnd.Next(announcements.Count);

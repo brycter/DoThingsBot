@@ -70,7 +70,6 @@
     <Compile Include="Config.cs" />
     <Compile Include="DoThingsBot.cs" />
     <Compile Include="DecalProxy.cs" />
-    <Compile Include="Emote\Emote.cs" />
     <Compile Include="FSM\Machine.cs" />
     <Compile Include="FSM\States\BotBuffingState.cs" />
     <Compile Include="FSM\States\BotBuffing_EnsureBuffedState.cs" />

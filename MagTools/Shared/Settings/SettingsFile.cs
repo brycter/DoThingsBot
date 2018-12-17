@@ -52,48 +52,124 @@ namespace Mag.Shared.Settings {
         }
 
         public static T GetSetting<T>(string xPath, T defaultValue = default(T), string description = "") {
-            XmlNode xmlNode = XmlDocument.SelectSingleNode(_rootNodeName + "/" + xPath);
+            try {
+                if (typeof(T) == typeof(List<string>)) {
+                    return GetSetting<T>(xPath, defaultValue as List<string>, description);
+                }
 
-            if (xmlNode != null) {
-                TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
+                XmlNode xmlNode = XmlDocument.SelectSingleNode(_rootNodeName + "/" + xPath);
 
-                if (converter.CanConvertFrom(typeof(string)))
-                    return (T)converter.ConvertFromString(xmlNode.InnerText);
+                if (xmlNode != null) {
+                    TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
+
+                    if (converter.CanConvertFrom(typeof(string)))
+                        return (T)converter.ConvertFromString(xmlNode.InnerText);
+                }
+
+                Util.WriteToDebugLog(String.Format("Creating {0} because it doesn't exist", xPath));
+
+                // save default setting to xml if it doesn't exist
+                PutSetting<T>(xPath, defaultValue, description, false);
+
+                return defaultValue;
             }
+            catch (Exception e) { Util.LogException(e); return defaultValue; }
+        }
 
-            Util.WriteToDebugLog(String.Format("Creating {0} because it doesn't exist", xPath));
+        public static T GetSetting<T>(string xPath, List<string> defaultValue, string description = "") {
+            try {
+                var xpathParts = new List<string>(xPath.Split('/'));
+                Util.WriteToDebugLog(_rootNodeName + "/" + String.Join("/", xpathParts.GetRange(0, xpathParts.Count - 1).ToArray()));
+                XmlNode xmlNode = XmlDocument.SelectSingleNode(_rootNodeName + "/" + String.Join("/", xpathParts.GetRange(0, xpathParts.Count - 1).ToArray()));
+                var lastPart = xpathParts[xpathParts.Count - 1];
 
-            // save default setting to xml if it doesn't exist
-            PutSetting<T>(xPath, defaultValue, description, false);
+                List<string> returnVals = new List<string>();
 
-            return defaultValue;
+                if (xmlNode != null) {
+                    foreach (XmlNode childNode in xmlNode.ChildNodes) {
+                        returnVals.Add(childNode.InnerText);
+                    }
+
+                    return (T)Convert.ChangeType(returnVals, typeof(T));
+                }
+
+                Util.WriteToDebugLog(String.Format("Creating {0} because it doesn't exist", xPath));
+
+                // save default setting to xml if it doesn't exist
+                PutSetting(xPath, defaultValue, description, false);
+
+                return (T)Convert.ChangeType(returnVals, typeof(T));
+            }
+            catch (Exception e) { Util.LogException(e); return (T)Convert.ChangeType(defaultValue, typeof(T)); }
+        }
+
+        public static void PutSetting(string xPath, List<string> values, string helpText, bool doSave) {
+            try {
+                // Before we save a setting, we reload the document to make sure we don't overwrite settings saved from another session.
+                ReloadXmlDocument();
+
+                var xpathParts = new List<string>(xPath.Split('/'));
+
+                Util.WriteToChat(_rootNodeName + "/" + String.Join("/", xpathParts.GetRange(0, xpathParts.Count - 1).ToArray()));
+
+                XmlNode xmlNode = XmlDocument.SelectSingleNode(_rootNodeName + "/" + String.Join("/", xpathParts.GetRange(0, xpathParts.Count - 1).ToArray()));
+
+                if (xmlNode == null) {
+                    xmlNode = createMissingNode(_rootNodeName + "/" + String.Join("/", xpathParts.GetRange(0, xpathParts.Count - 1).ToArray()));
+
+                    xmlNode.ParentNode.InsertBefore(XmlDocument.CreateComment(" " + helpText + " "), xmlNode);
+                }
+
+                xmlNode.InnerText = "";
+                        foreach (var value in values) {
+                            if (value != null) {
+                                var child = XmlDocument.CreateElement(xpathParts[xpathParts.Count - 1]);
+                                child.InnerText = value;
+
+                                xmlNode.AppendChild(child);
+
+                                if (doSave) {
+                                    SaveXmlDocument();
+                                }
+                            }
+                        }
+            }
+            catch (Exception e) { Util.LogException(e); }
         }
 
         public static void PutSetting<T>(string xPath, T value, string helpText, bool doSave) {
-            // Before we save a setting, we reload the document to make sure we don't overwrite settings saved from another session.
-            ReloadXmlDocument();
+            try {
+                if (typeof(T) == typeof(List<string>)) {
+                    PutSetting(xPath, value as List<string>, helpText, doSave);
+                    return;
+                }
 
-            XmlNode xmlNode = XmlDocument.SelectSingleNode(_rootNodeName + "/" + xPath);
+                // Before we save a setting, we reload the document to make sure we don't overwrite settings saved from another session.
+                ReloadXmlDocument();
 
-            if (xmlNode == null) {
-                xmlNode = createMissingNode(_rootNodeName + "/" + xPath);
+                XmlNode xmlNode = XmlDocument.SelectSingleNode(_rootNodeName + "/" + xPath);
 
-                xmlNode.ParentNode.InsertBefore(XmlDocument.CreateComment(" " + helpText + " "), xmlNode);
-            }
+                if (xmlNode == null) {
+                    xmlNode = createMissingNode(_rootNodeName + "/" + xPath);
 
-            TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
+                    xmlNode.ParentNode.InsertBefore(XmlDocument.CreateComment(" " + helpText + " "), xmlNode);
+                }
 
-            if (converter.CanConvertTo(typeof(string))) {
-                string result = converter.ConvertToString(value);
+                TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
 
-                if (result != null) {
-                    xmlNode.InnerText = result;
+                if (converter.CanConvertTo(typeof(string))) {
+                    string result = converter.ConvertToString(value);
 
-                    if (doSave) {
-                        SaveXmlDocument();
+                    if (result != null) {
+                        xmlNode.InnerText = result;
+
+                        if (doSave) {
+                            SaveXmlDocument();
+                        }
                     }
                 }
             }
+            catch (Exception e) { Util.LogException(e); }
         }
 
         static XmlNode createMissingNode(string xPath) {

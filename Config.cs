@@ -42,15 +42,18 @@ namespace DoThingsBot {
             public static readonly Setting<List<string>> Messages;
 
             static Announcements() {
-                Enabled = new Setting<bool>("Config/Announcements/Enabled", "Enable startup / periodic announcements", true);
+                try {
+                    Enabled = new Setting<bool>("Config/Announcements/Enabled", "Enable startup / periodic announcements", true);
 
-                StartupMessage = new Setting<string>("Config/Announcements/StartupMessage", "Puts a message/command into the chatbox when the bot starts (leave blank for none)", "/s Tinkerbot online. Tell me 'tinker' to get started.");
-                SpamInterval = new Setting<int>("Config/Announcements/SpamInterval", "The interval in minutes that announcements are sent out.", 15);
+                    StartupMessage = new Setting<string>("Config/Announcements/StartupMessage", "Puts a message/command into the chatbox when the bot starts (leave blank for none)", "/s Tinkerbot online. Tell me 'tinker' to get started.");
+                    SpamInterval = new Setting<int>("Config/Announcements/SpamInterval", "The interval in minutes that announcements are sent out.", 15);
 
-                var defaultMessages = new List<string>();
-                defaultMessages.Add("I'm a tinkerbot. Stand nearby and tell me 'tinker' to get started.");
+                    var defaultMessages = new List<string>();
+                    defaultMessages.Add("I'm a tinkerbot. Stand nearby and tell me 'tinker' to get started.");
 
-                Messages = new Setting<List<string>>("Config/Announcements/Messages", "messages..", defaultMessages);
+                    Messages = new Setting<List<string>>("Config/Announcements/Spam/Message", "Announcements go here. It will spam every `Config/Announcements/SpamInterval` seconds.", defaultMessages);
+                }
+                catch (Exception e) { Util.LogException(e); }
             }
 
             public static void Init() {
@@ -97,10 +100,13 @@ namespace DoThingsBot {
         }
 
         public static void Init() {
-            Bot.Init();
-            Announcements.Init();
-            Portals.Init();
-            Tinkering.Init();
+            try {
+                Bot.Init();
+                Announcements.Init();
+                Portals.Init();
+                Tinkering.Init();
+            }
+            catch (Exception e) { Util.LogException(e); }
         }
 
         private static void ValidateHeading(object sender, ValidateSettingEventArgs<int> e) {
@@ -121,7 +127,6 @@ namespace DoThingsBot {
         public List<Spells.SpellClass> WantedIdleEnchantments = new List<Spells.SpellClass>();
         public List<Spells.SpellClass> WantedTinkerEnchantments = new List<Spells.SpellClass>();
         
-        public List<string> AnnouncementsMessages = new List<string>();
 
         public static event EventHandler<BotConfigChangedEventArgs> BotConfigChangedEvent;
 
@@ -156,14 +161,9 @@ namespace DoThingsBot {
 
 
                     _instance = new Config();
-                    _instance.AnnouncementsMessages = configData.AnnouncementsMessages;
                     _instance.IdleEquipment = configData.IdleEquipment;
                     _instance.BuffEquipment = configData.BuffEquipment;
                     _instance.TinkerEquipment = configData.TinkerEquipment;
-
-                    if (_instance.AnnouncementsMessages.Count == 0) {
-                        _instance.AddAnnouncementsMessage("/s I'm a tinkerbot.  Tell me \"help\" to get started.");
-                    }
                 }
                 else {
                     _instance = new Config();
@@ -332,40 +332,6 @@ namespace DoThingsBot {
 
                 if (IsLoaded) {
                     Util.WriteToChat(String.Format("Config.TinkerEquipment -= {0}", itemName));
-
-                    BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                    Save();
-                }
-            }
-            catch (Exception ex) { Util.LogException(ex); }
-        }
-
-        public void AddAnnouncementsMessage(string message) {
-            try {
-                if (message != null && message.Length > 0) {
-                    AnnouncementsMessages.Add(message);
-
-                    if (IsLoaded) {
-                        Util.WriteToChat(String.Format("Config.AnnouncementsMessages += {0}", message));
-
-                        BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                        Save();
-                    }
-                }
-            }
-            catch (Exception ex) { Util.LogException(ex); }
-        }
-
-        public void RemoveAnnouncementsMessageAt(int index) {
-            try {
-                if (index >= AnnouncementsMessages.Count) return;
-
-                string oldMessage = AnnouncementsMessages[index];
-
-                AnnouncementsMessages.RemoveAt(index);
-
-                if (IsLoaded) {
-                    Util.WriteToChat(String.Format("Config.AnnouncementsMessages -= {0}", oldMessage));
 
                     BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
                     Save();
