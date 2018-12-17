@@ -702,11 +702,11 @@ namespace MyClasses.MetaViewWrappers.DecalControls
         {
             get
             {
-                return ((Decal.Adapter.Wrappers.SliderWrapper)myControl).SliderPostition;
+                return ((Decal.Adapter.Wrappers.SliderWrapper)myControl).Position;
             }
             set
             {
-                ((Decal.Adapter.Wrappers.SliderWrapper)myControl).SliderPostition = value;
+                ((Decal.Adapter.Wrappers.SliderWrapper)myControl).Position = value;
             }
         }
 

@@ -1,6 +1,5 @@
 ﻿using System;
-
-
+using System.Globalization;
 using VirindiViewService.Controls;
 
 namespace DoThingsBot.Views.Pages {
@@ -15,49 +14,30 @@ namespace DoThingsBot.Views.Pages {
                 UIRespondToUnknownCommands = mainView.view != null ? (HudCheckBox)mainView.view["UIRespondToUnknownCommands"] : new HudCheckBox();
                 UIKeepTinkerEquipmentWhileIdleDelay = mainView.view != null ? (HudTextBox)mainView.view["UIKeepTinkerEquipmentWhileIdleDelay"] : new HudTextBox();
 
-                UIDefaultHeading.Text = DoThingsBot.ConfigurationManager().DefaultHeading.ToString();
-                UIRespondToUnknownCommands.Checked = DoThingsBot.ConfigurationManager().RespondToUnknownCommands;
-                UIKeepTinkerEquipmentWhileIdleDelay.Text = DoThingsBot.ConfigurationManager().KeepTinkerEquipmentWhileIdleDelay.ToString();
+                UIDefaultHeading.Text = Config2.Bot.DefaultHeading.Value.ToString(CultureInfo.InvariantCulture);
+                UIRespondToUnknownCommands.Checked = Config2.Bot.RespondToUnknownCommands.Value;
+                UIKeepTinkerEquipmentWhileIdleDelay.Text = Config2.Tinkering.KeepEquipmentOnDelay.Value.ToString(CultureInfo.InvariantCulture);
 
-                Config.BotConfigChangedEvent += (e, v) => {
-                    UIDefaultHeading.Text = DoThingsBot.ConfigurationManager().DefaultHeading.ToString();
-                    UIRespondToUnknownCommands.Checked = DoThingsBot.ConfigurationManager().RespondToUnknownCommands;
-                    UIKeepTinkerEquipmentWhileIdleDelay.Text = DoThingsBot.ConfigurationManager().KeepTinkerEquipmentWhileIdleDelay.ToString();
-                };
+                Config2.Bot.DefaultHeading.Changed += obj => { UIDefaultHeading.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
+                Config2.Bot.RespondToUnknownCommands.Changed += obj => { UIRespondToUnknownCommands.Checked = obj.Value; };
+                Config2.Tinkering.KeepEquipmentOnDelay.Changed += obj => { UIKeepTinkerEquipmentWhileIdleDelay.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
 
                 UIDefaultHeading.LostFocus += (s, e) => {
                     try {
-                        int newHeading = 0;
-
-                        if (Int32.TryParse(UIDefaultHeading.Text, out newHeading) && newHeading >= 0 && newHeading < 360) {
-                            DoThingsBot.ConfigurationManager().DefaultHeading = newHeading;
-                        }
-                        else {
-                            Util.WriteToChat("Default heading should be a number from 0-259");
-                            UIDefaultHeading.Text = DoThingsBot.ConfigurationManager().DefaultHeading.ToString();
-                        }
+                        if (!int.TryParse(UIDefaultHeading.Text, out int value))
+                            value = Config2.Bot.DefaultHeading.Value;
+                        Config2.Bot.DefaultHeading.Value = value;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
 
-                UIRespondToUnknownCommands.Change += (s, e) => {
-                    try {
-                        DoThingsBot.ConfigurationManager().RespondToUnknownCommands = ((HudCheckBox)s).Checked;
-                    }
-                    catch (Exception ex) { Util.LogException(ex); }
-                };
+                UIRespondToUnknownCommands.Change += (s, e) => { try { Config2.Bot.RespondToUnknownCommands.Value = ((HudCheckBox)s).Checked; } catch (Exception ex) { Util.LogException(ex); } };
 
                 UIKeepTinkerEquipmentWhileIdleDelay.LostFocus += (s, e) => {
                     try {
-                        int newIdleDelay = 0;
-
-                        if (Int32.TryParse(UIKeepTinkerEquipmentWhileIdleDelay.Text, out newIdleDelay) && newIdleDelay >= 0 && newIdleDelay <= 9999) {
-                            DoThingsBot.ConfigurationManager().KeepTinkerEquipmentWhileIdleDelay = newIdleDelay;
-                        }
-                        else {
-                            Util.WriteToChat("KeepTinkerEquipmentWhileIdleDelay should be a number from 0-9999");
-                            UIDefaultHeading.Text = DoThingsBot.ConfigurationManager().DefaultHeading.ToString();
-                        }
+                        if (!int.TryParse(UIKeepTinkerEquipmentWhileIdleDelay.Text, out int value))
+                            value = Config2.Tinkering.KeepEquipmentOnDelay.Value;
+                        Config2.Tinkering.KeepEquipmentOnDelay.Value = value;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };

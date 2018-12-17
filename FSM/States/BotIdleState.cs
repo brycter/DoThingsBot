@@ -14,7 +14,7 @@ namespace DoThingsBot.FSM.States {
         public void Enter(Machine machine) {
             //Util.WriteToChat("Entered Idle State.");
 
-            if (DoThingsBot.ConfigurationManager().KeepTinkerEquipmentWhileIdleDelay > 0) {
+            if (Config2.Tinkering.KeepEquipmentOnDelay.Value > 0) {
                 needsToEquip = true;
             }
         }
@@ -24,7 +24,7 @@ namespace DoThingsBot.FSM.States {
         }
 
         public void Think(Machine machine) {
-            if (needsToEquip && DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(DoThingsBot.ConfigurationManager().KeepTinkerEquipmentWhileIdleDelay)) {
+            if (needsToEquip && DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(Config2.Tinkering.KeepEquipmentOnDelay.Value)) {
                 needsToEquip = false;
 
                 ItemBundle itemBundle = new ItemBundle();

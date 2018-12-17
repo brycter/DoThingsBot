@@ -22,6 +22,7 @@
     <DefineConstants>TRACE;DEBUG;VVS_REFERENCED</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -96,6 +97,8 @@
     <Compile Include="Globals.cs" />
     <Compile Include="Lib\PostMessageTools.cs" />
     <Compile Include="Lib\User32.cs" />
+    <Compile Include="MagTools\Shared\Settings\Setting.cs" />
+    <Compile Include="MagTools\Shared\Settings\SettingsFile.cs" />
     <Compile Include="PlayerData.cs" />
     <Compile Include="PluginCore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -128,6 +131,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="MagTools\license.md" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

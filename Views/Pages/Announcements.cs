@@ -1,6 +1,5 @@
 ﻿using System;
-
-
+using System.Globalization;
 using VirindiViewService.Controls;
 
 namespace DoThingsBot.Views.Pages {
@@ -21,21 +20,23 @@ namespace DoThingsBot.Views.Pages {
                 UIAnnouncementsList = mainView.view != null ? (HudList)mainView.view["UIAnnouncementsList"] : new HudList();
                 UIStartupCommand = mainView.view != null ? (HudTextBox)mainView.view["UIStartupCommand"] : new HudTextBox();
 
-                UIAnnouncementsEnabled.Checked = DoThingsBot.ConfigurationManager().AnnouncementsEnabled;
-                UIAnnouncementsAnnounceInterval.Text = DoThingsBot.ConfigurationManager().AnnouncementsAnnounceInterval.ToString();
+                UIAnnouncementsEnabled.Checked = Config2.Announcements.Enabled.Value;
+                UIAnnouncementsAnnounceInterval.Text = Config2.Announcements.SpamInterval.Value.ToString(CultureInfo.InvariantCulture);
                 UIAnnouncementsNewMessage.Text = "/s ";
-                UIStartupCommand.Text = DoThingsBot.ConfigurationManager().StartupCommand;
+                UIStartupCommand.Text = Config2.Announcements.StartupMessage.Value;
+
+                Config2.Announcements.Enabled.Changed += obj => { UIAnnouncementsEnabled.Checked = obj.Value; };
+                Config2.Announcements.StartupMessage.Changed += obj => { UIStartupCommand.Text = obj.Value; };
+                Config2.Announcements.SpamInterval.Changed += obj => { UIAnnouncementsAnnounceInterval.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
+                Config2.Announcements.StartupMessage.Changed += obj => { UIStartupCommand.Text = obj.Value; };
 
                 Config.BotConfigChangedEvent += (e, v) => {
-                    UIAnnouncementsEnabled.Checked = DoThingsBot.ConfigurationManager().AnnouncementsEnabled;
-                    UIAnnouncementsAnnounceInterval.Text = DoThingsBot.ConfigurationManager().AnnouncementsAnnounceInterval.ToString();
-                    UIStartupCommand.Text = DoThingsBot.ConfigurationManager().StartupCommand;
                     RefreshAnnouncementsMessages();
                 };
 
                 UIAnnouncementsEnabled.Change += (s, e) => {
                     try {
-                        DoThingsBot.ConfigurationManager().AnnouncementsEnabled = ((HudCheckBox)s).Checked;
+                        Config2.Announcements.Enabled.Value = ((HudCheckBox)s).Checked;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
@@ -44,15 +45,9 @@ namespace DoThingsBot.Views.Pages {
 
                 UIAnnouncementsAnnounceInterval.LostFocus += (s, e) => {
                     try {
-                        int newInterval = 0;
-
-                        if (Int32.TryParse(UIAnnouncementsAnnounceInterval.Text, out newInterval) && newInterval >= 1 && newInterval < 9999) {
-                            DoThingsBot.ConfigurationManager().AnnouncementsAnnounceInterval = newInterval;
-                        }
-                        else {
-                            Util.WriteToChat("Announcement Interval should be a number from 1-9999");
-                            UIAnnouncementsAnnounceInterval.Text = DoThingsBot.ConfigurationManager().AnnouncementsAnnounceInterval.ToString();
-                        }
+                        if (!int.TryParse(UIAnnouncementsAnnounceInterval.Text, out int value))
+                            value = Config2.Announcements.SpamInterval.Value;
+                        Config2.Announcements.SpamInterval.Value = value;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
@@ -73,7 +68,7 @@ namespace DoThingsBot.Views.Pages {
 
                 UIStartupCommand.LostFocus += (s, e) => {
                     try {
-                        DoThingsBot.ConfigurationManager().StartupCommand = UIStartupCommand.Text;
+                        Config2.Announcements.StartupMessage.Value = UIStartupCommand.Text;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };

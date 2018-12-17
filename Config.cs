@@ -6,8 +6,107 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+using Mag.Shared.Settings;
+
 namespace DoThingsBot {
     public class BotConfigChangedEventArgs : EventArgs {
+    }
+
+    static class Config2 {
+        public static class Bot {
+            public static readonly Setting<bool> Enabled;
+            public static readonly Setting<int> DefaultHeading;
+            public static readonly Setting<string> Location;
+            public static readonly Setting<bool> RespondToUnknownCommands;
+            public static readonly Setting<int> DontResendDuplicateMessagesWindow;
+
+            static Bot() {
+                Enabled = new Setting<bool>("Config/Bot/Enabled", "Enable the bot", false);
+                DefaultHeading = new Setting<int>("Config/Bot/DefaultHeading", "Default heading while the bot is idle. 0-359. (0=North, 90=East, 180=South, 270=West)", 0);
+                Location = new Setting<string>("Config/Bot/Location", "Where in Auberean is your bot? (eg: Holtburg, just east of the lifestone)", "Somewhere in Auberean");
+                RespondToUnknownCommands = new Setting<bool>("Config/Bot/RespondToUnknownCommands", "Respond to unknown commands", true);
+                DontResendDuplicateMessagesWindow = new Setting<int>("Config/Bot/DontResendDuplicateMessagesWindow", "Don't send repeat messages if they fall within this time window (in seconds)", 2);
+            }
+
+            public static void Init() {
+                DefaultHeading.Validate += ValidateHeading;
+            }
+        }
+
+        public static class Announcements {
+            public static readonly Setting<bool> Enabled;
+
+            public static readonly Setting<string> StartupMessage;
+            public static readonly Setting<int> SpamInterval;
+
+            public static readonly Setting<List<string>> Messages;
+
+            static Announcements() {
+                Enabled = new Setting<bool>("Config/Announcements/Enabled", "Enable startup / periodic announcements", true);
+
+                StartupMessage = new Setting<string>("Config/Announcements/StartupMessage", "Puts a message/command into the chatbox when the bot starts (leave blank for none)", "/s Tinkerbot online. Tell me 'tinker' to get started.");
+                SpamInterval = new Setting<int>("Config/Announcements/SpamInterval", "The interval in minutes that announcements are sent out.", 15);
+
+                var defaultMessages = new List<string>();
+                defaultMessages.Add("I'm a tinkerbot. Stand nearby and tell me 'tinker' to get started.");
+
+                Messages = new Setting<List<string>>("Config/Announcements/Messages", "messages..", defaultMessages);
+            }
+
+            public static void Init() {
+
+            }
+        }
+
+        public static class Portals {
+            public static readonly Setting<bool> Enabled;
+
+            public static readonly Setting<string> PrimaryPortalTieLocation;
+            public static readonly Setting<int> PrimaryPortalHeading;
+
+            public static readonly Setting<string> SecondaryPortalTieLocation;
+            public static readonly Setting<int> SecondaryPortalHeading;
+
+            static Portals() {
+                Enabled = new Setting<bool>("Config/Portals/Enabled", "Enable portal bot functionality", false);
+
+                PrimaryPortalTieLocation = new Setting<string>("Config/Portals/PrimaryPortalTieLocation", "Your primary portal tie location (eg: Temple of Enlightenment)", "Somewhere");
+                PrimaryPortalHeading = new Setting<int>("Config/Portals/PrimaryPortalHeading", "Heading while summoning your primary portal tie. 0-359. (0=North, 90=East, 180=South, 270=West)", 315);
+
+                SecondaryPortalTieLocation = new Setting<string>("Config/Portals/SecondaryPortalTieLocation", "Your secondary portal tie location (eg: Temple of Forgetfulness)", "Somewhere else");
+                SecondaryPortalHeading = new Setting<int>("Config/Portals/SecondaryPortalHeading", "Heading while summoning your secondary portal tie. 0-359. (0=North, 90=East, 180=South, 270=West)", 45);
+
+            }
+
+            public static void Init() {
+                PrimaryPortalHeading.Validate += ValidateHeading;
+                SecondaryPortalHeading.Validate += ValidateHeading;
+            }
+        }
+
+        public static class Tinkering {
+            public static readonly Setting<int> KeepEquipmentOnDelay;
+
+            static Tinkering() {
+                KeepEquipmentOnDelay = new Setting<int>("Config/Tinkering/KeepEquipmentOnDelay", "How long to keep tinkering equipment equipped after a job in seconds", 30);
+            }
+
+            public static void Init() {
+
+            }
+        }
+
+        public static void Init() {
+            Bot.Init();
+            Announcements.Init();
+            Portals.Init();
+            Tinkering.Init();
+        }
+
+        private static void ValidateHeading(object sender, ValidateSettingEventArgs<int> e) {
+            if (e.Value < 0) e.Invalidate("Should not be less than 0");
+            if (e.Value > 360) e.Invalidate("Should be less than 360");
+        }
     }
 
     class Config {
@@ -25,254 +124,6 @@ namespace DoThingsBot {
         public List<string> AnnouncementsMessages = new List<string>();
 
         public static event EventHandler<BotConfigChangedEventArgs> BotConfigChangedEvent;
-
-        private bool _botEnabled = false;
-        public bool BotEnabled {
-            get { return _botEnabled; }
-            set {
-                try {
-                    if (value != _botEnabled) {
-                        _botEnabled = value;
-                        if (IsLoaded) {
-                            Util.WriteToChat(String.Format("Config.BotEnabled = {0}", BotEnabled ? "true" : "false"));
-                            
-                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                            Save();
-                        }
-                    };
-                }
-                catch (Exception ex) { Util.LogException(ex); }
-            }
-        }
-
-        private int _defaultHeading = 0;
-        public int DefaultHeading {
-            get { return _defaultHeading; }
-            set {
-                try {
-                    if (value != _defaultHeading) {
-                        _defaultHeading = value;
-                        if (IsLoaded) {
-                            Util.WriteToChat(String.Format("Config.DefaultHeading = {0}", DefaultHeading));
-                            
-                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                            Save();
-                        }
-                    };
-                }
-                catch (Exception ex) { Util.LogException(ex); }
-            }
-        }
-
-        private int _keepTinkerEquipmentWhileIdleDelay = 30;
-        public int KeepTinkerEquipmentWhileIdleDelay {
-            get { return _keepTinkerEquipmentWhileIdleDelay; }
-            set {
-                try {
-                    if (value != _keepTinkerEquipmentWhileIdleDelay) {
-                        _keepTinkerEquipmentWhileIdleDelay = value;
-                        if (IsLoaded) {
-                            Util.WriteToChat(String.Format("Config.KeepTinkerEquipmentWhileIdleDelay = {0}", KeepTinkerEquipmentWhileIdleDelay));
-                            
-                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                            Save();
-                        }
-                    };
-                }
-                catch (Exception ex) { Util.LogException(ex); }
-            }
-        }
-
-        private bool _respondToUnknownCommands = false;
-        public bool RespondToUnknownCommands {
-            get { return _respondToUnknownCommands; }
-            set {
-                try {
-                    if (value != _respondToUnknownCommands) {
-                        _respondToUnknownCommands = value;
-                        if (IsLoaded) {
-                            Util.WriteToChat(String.Format("Config.RespondToUnknownCommands = {0}", RespondToUnknownCommands ? "true" : "false"));
-
-                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                            Save();
-                        }
-                    };
-                }
-                catch (Exception ex) { Util.LogException(ex); }
-            }
-        }
-
-        private string _startupCommand = "/s Tinkerbot online.  Tell me 'tinker' to get started.";
-        public string StartupCommand {
-            get { return _startupCommand == null ? "/s Tinkerbot online.  Tell me 'tinker' to get started." : _startupCommand; }
-            set {
-                try {
-                    if (value != _startupCommand) {
-                        _startupCommand = value;
-                        if (IsLoaded) {
-                            Util.WriteToChat(String.Format("Config.StartupCommand = {0}", StartupCommand));
-
-                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                            Save();
-                        }
-                    };
-                }
-                catch (Exception ex) { Util.LogException(ex); }
-            }
-        }
-
-        // dont resend the same chat message if it falls within this timespan window (seconds)
-        private int _dontResendDuplicateMessagesWindow = 2;
-        public int DontResendDuplicateMessagesWindow {
-            get { return _dontResendDuplicateMessagesWindow; }
-            set {
-                try {
-                    if (value != _dontResendDuplicateMessagesWindow) {
-                        _dontResendDuplicateMessagesWindow = value;
-                        if (IsLoaded) {
-                            Util.WriteToChat(String.Format("Config.DontResendDuplicateMessagesWindow = {0}", DontResendDuplicateMessagesWindow));
-
-                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                            Save();
-                        }
-                    };
-                }
-                catch (Exception ex) { Util.LogException(ex); }
-            }
-        }
-
-        private bool _botPortalsEnabled = false;
-        public bool BotPortalsEnabled {
-            get { return _botPortalsEnabled; }
-            set {
-                try {
-                    if (value != _botPortalsEnabled) {
-                        _botPortalsEnabled = value;
-                        if (IsLoaded) {
-                            Util.WriteToChat(String.Format("Config.BotPortalsEnabled = {0}", BotPortalsEnabled ? "true" : "false"));
-
-                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                            Save();
-                        }
-                    };
-                }
-                catch (Exception ex) { Util.LogException(ex); }
-            }
-        }
-
-        private string _primaryPortalLocation = "None";
-        public string PrimaryPortalLocation {
-            get { return _primaryPortalLocation; }
-            set {
-                try {
-                    if (value != _primaryPortalLocation) {
-                        _primaryPortalLocation = value;
-                        if (IsLoaded) {
-                            Util.WriteToChat(String.Format("Config.PrimaryPortalLocation = {0}", PrimaryPortalLocation));
-
-                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                            Save();
-                        }
-                    };
-                }
-                catch (Exception ex) { Util.LogException(ex); }
-            }
-        }
-
-        private int _primaryPortalHeading = 45;
-        public int PrimaryPortalHeading {
-            get { return _primaryPortalHeading; }
-            set {
-                try {
-                    if (value != _primaryPortalHeading) {
-                        _primaryPortalHeading = value;
-                        if (IsLoaded) {
-                            Util.WriteToChat(String.Format("Config.PrimaryPortalHeading = {0}", PrimaryPortalHeading));
-
-                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                            Save();
-                        }
-                    };
-                }
-                catch (Exception ex) { Util.LogException(ex); }
-            }
-        }
-
-        private string _secondaryPortalLocation = "None";
-        public string SecondaryPortalLocation {
-            get { return _secondaryPortalLocation; }
-            set {
-                try {
-                    if (value != _secondaryPortalLocation) {
-                        _secondaryPortalLocation = value;
-                        if (IsLoaded) {
-                            Util.WriteToChat(String.Format("Config.SecondaryPortalLocation = {0}", SecondaryPortalLocation));
-
-                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                            Save();
-                        }
-                    };
-                }
-                catch (Exception ex) { Util.LogException(ex); }
-            }
-        }
-
-        private int _secondaryPortalHeading = 315;
-        public int SecondaryPortalHeading {
-            get { return _secondaryPortalHeading; }
-            set {
-                try {
-                    if (value != _secondaryPortalHeading) {
-                        _secondaryPortalHeading = value;
-                        if (IsLoaded) {
-                            Util.WriteToChat(String.Format("Config.SecondaryPortalHeading = {0}", SecondaryPortalHeading));
-
-                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                            Save();
-                        }
-                    };
-                }
-                catch (Exception ex) { Util.LogException(ex); }
-            }
-        }
-
-        private bool _announcementsEnabled = true;
-        public bool AnnouncementsEnabled {
-            get { return _announcementsEnabled; }
-            set {
-                try {
-                    if (value != _announcementsEnabled) {
-                        _announcementsEnabled = value;
-                        if (IsLoaded) {
-                            Util.WriteToChat(String.Format("Config.AnnouncementsEnabled = {0}", AnnouncementsEnabled ? "true" : "false"));
-
-                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                            Save();
-                        }
-                    };
-                }
-                catch (Exception ex) { Util.LogException(ex); }
-            }
-        }
-
-        private int _announcementsAnnounceInterval = 15;
-        public int AnnouncementsAnnounceInterval {
-            get { return _announcementsAnnounceInterval; }
-            set {
-                try {
-                    if (value != _announcementsAnnounceInterval) {
-                        _announcementsAnnounceInterval = value;
-                        if (IsLoaded) {
-                            Util.WriteToChat(String.Format("Config.AnnouncementsAnnounceInterval = {0}", AnnouncementsAnnounceInterval));
-
-                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                            Save();
-                        }
-                    };
-                }
-                catch (Exception ex) { Util.LogException(ex); }
-            }
-        }
 
         public static Config GetInstance() {
             try {
@@ -305,20 +156,6 @@ namespace DoThingsBot {
 
 
                     _instance = new Config();
-
-                    _instance.BotEnabled = configData.BotEnabled;
-                    _instance.DefaultHeading = configData.DefaultHeading;
-                    _instance.KeepTinkerEquipmentWhileIdleDelay = configData.KeepTinkerEquipmentWhileIdleDelay;
-                    _instance.RespondToUnknownCommands = configData.RespondToUnknownCommands;
-                    _instance.StartupCommand = configData.StartupCommand;
-                    _instance.DontResendDuplicateMessagesWindow = configData.DontResendDuplicateMessagesWindow;
-                    _instance.BotPortalsEnabled = configData.BotPortalsEnabled;
-                    _instance.PrimaryPortalLocation = configData.PrimaryPortalLocation;
-                    _instance.PrimaryPortalHeading = configData.PrimaryPortalHeading;
-                    _instance.SecondaryPortalLocation = configData.SecondaryPortalLocation;
-                    _instance.SecondaryPortalHeading = configData.SecondaryPortalHeading;
-                    _instance.AnnouncementsEnabled = configData.AnnouncementsEnabled;
-                    _instance.AnnouncementsAnnounceInterval = configData.AnnouncementsAnnounceInterval;
                     _instance.AnnouncementsMessages = configData.AnnouncementsMessages;
                     _instance.IdleEquipment = configData.IdleEquipment;
                     _instance.BuffEquipment = configData.BuffEquipment;

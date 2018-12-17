@@ -1,0 +1,84 @@
+﻿using DoThingsBot;
+using System;
+
+// https://github.com/Mag-nus/Mag-Plugins/blob/master/Shared/Settings/Setting.cs
+
+namespace Mag.Shared.Settings {
+    public class ValidateSettingEventArgs<T> : EventArgs {
+        public bool IsValid { get; set; }
+        public string InvalidReason { get; set; }
+        public readonly T Value;
+
+        public ValidateSettingEventArgs(T value) {
+            IsValid = true;
+            InvalidReason = "Unknown";
+            Value = value;
+        }
+
+        public void Invalidate(string reason) {
+            IsValid = false;
+            InvalidReason = reason;
+        }
+    }
+
+    class Setting<T> {
+        public readonly string Xpath;
+
+        public readonly string Description;
+
+        public readonly T DefaultValue;
+
+        private T value;
+        public T Value {
+            get {
+                return value;
+            }
+            set {
+                // If we're setting it to the value its already at, don't continue with the set.
+                if (Object.Equals(this.value, value))
+                    return;
+
+                if (Validate != null) {
+                    ValidateSettingEventArgs<T> eventArgs = new ValidateSettingEventArgs<T>(value);
+                    Validate(this, eventArgs);
+
+                    if (!eventArgs.IsValid) {
+                        Util.WriteToChat(String.Format("Cannot set {0} to {1}: {2}", this.Xpath, value, eventArgs.InvalidReason));
+                        return;
+                    }
+                }
+
+                // The value differs, set it.
+                this.value = value;
+
+                Util.WriteToChat(String.Format("{0} = {1}", this.Xpath, this.value.ToString()));
+
+                StoreValueInConfigFile();
+
+                if (Changed != null)
+                    Changed(this);
+            }
+        }
+
+        public event EventHandler<ValidateSettingEventArgs<T>> Validate;
+        public event Action<Setting<T>> Changed;
+
+        public Setting(string xpath, string description = null, T defaultValue = default(T)) {
+            Xpath = xpath;
+
+            Description = description;
+
+            DefaultValue = defaultValue;
+
+            LoadValueFromConfig(defaultValue);
+        }
+
+        void LoadValueFromConfig(T defaultValue) {
+            value = SettingsFile.GetSetting(Xpath, defaultValue, Description);
+        }
+
+        void StoreValueInConfigFile() {
+            SettingsFile.PutSetting(Xpath, value, Description, true);
+        }
+    }
+}

@@ -21,7 +21,7 @@ namespace DoThingsBot.FSM.States {
         }
 
         public void Enter(Machine machine) {
-            if (DoThingsBot.ConfigurationManager().KeepTinkerEquipmentWhileIdleDelay > 0) {
+            if (Config2.Tinkering.KeepEquipmentOnDelay.Value > 0) {
                 machine.ChangeState(new BotIdleState());
             }
             else {

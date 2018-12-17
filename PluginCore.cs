@@ -47,9 +47,6 @@ namespace DoThingsBot {
 
                 CoreManager.Current.PluginInitComplete += new EventHandler<EventArgs>(Current_PluginInitComplete);
                 CoreManager.Current.CommandLineText += new EventHandler<ChatParserInterceptEventArgs>(Current_CommandLineText);
-
-                bot = new DoThingsBot();
-
             }
 			catch (Exception ex) { Util.LogException(ex); }
 		}
@@ -59,8 +56,7 @@ namespace DoThingsBot {
 		/// </summary>
 		protected override void Shutdown()
 		{
-			try
-			{
+			try {
                 CoreManager.Current.PluginInitComplete -= new EventHandler<EventArgs>(Current_PluginInitComplete);
                 CoreManager.Current.CommandLineText -= new EventHandler<ChatParserInterceptEventArgs>(Current_CommandLineText);
 
@@ -81,12 +77,27 @@ namespace DoThingsBot {
 		private void CharacterFilter_LoginComplete(object sender, EventArgs e)
 		{
             try {
+                string configFilePath = Util.GetCharacterDataDirectory() + "config.xml";
+
                 Util.CreateDataDirectories();
+
+                Util.WriteToDebugLog("LoginComplete");
+                Util.WriteToChat(String.Format("Config file: {0}", configFilePath));
+
+                Mag.Shared.Settings.SettingsFile.Init(configFilePath, PluginName);
+
+                Config2.Init();
+
+                if (!File.Exists(configFilePath)) {
+                    Mag.Shared.Settings.SettingsFile.SaveXmlDocument();
+                }
+
                 mainView = new MainView();
+                bot = new DoThingsBot();
 
                 bot.IsLoggedIn = true;
 
-                if (DoThingsBot.ConfigurationManager().BotEnabled == true) {
+                if (Config2.Bot.Enabled.Value == true) {
                     bot.Start();
                 }
             }
@@ -101,6 +112,8 @@ namespace DoThingsBot {
                 }
 
                 bot.IsLoggedIn = false;
+
+                Util.WriteToDebugLog("Logoff");
             }
             catch (Exception ex) { Util.LogException(ex); }
         }
@@ -108,12 +121,12 @@ namespace DoThingsBot {
         void Current_CommandLineText(object sender, ChatParserInterceptEventArgs e) {
             try {
                 if (e.Text == "/dtb start") {
-                    DoThingsBot.ConfigurationManager().BotEnabled = true;
+                    Config2.Bot.Enabled.Value = true;
                     e.Eat = true;
                 }
 
                 if (e.Text == "/dtb stop") {
-                    DoThingsBot.ConfigurationManager().BotEnabled = false;
+                    Config2.Bot.Enabled.Value = false;
                     e.Eat = true;
                 }
 

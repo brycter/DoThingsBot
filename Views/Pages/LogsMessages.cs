@@ -97,7 +97,7 @@ namespace DoThingsBot.Views.Pages {
 
         void ChatManager_ChatCommand(object sender, ChatCommandEventArgs e) {
             try {
-                if (!DoThingsBot.ConfigurationManager().BotEnabled) return;
+                if (!Config2.Bot.Enabled.Value) return;
 
                 if (e.Command == "message") {
                     if (e.Arguments == null || e.Arguments.Trim().Length == 0) {

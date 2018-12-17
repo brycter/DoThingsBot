@@ -52,16 +52,16 @@ namespace DoThingsBot {
         public void Start() {
             Util.WriteToChat("DoThingsBot Started");
 
-            CoreManager.Current.Actions.FaceHeading(ConfigurationManager().DefaultHeading, true);
+            CoreManager.Current.Actions.FaceHeading(Config2.Bot.DefaultHeading.Value, true);
 
             isRunning = true;
             _machine.Start();
 
             _machine.ChangeState(new BotIdleState());
 
-            if (ConfigurationManager().AnnouncementsEnabled == true) {
-                if (ConfigurationManager().StartupCommand.Length > 0 && ConfigurationManager().StartupCommand != "/s ") {
-                    ChatManager.AddSpamToChatBox(ConfigurationManager().StartupCommand);
+            if (Config2.Announcements.Enabled.Value == true) {
+                if (Config2.Announcements.StartupMessage.Value.Length > 0) {
+                    ChatManager.AddSpamToChatBox(Config2.Announcements.StartupMessage.Value);
                 }
             }
 
@@ -176,14 +176,14 @@ namespace DoThingsBot {
                     break;
 
                 case "whereto":
-                    if (_machine.IsRunning && !ConfigurationManager().BotPortalsEnabled) {
+                    if (_machine.IsRunning && !Config2.Portals.Enabled.Value) {
                         ChatManager.Tell(e.PlayerName, "My portal bot functionality is currently disabled, sorry!");
                         return;
                     }
 
                     ChatManager.Tell(e.PlayerName, String.Format("I am currently tied to {0} and {1}. '/t {2}, primary' for {0}. '/t {2}, secondary' for {1}",
-                        DoThingsBot.ConfigurationManager().PrimaryPortalLocation,
-                        DoThingsBot.ConfigurationManager().SecondaryPortalLocation,
+                        Config2.Portals.PrimaryPortalTieLocation,
+                        Config2.Portals.SecondaryPortalTieLocation,
                         CoreManager.Current.CharacterFilter.Name));
                     break;
 
@@ -192,7 +192,7 @@ namespace DoThingsBot {
                     break;
 
                 case "primary":
-                    if (_machine.IsRunning && !ConfigurationManager().BotPortalsEnabled) {
+                    if (_machine.IsRunning && !Config2.Portals.Enabled.Value) {
                         ChatManager.Tell(e.PlayerName, "My portal bot functionality is currently disabled, sorry!");
                         return;
                     }
@@ -211,7 +211,7 @@ namespace DoThingsBot {
                     break;
 
                 case "secondary":
-                    if (_machine.IsRunning && !ConfigurationManager().BotPortalsEnabled) {
+                    if (_machine.IsRunning && !Config2.Portals.Enabled.Value) {
                         ChatManager.Tell(e.PlayerName, "My portal bot functionality is currently disabled, sorry!");
                         return;
                     }
@@ -267,7 +267,7 @@ namespace DoThingsBot {
                     break;
 
                 default:
-                    if (DoThingsBot.ConfigurationManager().RespondToUnknownCommands == true) {
+                    if (Config2.Bot.RespondToUnknownCommands.Value == true) {
                         ChatManager.Tell(e.PlayerName, "Sorry, I'm a bot and do not understand that command.  Please tell me \"help\" for a list of available commands.");
                     }
                     break;
@@ -360,10 +360,10 @@ namespace DoThingsBot {
                 if (!IsLoggedIn) return;
 
                 
-                if (ConfigurationManager().BotEnabled == true && !isRunning) {
+                if (Config2.Bot.Enabled.Value == true && !isRunning) {
                     Start();
                 }
-                else if (ConfigurationManager().BotEnabled == false && isRunning) {
+                else if (Config2.Bot.Enabled.Value == false && isRunning) {
                     Stop();
                 }
 
