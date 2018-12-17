@@ -83,11 +83,6 @@ namespace DoThingsBot.Views.Pages {
 
                 var announcements = Config2.Announcements.Messages.Value;
 
-                Util.WriteToChat("Announcements: ");
-                foreach (var a in announcements) {
-                    Util.WriteToChat(a);
-                }
-
                 for (int announcementIndex = 0; announcementIndex < announcements.Count; announcementIndex++) {
                     HudList.HudListRowAccessor newRow = UIAnnouncementsList.AddRow();
                     ((HudStaticText)newRow[0]).Text = announcements[announcementIndex];
@@ -106,11 +101,6 @@ namespace DoThingsBot.Views.Pages {
                 }
                 else {
                     Util.WriteToDebugLog("Cant remove announcement at index: " + row);
-
-                    Util.WriteToChat("Announcements: ");
-                    foreach (var a in Config2.Announcements.Messages.Value) {
-                        Util.WriteToChat(a);
-                    }
                 }
             }
             catch (Exception ex) { Util.LogException(ex); }
