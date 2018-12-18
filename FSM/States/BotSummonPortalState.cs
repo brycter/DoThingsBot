@@ -18,15 +18,15 @@ namespace DoThingsBot.FSM.States {
         public void Enter(Machine machine) {
 
             if (itemBundle.GetCraftMode() == CraftMode.PrimaryPortal) {
-                CoreManager.Current.Actions.FaceHeading(Config2.Portals.PrimaryPortalHeading.Value, true);
-                ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", Config2.Portals.PrimaryPortalTieLocation));
-                ChatManager.Say(String.Format("I am summoning a portal to {0}.", Config2.Portals.PrimaryPortalTieLocation));
+                CoreManager.Current.Actions.FaceHeading(Config.Portals.PrimaryPortalHeading.Value, true);
+                ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", Config.Portals.PrimaryPortalTieLocation));
+                ChatManager.Say(String.Format("I am summoning a portal to {0}.", Config.Portals.PrimaryPortalTieLocation));
 
             }
             else {
-                CoreManager.Current.Actions.FaceHeading(Config2.Portals.SecondaryPortalHeading.Value, true);
-                ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", Config2.Portals.SecondaryPortalTieLocation));
-                ChatManager.Say(String.Format("I am summoning a portal to {0}.", Config2.Portals.SecondaryPortalTieLocation));
+                CoreManager.Current.Actions.FaceHeading(Config.Portals.SecondaryPortalHeading.Value, true);
+                ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", Config.Portals.SecondaryPortalTieLocation));
+                ChatManager.Say(String.Format("I am summoning a portal to {0}.", Config.Portals.SecondaryPortalTieLocation));
             }
             
             WorldObject player = Util.FindPlayerWorldObjectByName(itemBundle.GetOwner());
@@ -77,7 +77,7 @@ namespace DoThingsBot.FSM.States {
         public void Exit(Machine machine) {
             //Util.WriteToChat("Exited Idle State.");
 
-            CoreManager.Current.Actions.FaceHeading(Config2.Bot.DefaultHeading.Value, true);
+            CoreManager.Current.Actions.FaceHeading(Config.Bot.DefaultHeading.Value, true);
         }
 
         private DateTime lastThought = DateTime.UtcNow;

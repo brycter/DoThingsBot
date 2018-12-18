@@ -99,7 +99,7 @@ namespace DoThingsBot.Views.Pages {
 
 
         private void Current_ChatBoxMessage(object sender, ChatTextInterceptEventArgs e) {
-            if (!Config2.Bot.Enabled.Value) return;
+            if (!Config.Bot.Enabled.Value) return;
 
             if (GivesYouRegex.IsMatch(e.Text)) {
                 Match match = GivesYouRegex.Match(e.Text);

@@ -14,30 +14,30 @@ namespace DoThingsBot.Views.Pages {
                 UIRespondToUnknownCommands = mainView.view != null ? (HudCheckBox)mainView.view["UIRespondToUnknownCommands"] : new HudCheckBox();
                 UIKeepTinkerEquipmentWhileIdleDelay = mainView.view != null ? (HudTextBox)mainView.view["UIKeepTinkerEquipmentWhileIdleDelay"] : new HudTextBox();
 
-                UIDefaultHeading.Text = Config2.Bot.DefaultHeading.Value.ToString(CultureInfo.InvariantCulture);
-                UIRespondToUnknownCommands.Checked = Config2.Bot.RespondToUnknownCommands.Value;
-                UIKeepTinkerEquipmentWhileIdleDelay.Text = Config2.Tinkering.KeepEquipmentOnDelay.Value.ToString(CultureInfo.InvariantCulture);
+                UIDefaultHeading.Text = Config.Bot.DefaultHeading.Value.ToString(CultureInfo.InvariantCulture);
+                UIRespondToUnknownCommands.Checked = Config.Bot.RespondToUnknownCommands.Value;
+                UIKeepTinkerEquipmentWhileIdleDelay.Text = Config.Tinkering.KeepEquipmentOnDelay.Value.ToString(CultureInfo.InvariantCulture);
 
-                Config2.Bot.DefaultHeading.Changed += obj => { UIDefaultHeading.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
-                Config2.Bot.RespondToUnknownCommands.Changed += obj => { UIRespondToUnknownCommands.Checked = obj.Value; };
-                Config2.Tinkering.KeepEquipmentOnDelay.Changed += obj => { UIKeepTinkerEquipmentWhileIdleDelay.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
+                Config.Bot.DefaultHeading.Changed += obj => { UIDefaultHeading.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
+                Config.Bot.RespondToUnknownCommands.Changed += obj => { UIRespondToUnknownCommands.Checked = obj.Value; };
+                Config.Tinkering.KeepEquipmentOnDelay.Changed += obj => { UIKeepTinkerEquipmentWhileIdleDelay.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
 
                 UIDefaultHeading.LostFocus += (s, e) => {
                     try {
                         if (!int.TryParse(UIDefaultHeading.Text, out int value))
-                            value = Config2.Bot.DefaultHeading.Value;
-                        Config2.Bot.DefaultHeading.Value = value;
+                            value = Config.Bot.DefaultHeading.Value;
+                        Config.Bot.DefaultHeading.Value = value;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
 
-                UIRespondToUnknownCommands.Change += (s, e) => { try { Config2.Bot.RespondToUnknownCommands.Value = ((HudCheckBox)s).Checked; } catch (Exception ex) { Util.LogException(ex); } };
+                UIRespondToUnknownCommands.Change += (s, e) => { try { Config.Bot.RespondToUnknownCommands.Value = ((HudCheckBox)s).Checked; } catch (Exception ex) { Util.LogException(ex); } };
 
                 UIKeepTinkerEquipmentWhileIdleDelay.LostFocus += (s, e) => {
                     try {
                         if (!int.TryParse(UIKeepTinkerEquipmentWhileIdleDelay.Text, out int value))
-                            value = Config2.Tinkering.KeepEquipmentOnDelay.Value;
-                        Config2.Tinkering.KeepEquipmentOnDelay.Value = value;
+                            value = Config.Tinkering.KeepEquipmentOnDelay.Value;
+                        Config.Tinkering.KeepEquipmentOnDelay.Value = value;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };

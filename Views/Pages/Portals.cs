@@ -19,28 +19,28 @@ namespace DoThingsBot.Views.Pages {
                 UISecondaryPortalLocation = mainView.view != null ? (HudTextBox)mainView.view["UISecondaryPortalLocation"] : new HudTextBox();
                 UISecondaryPortalHeading = mainView.view != null ? (HudTextBox)mainView.view["UISecondaryPortalHeading"] : new HudTextBox();
 
-                UIBotPortalsEnabled.Checked = Config2.Portals.Enabled.Value;
-                UIPrimaryPortalLocation.Text = Config2.Portals.PrimaryPortalTieLocation.Value;
-                UIPrimaryPortalHeading.Text = Config2.Portals.PrimaryPortalHeading.Value.ToString();
-                UISecondaryPortalLocation.Text = Config2.Portals.SecondaryPortalTieLocation.Value;
-                UISecondaryPortalHeading.Text = Config2.Portals.SecondaryPortalHeading.Value.ToString();
+                UIBotPortalsEnabled.Checked = Config.Portals.Enabled.Value;
+                UIPrimaryPortalLocation.Text = Config.Portals.PrimaryPortalTieLocation.Value;
+                UIPrimaryPortalHeading.Text = Config.Portals.PrimaryPortalHeading.Value.ToString();
+                UISecondaryPortalLocation.Text = Config.Portals.SecondaryPortalTieLocation.Value;
+                UISecondaryPortalHeading.Text = Config.Portals.SecondaryPortalHeading.Value.ToString();
 
-                Config2.Portals.Enabled.Changed += obj => { UIBotPortalsEnabled.Checked = obj.Value; };
-                Config2.Portals.PrimaryPortalTieLocation.Changed += obj => { UIPrimaryPortalLocation.Text = obj.Value; };
-                Config2.Portals.PrimaryPortalHeading.Changed += obj => { UIPrimaryPortalHeading.Text = obj.Value.ToString(); };
-                Config2.Portals.SecondaryPortalTieLocation.Changed += obj => { UISecondaryPortalLocation.Text = obj.Value; };
-                Config2.Portals.SecondaryPortalHeading.Changed += obj => { UISecondaryPortalHeading.Text = obj.Value.ToString(); };
+                Config.Portals.Enabled.Changed += obj => { UIBotPortalsEnabled.Checked = obj.Value; };
+                Config.Portals.PrimaryPortalTieLocation.Changed += obj => { UIPrimaryPortalLocation.Text = obj.Value; };
+                Config.Portals.PrimaryPortalHeading.Changed += obj => { UIPrimaryPortalHeading.Text = obj.Value.ToString(); };
+                Config.Portals.SecondaryPortalTieLocation.Changed += obj => { UISecondaryPortalLocation.Text = obj.Value; };
+                Config.Portals.SecondaryPortalHeading.Changed += obj => { UISecondaryPortalHeading.Text = obj.Value.ToString(); };
 
                 UIBotPortalsEnabled.Change += (s, e) => {
                     try {
-                        Config2.Portals.Enabled.Value = ((HudCheckBox)s).Checked;
+                        Config.Portals.Enabled.Value = ((HudCheckBox)s).Checked;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
 
                 UIPrimaryPortalLocation.LostFocus += (s, e) => {
                     try {
-                        Config2.Portals.PrimaryPortalTieLocation.Value = UIPrimaryPortalLocation.Text;
+                        Config.Portals.PrimaryPortalTieLocation.Value = UIPrimaryPortalLocation.Text;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
@@ -48,15 +48,15 @@ namespace DoThingsBot.Views.Pages {
                 UIPrimaryPortalHeading.LostFocus += (s, e) => {
                     try {
                         if (!int.TryParse(UIPrimaryPortalHeading.Text, out int value))
-                            value = Config2.Portals.PrimaryPortalHeading.Value;
-                        Config2.Portals.PrimaryPortalHeading.Value = value;
+                            value = Config.Portals.PrimaryPortalHeading.Value;
+                        Config.Portals.PrimaryPortalHeading.Value = value;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
 
                 UISecondaryPortalLocation.LostFocus += (s, e) => {
                     try {
-                        Config2.Portals.SecondaryPortalTieLocation.Value = UISecondaryPortalLocation.Text;
+                        Config.Portals.SecondaryPortalTieLocation.Value = UISecondaryPortalLocation.Text;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
@@ -64,8 +64,8 @@ namespace DoThingsBot.Views.Pages {
                 UISecondaryPortalHeading.LostFocus += (s, e) => {
                     try {
                         if (!int.TryParse(UISecondaryPortalHeading.Text, out int value))
-                            value = Config2.Portals.SecondaryPortalHeading.Value;
-                        Config2.Portals.SecondaryPortalHeading.Value = value;
+                            value = Config.Portals.SecondaryPortalHeading.Value;
+                        Config.Portals.SecondaryPortalHeading.Value = value;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };

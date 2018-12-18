@@ -20,20 +20,20 @@ namespace DoThingsBot.Views.Pages {
                 UIAnnouncementsList = mainView.view != null ? (HudList)mainView.view["UIAnnouncementsList"] : new HudList();
                 UIStartupCommand = mainView.view != null ? (HudTextBox)mainView.view["UIStartupCommand"] : new HudTextBox();
 
-                UIAnnouncementsEnabled.Checked = Config2.Announcements.Enabled.Value;
-                UIAnnouncementsAnnounceInterval.Text = Config2.Announcements.SpamInterval.Value.ToString(CultureInfo.InvariantCulture);
+                UIAnnouncementsEnabled.Checked = Config.Announcements.Enabled.Value;
+                UIAnnouncementsAnnounceInterval.Text = Config.Announcements.SpamInterval.Value.ToString(CultureInfo.InvariantCulture);
                 UIAnnouncementsNewMessage.Text = "/s ";
-                UIStartupCommand.Text = Config2.Announcements.StartupMessage.Value;
+                UIStartupCommand.Text = Config.Announcements.StartupMessage.Value;
 
-                Config2.Announcements.Enabled.Changed += obj => { UIAnnouncementsEnabled.Checked = obj.Value; };
-                Config2.Announcements.StartupMessage.Changed += obj => { UIStartupCommand.Text = obj.Value; };
-                Config2.Announcements.SpamInterval.Changed += obj => { UIAnnouncementsAnnounceInterval.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
-                Config2.Announcements.StartupMessage.Changed += obj => { UIStartupCommand.Text = obj.Value; };
-                Config2.Announcements.Messages.Changed += obj => { RefreshAnnouncementsMessages(); };
+                Config.Announcements.Enabled.Changed += obj => { UIAnnouncementsEnabled.Checked = obj.Value; };
+                Config.Announcements.StartupMessage.Changed += obj => { UIStartupCommand.Text = obj.Value; };
+                Config.Announcements.SpamInterval.Changed += obj => { UIAnnouncementsAnnounceInterval.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
+                Config.Announcements.StartupMessage.Changed += obj => { UIStartupCommand.Text = obj.Value; };
+                Config.Announcements.Messages.Changed += obj => { RefreshAnnouncementsMessages(); };
 
                 UIAnnouncementsEnabled.Change += (s, e) => {
                     try {
-                        Config2.Announcements.Enabled.Value = ((HudCheckBox)s).Checked;
+                        Config.Announcements.Enabled.Value = ((HudCheckBox)s).Checked;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
@@ -43,8 +43,8 @@ namespace DoThingsBot.Views.Pages {
                 UIAnnouncementsAnnounceInterval.LostFocus += (s, e) => {
                     try {
                         if (!int.TryParse(UIAnnouncementsAnnounceInterval.Text, out int value))
-                            value = Config2.Announcements.SpamInterval.Value;
-                        Config2.Announcements.SpamInterval.Value = value;
+                            value = Config.Announcements.SpamInterval.Value;
+                        Config.Announcements.SpamInterval.Value = value;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
@@ -52,9 +52,9 @@ namespace DoThingsBot.Views.Pages {
                 UIAnnouncementsAddNewMessage.Hit += (s, e) => {
                     try {
                         if (UIAnnouncementsNewMessage.Text.Length > 0) {
-                            var newList = Config2.Announcements.Messages.Value;
+                            var newList = Config.Announcements.Messages.Value;
                             newList.Add(UIAnnouncementsNewMessage.Text);
-                            Config2.Announcements.Messages.Value = newList;
+                            Config.Announcements.Messages.Value = newList;
                         }
                         else {
                             Util.WriteToChat("Announcement message cannot be blank");
@@ -67,7 +67,7 @@ namespace DoThingsBot.Views.Pages {
 
                 UIStartupCommand.LostFocus += (s, e) => {
                     try {
-                        Config2.Announcements.StartupMessage.Value = UIStartupCommand.Text;
+                        Config.Announcements.StartupMessage.Value = UIStartupCommand.Text;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
@@ -81,7 +81,7 @@ namespace DoThingsBot.Views.Pages {
             try {
                 UIAnnouncementsList.ClearRows();
 
-                var announcements = Config2.Announcements.Messages.Value;
+                var announcements = Config.Announcements.Messages.Value;
 
                 for (int announcementIndex = 0; announcementIndex < announcements.Count; announcementIndex++) {
                     HudList.HudListRowAccessor newRow = UIAnnouncementsList.AddRow();
@@ -94,10 +94,10 @@ namespace DoThingsBot.Views.Pages {
 
         private void UIAnnouncementsList_Click(object sender, int row, int col) {
             try {
-                if (Config2.Announcements.Messages.Value.Count > row) {
-                    var newList = Config2.Announcements.Messages.Value;
+                if (Config.Announcements.Messages.Value.Count > row) {
+                    var newList = Config.Announcements.Messages.Value;
                     newList.RemoveAt(row);
-                    Config2.Announcements.Messages.Value = newList;
+                    Config.Announcements.Messages.Value = newList;
                 }
                 else {
                     Util.WriteToDebugLog("Cant remove announcement at index: " + row);

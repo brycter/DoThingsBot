@@ -11,9 +11,9 @@ namespace DoThingsBot.Views.Pages {
             try {
                 UIBotEnabled = mainView.view != null ? (HudCheckBox)mainView.view["UIBotEnabled"] : new HudCheckBox();
 
-                UIBotEnabled.Checked = Config2.Bot.Enabled.Value;
-                Config2.Bot.Enabled.Changed += obj => { UIBotEnabled.Checked = obj.Value; };
-                UIBotEnabled.Change += (s, e) => { try { Config2.Bot.Enabled.Value = ((HudCheckBox)s).Checked; } catch (Exception ex) { Util.LogException(ex); } };
+                UIBotEnabled.Checked = Config.Bot.Enabled.Value;
+                Config.Bot.Enabled.Changed += obj => { UIBotEnabled.Checked = obj.Value; };
+                UIBotEnabled.Change += (s, e) => { try { Config.Bot.Enabled.Value = ((HudCheckBox)s).Checked; } catch (Exception ex) { Util.LogException(ex); } };
             }
             catch (Exception ex) { Util.LogException(ex); }
         }

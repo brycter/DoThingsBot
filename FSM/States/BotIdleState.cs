@@ -14,7 +14,7 @@ namespace DoThingsBot.FSM.States {
         public void Enter(Machine machine) {
             //Util.WriteToChat("Entered Idle State.");
 
-            if (Config2.Tinkering.KeepEquipmentOnDelay.Value > 0) {
+            if (Config.Tinkering.KeepEquipmentOnDelay.Value > 0) {
                 needsToEquip = true;
             }
         }
@@ -24,7 +24,7 @@ namespace DoThingsBot.FSM.States {
         }
 
         public void Think(Machine machine) {
-            if (needsToEquip && DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(Config2.Tinkering.KeepEquipmentOnDelay.Value)) {
+            if (needsToEquip && DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(Config.Tinkering.KeepEquipmentOnDelay.Value)) {
                 needsToEquip = false;
 
                 ItemBundle itemBundle = new ItemBundle();
@@ -41,7 +41,7 @@ namespace DoThingsBot.FSM.States {
                 if (DateTime.UtcNow - machine.GetDateTimeValue("lastBuffCheck") > TimeSpan.FromMinutes(1)) {
                     machine.SetValue("lastBuffCheck", DateTime.UtcNow);
 
-                    if (Spells.DoesAnySpellNeedRefresh(DoThingsBot.ConfigurationManager().GetWantedIdleEnchantments())) {
+                    if (Spells.DoesAnySpellNeedRefresh(Config.Bot.GetWantedIdleEnchantments())) {
                         ItemBundle itemBundle = new ItemBundle();
                         itemBundle.SetCraftMode(CraftMode.None);
                         itemBundle.SetEquipMode(EquipMode.Buff);

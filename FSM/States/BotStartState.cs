@@ -26,7 +26,7 @@ namespace DoThingsBot.FSM.States {
             }
 
             if (itemBundle.HasOwner()) {
-                if (Spells.DoesAnySpellNeedRefresh(DoThingsBot.ConfigurationManager().GetWantedTinkerEnchantments())) {
+                if (Spells.DoesAnySpellNeedRefresh(Config.Bot.GetWantedTinkerEnchantments())) {
                     ChatManager.Tell(itemBundle.GetOwner(), "One moment please, I need to buff.");
 
 

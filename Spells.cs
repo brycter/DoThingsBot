@@ -6827,7 +6827,7 @@ new Spell() { id = 6322, name = "Viridian Rise Great Tree Recall", spellClass=Sp
                     if (enchantment.Duration == -1) continue;
 
                     if (enchantmentName == spellName) {
-                        if (enchantment.Expires - DateTime.Now < TimeSpan.FromMinutes(DoThingsBot.ConfigurationManager().GetBuffRefreshTime())) {
+                        if (enchantment.Expires - DateTime.Now < TimeSpan.FromMinutes(Config.Bot.BuffRefreshTime.Value)) {
                             return true;
                         }
 

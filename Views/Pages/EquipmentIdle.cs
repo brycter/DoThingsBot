@@ -14,7 +14,7 @@ namespace DoThingsBot.Views.Pages {
                 UIEquipmentIdleAddSelected = mainView.view != null ? (HudButton)mainView.view["UIEquipmentIdleAddSelected"] : new HudButton();
                 UIEquipmentIdleList = mainView.view != null ? (HudList)mainView.view["UIEquipmentIdleList"] : new HudList();
                 
-                Config2.Equipment.IdleEquipmentIds.Changed += obj => {
+                Config.Equipment.IdleEquipmentIds.Changed += obj => {
                     RefreshIdleEquipmentList();
                 };
 
@@ -23,9 +23,9 @@ namespace DoThingsBot.Views.Pages {
                 UIEquipmentIdleAddSelected.Hit += (s, e) => {
                     try {
                         WorldObject selectedObject = Globals.Core.WorldFilter[Globals.Host.Actions.CurrentSelection];
-                        List<int> newList = Config2.Equipment.IdleEquipmentIds.Value;
+                        List<int> newList = Config.Equipment.IdleEquipmentIds.Value;
                         newList.Add(selectedObject.Id);
-                        Config2.Equipment.IdleEquipmentIds.Value = newList;
+                        Config.Equipment.IdleEquipmentIds.Value = newList;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
@@ -39,18 +39,18 @@ namespace DoThingsBot.Views.Pages {
             try {
                 UIEquipmentIdleList.ClearRows();
 
-                var idleEquipment = Config2.Equipment.IdleEquipmentIds.Value;
+                var idleEquipment = Config.Equipment.IdleEquipmentIds.Value;
 
                 for (int equipmentIndex = 0; equipmentIndex < idleEquipment.Count; equipmentIndex++) {
                     WorldObject wo = Globals.Core.WorldFilter[idleEquipment[equipmentIndex]];
 
                     if (wo == null) {
                         Util.WriteToChat(String.Format("Removing unknown item from idle equipment list: {0}", idleEquipment[equipmentIndex]));
-                        var newList = Config2.Equipment.IdleEquipmentIds.Value;
+                        var newList = Config.Equipment.IdleEquipmentIds.Value;
 
                         if (newList.Count > equipmentIndex) {
                             newList.RemoveAt(equipmentIndex);
-                            Config2.Equipment.IdleEquipmentIds.Value = newList;
+                            Config.Equipment.IdleEquipmentIds.Value = newList;
                         }
                         continue;
                     }
@@ -67,11 +67,11 @@ namespace DoThingsBot.Views.Pages {
 
         private void UIEquipmentIdleList_Click(object sender, int row, int col) {
             try {
-                var newList = Config2.Equipment.IdleEquipmentIds.Value;
+                var newList = Config.Equipment.IdleEquipmentIds.Value;
 
                 if (newList.Count > row) {
                     newList.RemoveAt(row);
-                    Config2.Equipment.IdleEquipmentIds.Value = newList;
+                    Config.Equipment.IdleEquipmentIds.Value = newList;
                 }
             }
             catch (Exception ex) { Util.LogException(ex); }

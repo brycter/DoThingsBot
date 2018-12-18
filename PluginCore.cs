@@ -86,7 +86,7 @@ namespace DoThingsBot {
 
                 Mag.Shared.Settings.SettingsFile.Init(configFilePath, PluginName);
 
-                Config2.Init();
+                Config.Init();
 
                 Mag.Shared.Settings.SettingsFile.SaveXmlDocument();
 
@@ -95,7 +95,7 @@ namespace DoThingsBot {
 
                 bot.IsLoggedIn = true;
 
-                if (Config2.Bot.Enabled.Value == true) {
+                if (Config.Bot.Enabled.Value == true) {
                     bot.Start();
                 }
             }
@@ -119,12 +119,12 @@ namespace DoThingsBot {
         void Current_CommandLineText(object sender, ChatParserInterceptEventArgs e) {
             try {
                 if (e.Text == "/dtb start") {
-                    Config2.Bot.Enabled.Value = true;
+                    Config.Bot.Enabled.Value = true;
                     e.Eat = true;
                 }
 
                 if (e.Text == "/dtb stop") {
-                    Config2.Bot.Enabled.Value = false;
+                    Config.Bot.Enabled.Value = false;
                     e.Eat = true;
                 }
 

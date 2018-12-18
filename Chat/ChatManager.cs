@@ -102,7 +102,7 @@ namespace DoThingsBot.Chat {
 
         void Current_ChatBoxMessage(object sender, ChatTextInterceptEventArgs e) {
             try {
-                if (Config2.Bot.Enabled.Value == false) return;
+                if (Config.Bot.Enabled.Value == false) return;
                 
                 if (Util.IsChat(e.Text, Util.ChatFlags.PlayerTellsYou)) {
                     Util.WriteToDebugLog(Util.CleanMessage(e.Text));
@@ -157,17 +157,17 @@ namespace DoThingsBot.Chat {
         private static string lastMessage = "";
 
         public static void Think() {
-            if (DateTime.UtcNow - lastChatCommandSentAt > TimeSpan.FromSeconds(Config2.Bot.DontResendDuplicateMessagesWindow.Value)) {
+            if (DateTime.UtcNow - lastChatCommandSentAt > TimeSpan.FromSeconds(Config.Bot.DontResendDuplicateMessagesWindow.Value)) {
                 lastMessage = "";
             }
 
-            if (DateTime.UtcNow - lastAnnouncementTime > TimeSpan.FromMinutes(Config2.Announcements.SpamInterval.Value) && Config2.Bot.Enabled.Value == true) {
+            if (DateTime.UtcNow - lastAnnouncementTime > TimeSpan.FromMinutes(Config.Announcements.SpamInterval.Value) && Config.Bot.Enabled.Value == true) {
                 if (DateTime.UtcNow - firstThought < TimeSpan.FromSeconds(5)) return;
 
-                if (Config2.Announcements.Enabled.Value == true) {
+                if (Config.Announcements.Enabled.Value == true) {
                     lastAnnouncementTime = DateTime.UtcNow;
 
-                    var announcements = Config2.Announcements.Messages.Value;
+                    var announcements = Config.Announcements.Messages.Value;
 
                     if (announcements.Count > 0) {
                         int r = rnd.Next(announcements.Count);

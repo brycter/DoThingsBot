@@ -71,14 +71,14 @@ namespace DoThingsBot.FSM.States {
                     // refresh wanted enchantments in case of skill change
                     WantedEnchantments.Clear();
                     if (itemBundle.GetForceBuffMode() == true) {
-                        WantedEnchantments.AddRange(DoThingsBot.ConfigurationManager().GetWantedIdleEnchantments());
-                        WantedEnchantments.AddRange(DoThingsBot.ConfigurationManager().GetWantedTinkerEnchantments());
+                        WantedEnchantments.AddRange(Config.Bot.GetWantedIdleEnchantments());
+                        WantedEnchantments.AddRange(Config.Bot.GetWantedTinkerEnchantments());
                     }
                     else if (itemBundle.HasOwner()) {
-                        WantedEnchantments.AddRange(DoThingsBot.ConfigurationManager().GetWantedTinkerEnchantments());
+                        WantedEnchantments.AddRange(Config.Bot.GetWantedTinkerEnchantments());
                     }
                     else {
-                        WantedEnchantments.AddRange(DoThingsBot.ConfigurationManager().GetWantedIdleEnchantments());
+                        WantedEnchantments.AddRange(Config.Bot.GetWantedIdleEnchantments());
                     }
 
                     if (DateTime.UtcNow - startedCasting < TimeSpan.FromMilliseconds(900)) return;
@@ -136,7 +136,7 @@ namespace DoThingsBot.FSM.States {
                     return false;
                 }
 
-                Util.WriteToDebugLog(String.Format("Stamina is: {0}/{1}", currentStamina, effectiveStamina));
+                //Util.WriteToDebugLog(String.Format("Stamina is: {0}/{1}", currentStamina, effectiveStamina));
                 CoreManager.Current.Actions.CastSpell(spellId, CoreManager.Current.CharacterFilter.Id);
                 return false;
             }
@@ -158,7 +158,7 @@ namespace DoThingsBot.FSM.States {
                     return false;
                 }
 
-                Util.WriteToDebugLog(String.Format("Mana is: {0}/{1}", currentMana, effectiveMana));
+                //Util.WriteToDebugLog(String.Format("Mana is: {0}/{1}", currentMana, effectiveMana));
 
                 CoreManager.Current.Actions.CastSpell(spellId, CoreManager.Current.CharacterFilter.Id);
                 return false;

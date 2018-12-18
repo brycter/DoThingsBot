@@ -12,13 +12,17 @@ namespace DoThingsBot {
     public class BotConfigChangedEventArgs : EventArgs {
     }
 
-    static class Config2 {
+    static class Config {
         public static class Bot {
             public static readonly Setting<bool> Enabled;
             public static readonly Setting<int> DefaultHeading;
             public static readonly Setting<string> Location;
             public static readonly Setting<bool> RespondToUnknownCommands;
             public static readonly Setting<int> DontResendDuplicateMessagesWindow;
+            public static readonly Setting<int> BuffRefreshTime;
+            
+            public static List<Spells.SpellClass> WantedIdleEnchantments = new List<Spells.SpellClass>();
+            public static List<Spells.SpellClass> WantedTinkerEnchantments = new List<Spells.SpellClass>();
 
             static Bot() {
                 Enabled = new Setting<bool>("Config/Bot/Enabled", "Enable the bot", false);
@@ -26,11 +30,48 @@ namespace DoThingsBot {
                 Location = new Setting<string>("Config/Bot/Location", "Where in Auberean is your bot? (eg: Holtburg, just east of the lifestone)", "Somewhere in Auberean");
                 RespondToUnknownCommands = new Setting<bool>("Config/Bot/RespondToUnknownCommands", "Respond to unknown commands", true);
                 DontResendDuplicateMessagesWindow = new Setting<int>("Config/Bot/DontResendDuplicateMessagesWindow", "Don't send repeat messages if they fall within this time window (in seconds)", 2);
+                BuffRefreshTime = new Setting<int>("Config/Bot/BuffRefreshTime", "Refresh buffs if time left falls below this amount before a job request. (in minutes)", 5);
+                
+                WantedTinkerEnchantments.Add(Spells.SpellClass.CREATURE_ENCHANTMENT_MASTERY);
+                WantedTinkerEnchantments.Add(Spells.SpellClass.FOCUS);
+                WantedTinkerEnchantments.Add(Spells.SpellClass.WILLPOWER);
+                WantedTinkerEnchantments.Add(Spells.SpellClass.STRENGTH);
+                WantedTinkerEnchantments.Add(Spells.SpellClass.COORDINATION);
+                WantedTinkerEnchantments.Add(Spells.SpellClass.ENDURANCE);
+                WantedTinkerEnchantments.Add(Spells.SpellClass.WEAPON_TINKERING_EXPERTISE);
+                WantedTinkerEnchantments.Add(Spells.SpellClass.ITEM_TINKERING_EXPERTISE);
+                WantedTinkerEnchantments.Add(Spells.SpellClass.MAGIC_ITEM_TINKERING_EXPERTISE);
+                WantedTinkerEnchantments.Add(Spells.SpellClass.ARMOR_TINKERING_EXPERTISE);
             }
 
             public static void Init() {
                 DefaultHeading.Validate += ValidateHeading;
             }
+
+            public static List<string> GetWantedIdleEnchantments() {
+                List<string> wantedEnchantments = new List<string>();
+
+                foreach (var spellClass in WantedIdleEnchantments) {
+                    var spell = Spells.GetBestKnownSpellByClass(spellClass);
+
+                    wantedEnchantments.Add(spell.name);
+                }
+
+                return wantedEnchantments;
+            }
+
+            public static List<string> GetWantedTinkerEnchantments() {
+                List<string> wantedEnchantments = new List<string>();
+
+                foreach (var spellClass in WantedTinkerEnchantments) {
+                    var spell = Spells.GetBestKnownSpellByClass(spellClass);
+
+                    wantedEnchantments.Add(spell.name);
+                }
+
+                return wantedEnchantments;
+            }
+
         }
 
         public static class Equipment {
@@ -68,6 +109,7 @@ namespace DoThingsBot {
                     SpamInterval = new Setting<int>("Config/Announcements/SpamInterval", "The interval in minutes that announcements are sent out.", 15);
 
                     var defaultMessages = new List<string>();
+
                     defaultMessages.Add("I'm a tinkerbot. Stand nearby and tell me 'tinker' to get started.");
 
                     Messages = new Setting<List<string>>("Config/Announcements/Spam/Message", "Announcements go here. It will spam every `Config/Announcements/SpamInterval` seconds.", defaultMessages);
@@ -132,127 +174,6 @@ namespace DoThingsBot {
         private static void ValidateHeading(object sender, ValidateSettingEventArgs<int> e) {
             if (e.Value < 0) e.Invalidate("Should not be less than 0");
             if (e.Value > 360) e.Invalidate("Should be less than 360");
-        }
-    }
-
-    class Config {
-        private static Config _instance = null;
-
-        public bool IsLoaded = false;
-
-        public List<Spells.SpellClass> WantedIdleEnchantments = new List<Spells.SpellClass>();
-        public List<Spells.SpellClass> WantedTinkerEnchantments = new List<Spells.SpellClass>();
-        
-
-        public static event EventHandler<BotConfigChangedEventArgs> BotConfigChangedEvent;
-
-        public static Config GetInstance() {
-            try {
-                if (_instance != null) return _instance;
-
-                if (File.Exists(Util.GetCharacterDataDirectory() + "config.json")) {
-                    string json = File.ReadAllText(Util.GetCharacterDataDirectory() + "config.json");
-
-                    var definition = new {
-                        BotEnabled = false,
-                        DefaultHeading = 0,
-                        KeepTinkerEquipmentWhileIdleDelay = 30,
-                        RespondToUnknownCommands = false,
-                        StartupCommand = "/s Tinkerbot online.  Tell me 'tinker' to get started.",
-                        DontResendDuplicateMessagesWindow = 2,
-                        BotPortalsEnabled = false,
-                        PrimaryPortalLocation = "None",
-                        PrimaryPortalHeading = 45,
-                        SecondaryPortalLocation = "None",
-                        SecondaryPortalHeading = 315,
-                        AnnouncementsEnabled = true,
-                        AnnouncementsAnnounceInterval = 15,
-                        AnnouncementsMessages = new List<string>(),
-                        IdleEquipment = new List<int>(),
-                        BuffEquipment = new List<int>(),
-                        TinkerEquipment = new List<int>(),
-                    };
-
-                    var configData = JsonConvert.DeserializeAnonymousType(json, definition);
-
-
-                    _instance = new Config();
-                }
-                else {
-                    _instance = new Config();
-                }
-
-                //CREATURE_ENCHANTMENT_MASTERY, FOCUS, WILLPOWER, STRENGTH, COORDINATION, ENDURANCE, WEAPON_TINKERING_EXPERTISE, ITEM_TINKERING_EXPERTISE, MAGIC_ITEM_TINKERING_EXPERTISE, ARMOR_TINKERING_EXPERTISE
-
-                _instance.WantedTinkerEnchantments.Add(Spells.SpellClass.CREATURE_ENCHANTMENT_MASTERY);
-                _instance.WantedTinkerEnchantments.Add(Spells.SpellClass.FOCUS);
-                _instance.WantedTinkerEnchantments.Add(Spells.SpellClass.WILLPOWER);
-                _instance.WantedTinkerEnchantments.Add(Spells.SpellClass.STRENGTH);
-                _instance.WantedTinkerEnchantments.Add(Spells.SpellClass.COORDINATION);
-                _instance.WantedTinkerEnchantments.Add(Spells.SpellClass.ENDURANCE);
-                _instance.WantedTinkerEnchantments.Add(Spells.SpellClass.WEAPON_TINKERING_EXPERTISE);
-                _instance.WantedTinkerEnchantments.Add(Spells.SpellClass.ITEM_TINKERING_EXPERTISE);
-                _instance.WantedTinkerEnchantments.Add(Spells.SpellClass.MAGIC_ITEM_TINKERING_EXPERTISE);
-                _instance.WantedTinkerEnchantments.Add(Spells.SpellClass.ARMOR_TINKERING_EXPERTISE);
-
-
-                _instance.IsLoaded = true;
-
-                return _instance;
-            }
-            catch (Exception e) { Util.LogException(e); }
-
-            return null;
-        }
-
-        public void Start() {
-            try {
-
-            }
-            catch (Exception e) { Util.LogException(e); }
-        }
-
-        public void Save() {
-            try {
-                string json = JsonConvert.SerializeObject(this, Formatting.Indented);
-                File.WriteAllText(Util.GetCharacterDataDirectory() + "config.json", json);
-            }
-            catch (Exception ex) { Util.LogException(ex); }
-        }
-        
-        protected static void OnRaiseBotEnabledChangeEvent(BotConfigChangedEventArgs e) {
-            try {
-                BotConfigChangedEvent?.Invoke(null, e);
-            }
-            catch (Exception ex) { Util.LogException(ex); }
-        }
-
-        public int GetBuffRefreshTime() {
-            return 5; // minutes
-        }
-
-        public List<string> GetWantedIdleEnchantments() {
-            List<string> wantedEnchantments = new List<string>();
-
-            foreach (var spellClass in WantedIdleEnchantments) {
-                var spell = Spells.GetBestKnownSpellByClass(spellClass);
-
-                wantedEnchantments.Add(spell.name);
-            }
-
-            return wantedEnchantments;
-        }
-
-        public List<string> GetWantedTinkerEnchantments() {
-            List<string> wantedEnchantments = new List<string>();
-
-            foreach (var spellClass in WantedTinkerEnchantments) {
-                var spell = Spells.GetBestKnownSpellByClass(spellClass);
-
-                wantedEnchantments.Add(spell.name);
-            }
-
-            return wantedEnchantments;
         }
     }
 }
