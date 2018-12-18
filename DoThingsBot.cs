@@ -149,6 +149,9 @@ namespace DoThingsBot {
                     PrintAboutMessage(e.PlayerName, e.Arguments);
                     break;
 
+                case "message":
+                    break;
+
                 case "forcebuff":
                     if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) && e.PlayerName == CoreManager.Current.CharacterFilter.Name) {
                         var itemBundle = new ItemBundle();
@@ -178,8 +181,8 @@ namespace DoThingsBot {
                     }
 
                     ChatManager.Tell(e.PlayerName, String.Format("I am currently tied to {0} and {1}. '/t {2}, primary' for {0}. '/t {2}, secondary' for {1}",
-                        Config.Portals.PrimaryPortalTieLocation,
-                        Config.Portals.SecondaryPortalTieLocation,
+                        Config.Portals.PrimaryPortalTieLocation.Value,
+                        Config.Portals.SecondaryPortalTieLocation.Value,
                         CoreManager.Current.CharacterFilter.Name));
                     break;
 

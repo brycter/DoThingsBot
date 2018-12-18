@@ -121,7 +121,12 @@ namespace DoThingsBot.FSM.States {
                         itemBundle.successChance = percent;
 
                         if (percent >= 100) {
-                            _machine.ChangeState(new BotTinkering_ConfirmedState(itemBundle));
+                            System.Threading.Timer timer = null;
+                            timer = new System.Threading.Timer((obj) => {
+                                _machine.ChangeState(new BotTinkering_ConfirmedState(itemBundle));
+                                timer.Dispose();
+                            },
+                                        null, 200, System.Threading.Timeout.Infinite);
                             
                         }
                         else {

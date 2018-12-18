@@ -19,14 +19,14 @@ namespace DoThingsBot.FSM.States {
 
             if (itemBundle.GetCraftMode() == CraftMode.PrimaryPortal) {
                 CoreManager.Current.Actions.FaceHeading(Config.Portals.PrimaryPortalHeading.Value, true);
-                ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", Config.Portals.PrimaryPortalTieLocation));
-                ChatManager.Say(String.Format("I am summoning a portal to {0}.", Config.Portals.PrimaryPortalTieLocation));
+                ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", Config.Portals.PrimaryPortalTieLocation.Value));
+                ChatManager.Say(String.Format("I am summoning a portal to {0}.", Config.Portals.PrimaryPortalTieLocation.Value));
 
             }
             else {
                 CoreManager.Current.Actions.FaceHeading(Config.Portals.SecondaryPortalHeading.Value, true);
-                ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", Config.Portals.SecondaryPortalTieLocation));
-                ChatManager.Say(String.Format("I am summoning a portal to {0}.", Config.Portals.SecondaryPortalTieLocation));
+                ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", Config.Portals.SecondaryPortalTieLocation.Value));
+                ChatManager.Say(String.Format("I am summoning a portal to {0}.", Config.Portals.SecondaryPortalTieLocation.Value));
             }
             
             WorldObject player = Util.FindPlayerWorldObjectByName(itemBundle.GetOwner());

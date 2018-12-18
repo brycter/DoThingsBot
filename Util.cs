@@ -23,10 +23,15 @@ namespace DoThingsBot
             return GetCharacterDataDirectory() + @"users\";
         }
 
+        public static string GetLogDirectory() {
+            return GetCharacterDataDirectory() + @"logs\";
+        }
+
         public static void CreateDataDirectories() {
             System.IO.Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.Personal) + @"\Decal Plugins\");
             System.IO.Directory.CreateDirectory(DataDirectory);
             System.IO.Directory.CreateDirectory(GetCharacterDataDirectory());
+            System.IO.Directory.CreateDirectory(GetLogDirectory());
             System.IO.Directory.CreateDirectory(GetPlayerDataDirectory());
         }
 
@@ -79,11 +84,7 @@ namespace DoThingsBot
         }
 
         public static void WriteToDebugLog(string message) {
-            File.AppendAllText(Util.GetCharacterDataDirectory() + @"debuglog.txt", DateTime.Now.ToString("MM/dd/yyyy H:mm:ss") + ": " + message + Environment.NewLine);
-        }
-
-        public static void WriteToActionLog(string message) {
-            File.AppendAllText(Util.GetCharacterDataDirectory() + @"actionlog.txt", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss") + ": " + message + Environment.NewLine);
+            WriteToLogFile("debug", message, true);
         }
 
         public static void WriteGiftToLog(string player, string item) {
@@ -92,6 +93,17 @@ namespace DoThingsBot
 
         public static void WriteMessageToLog(string player, string message) {
             File.AppendAllText(Util.GetCharacterDataDirectory() + @"messages.txt", DateTime.Now.ToString("yy/MM/dd H:mm") + "|" + player + "|" + message + Environment.NewLine);
+        }
+
+        public static void WriteToLogFile(string logName, string message, bool addTimestamp=false) {
+            var today = DateTime.Now.ToString("yyyy-MM-dd");
+            var logFileName = String.Format("{0}.{1}.txt", logName, today);
+
+            if (addTimestamp) {
+                message = String.Format("{0} {1}", DateTime.Now.ToString("yy/MM/dd H:mm:ss"), message);
+            }
+
+            File.AppendAllText(Util.GetLogDirectory() + logFileName, message + Environment.NewLine);
         }
 
         public static string GetFullLootName(WorldObject wo) {

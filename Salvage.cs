@@ -231,7 +231,7 @@ namespace DoThingsBot {
         public static bool IsAbleToApplyToAnyWeapon(WorldObject wo) {
             if (wo.ObjectClass != ObjectClass.Salvage) return false;
 
-            if (IsAbleToApplyToAnyTreasureGeneratedItem(wo)) {
+            if (IsWeaponImbueSalvage(wo) || IsAbleToApplyToAnyTreasureGeneratedItem(wo)) {
                 return true;
             }
 

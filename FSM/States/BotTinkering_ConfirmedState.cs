@@ -49,14 +49,16 @@ namespace DoThingsBot.FSM.States {
 
         void Current_ChatBoxMessage(object sender, ChatTextInterceptEventArgs e) {
             try {
+
+                Util.WriteToDebugLog(itemBundle.successChanceFullString);
+                Util.WriteToDebugLog(e.Text);
+
                 if (CraftSuccess.IsMatch(e.Text)) {
                     // if we are tinkering set the salvage as destroyed
                     itemBundle.SetItemDestroyed(itemBundle.GetUseItemTarget());
-                    
 
-                    File.AppendAllText(Util.DataDirectory + @"craftsuccesslog.txt", DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss") + Environment.NewLine);
-                    File.AppendAllText(Util.DataDirectory + @"craftsuccesslog.txt", itemBundle.successChanceFullString + Environment.NewLine);
-                    File.AppendAllText(Util.DataDirectory + @"craftsuccesslog.txt", e.Text + Environment.NewLine + Environment.NewLine);
+                    Util.WriteToDebugLog(itemBundle.successChanceFullString);
+                    Util.WriteToDebugLog(e.Text);
 
                     if (itemBundle.HasItemsLeftToWorkOn()) {
                         System.Threading.Timer timer = null;
@@ -64,7 +66,7 @@ namespace DoThingsBot.FSM.States {
                             _machine.ChangeState(new BotTinkering_TrySuccessState(itemBundle));
                             timer.Dispose();
                         },
-                                    null, 1000, System.Threading.Timeout.Infinite);
+                                    null, 200, System.Threading.Timeout.Infinite);
                     }
                     else {
                         ChatManager.Tell(itemBundle.GetOwner(), "Wooo! We did it!");
@@ -80,11 +82,6 @@ namespace DoThingsBot.FSM.States {
                     itemBundle.SetItemDestroyed(itemBundle.GetUseItemOnTarget());
                     
                     _machine.ChangeState(new BotTinkering_FinishedState(itemBundle));
-                    
-
-                    File.AppendAllText(Util.DataDirectory + @"craftsuccesslog.txt", DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss") + Environment.NewLine);
-                    File.AppendAllText(Util.DataDirectory + @"craftsuccesslog.txt", itemBundle.successChanceFullString + Environment.NewLine);
-                    File.AppendAllText(Util.DataDirectory + @"craftsuccesslog.txt", e.Text + Environment.NewLine + Environment.NewLine);
 
                     return;
                 }

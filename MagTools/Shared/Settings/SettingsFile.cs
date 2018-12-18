@@ -83,7 +83,6 @@ namespace Mag.Shared.Settings {
         public static T GetSetting<T>(string xPath, List<string> defaultValue, string description = "") {
             try {
                 var xpathParts = new List<string>(xPath.Split('/'));
-                Util.WriteToDebugLog(_rootNodeName + "/" + String.Join("/", xpathParts.GetRange(0, xpathParts.Count - 1).ToArray()));
                 XmlNode xmlNode = XmlDocument.SelectSingleNode(_rootNodeName + "/" + String.Join("/", xpathParts.GetRange(0, xpathParts.Count - 1).ToArray()));
                 var lastPart = xpathParts[xpathParts.Count - 1];
 
@@ -145,9 +144,6 @@ namespace Mag.Shared.Settings {
                 ReloadXmlDocument();
 
                 var xpathParts = new List<string>(xPath.Split('/'));
-
-                Util.WriteToChat(_rootNodeName + "/" + String.Join("/", xpathParts.GetRange(0, xpathParts.Count - 1).ToArray()));
-
                 XmlNode xmlNode = XmlDocument.SelectSingleNode(_rootNodeName + "/" + String.Join("/", xpathParts.GetRange(0, xpathParts.Count - 1).ToArray()));
 
                 if (xmlNode == null) {
@@ -178,8 +174,6 @@ namespace Mag.Shared.Settings {
                 ReloadXmlDocument();
 
                 var xpathParts = new List<string>(xPath.Split('/'));
-
-                Util.WriteToChat(_rootNodeName + "/" + String.Join("/", xpathParts.GetRange(0, xpathParts.Count - 1).ToArray()));
 
                 XmlNode xmlNode = XmlDocument.SelectSingleNode(_rootNodeName + "/" + String.Join("/", xpathParts.GetRange(0, xpathParts.Count - 1).ToArray()));
 

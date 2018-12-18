@@ -134,6 +134,7 @@ namespace DoThingsBot.FSM {
                 ));
                 */
 
+                
                 if (NextState != null) {
                     if (PreviousState == null && CurrentState != null) {
                         PreviousState = CurrentState;
