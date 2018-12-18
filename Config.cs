@@ -22,7 +22,18 @@ namespace DoThingsBot {
             public static readonly Setting<int> BuffRefreshTime;
             
             public static List<Spells.SpellClass> WantedIdleEnchantments = new List<Spells.SpellClass>();
-            public static List<Spells.SpellClass> WantedTinkerEnchantments = new List<Spells.SpellClass>();
+            public static List<Spells.SpellClass> WantedTinkerEnchantments = new List<Spells.SpellClass> {
+                Spells.SpellClass.CREATURE_ENCHANTMENT_MASTERY,
+                Spells.SpellClass.FOCUS,
+                Spells.SpellClass.WILLPOWER,
+                Spells.SpellClass.COORDINATION,
+                Spells.SpellClass.ENDURANCE,
+                Spells.SpellClass.STRENGTH,
+                Spells.SpellClass.ARMOR_TINKERING_EXPERTISE,
+                Spells.SpellClass.ITEM_TINKERING_EXPERTISE,
+                Spells.SpellClass.MAGIC_ITEM_TINKERING_EXPERTISE,
+                Spells.SpellClass.WEAPON_TINKERING_EXPERTISE,
+            };
 
             static Bot() {
                 Enabled = new Setting<bool>("Config/Bot/Enabled", "Enable the bot", false);
@@ -31,17 +42,6 @@ namespace DoThingsBot {
                 RespondToUnknownCommands = new Setting<bool>("Config/Bot/RespondToUnknownCommands", "Respond to unknown commands", true);
                 DontResendDuplicateMessagesWindow = new Setting<int>("Config/Bot/DontResendDuplicateMessagesWindow", "Don't send repeat messages if they fall within this time window (in seconds)", 2);
                 BuffRefreshTime = new Setting<int>("Config/Bot/BuffRefreshTime", "Refresh buffs if time left falls below this amount before a job request. (in minutes)", 5);
-                
-                WantedTinkerEnchantments.Add(Spells.SpellClass.CREATURE_ENCHANTMENT_MASTERY);
-                WantedTinkerEnchantments.Add(Spells.SpellClass.FOCUS);
-                WantedTinkerEnchantments.Add(Spells.SpellClass.WILLPOWER);
-                WantedTinkerEnchantments.Add(Spells.SpellClass.STRENGTH);
-                WantedTinkerEnchantments.Add(Spells.SpellClass.COORDINATION);
-                WantedTinkerEnchantments.Add(Spells.SpellClass.ENDURANCE);
-                WantedTinkerEnchantments.Add(Spells.SpellClass.WEAPON_TINKERING_EXPERTISE);
-                WantedTinkerEnchantments.Add(Spells.SpellClass.ITEM_TINKERING_EXPERTISE);
-                WantedTinkerEnchantments.Add(Spells.SpellClass.MAGIC_ITEM_TINKERING_EXPERTISE);
-                WantedTinkerEnchantments.Add(Spells.SpellClass.ARMOR_TINKERING_EXPERTISE);
             }
 
             public static void Init() {
@@ -108,9 +108,9 @@ namespace DoThingsBot {
                     StartupMessage = new Setting<string>("Config/Announcements/StartupMessage", "Puts a message/command into the chatbox when the bot starts (leave blank for none)", "/s Tinkerbot online. Tell me 'tinker' to get started.");
                     SpamInterval = new Setting<int>("Config/Announcements/SpamInterval", "The interval in minutes that announcements are sent out.", 15);
 
-                    var defaultMessages = new List<string>();
-
-                    defaultMessages.Add("I'm a tinkerbot. Stand nearby and tell me 'tinker' to get started.");
+                    var defaultMessages = new List<string> {
+                        "I'm a tinkerbot. Stand nearby and tell me 'tinker' to get started."
+                    };
 
                     Messages = new Setting<List<string>>("Config/Announcements/Spam/Message", "Announcements go here. It will spam every `Config/Announcements/SpamInterval` seconds.", defaultMessages);
                 }
@@ -163,10 +163,10 @@ namespace DoThingsBot {
         public static void Init() {
             try {
                 Bot.Init();
-                Equipment.Init();
                 Announcements.Init();
                 Portals.Init();
                 Tinkering.Init();
+                Equipment.Init();
             }
             catch (Exception e) { Util.LogException(e); }
         }
