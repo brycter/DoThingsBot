@@ -1,5 +1,8 @@
 CHANGELOG
 
+1.0.0.1
+	- Fixed ability to add brass to wands...
+
 1.0.0.0
     - Fixed issue where bot thought it could add sunstone to wands and iron to bows
     - Added xml based config that should be easier to edit

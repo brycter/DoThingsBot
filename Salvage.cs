@@ -224,6 +224,7 @@ namespace DoThingsBot {
             switch (wo.Values(LongValueKey.Material)) {
                 case (int)Material.OPAL: return true;
                 case (int)Material.GREEN_GARNET: return true;
+                case (int)Material.BRASS: return true;
                 default: return false;
             }
         }
@@ -251,6 +252,7 @@ namespace DoThingsBot {
             switch (wo.Values(LongValueKey.Material)) {
                 case (int)Material.OAK: return true;
                 case (int)Material.SUNSTONE: return true;
+                case (int)Material.BRASS: return true;
                 default: return false;
             }
         }
@@ -266,6 +268,7 @@ namespace DoThingsBot {
                 case (int)Material.GRANITE: return true;
                 case (int)Material.IRON: return true;
                 case (int)Material.VELVET: return true;
+                case (int)Material.BRASS: return true;
                 default: return false;
             }
         }
@@ -279,6 +282,7 @@ namespace DoThingsBot {
 
             switch (wo.Values(LongValueKey.Material)) {
                 case (int)Material.MAHOGANY: return true;
+                case (int)Material.BRASS: return true;
                 default: return false;
             }
         }
