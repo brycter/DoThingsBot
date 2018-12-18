@@ -1,5 +1,11 @@
 CHANGELOG
 
+1.0.0.0
+    - Fixed issue where bot thought it could add sunstone to wands and iron to bows
+    - Added xml based config that should be easier to edit
+    - Fixed bug where bot could log up if it got a double message
+    - Cleaned up logging
+
 0.1.1.0
 	- Added ability to clear/open logs within the plugin window
 	- Added startup command/message to announcements tab, leave blank for none. (announcements now only go out after inital delay)
