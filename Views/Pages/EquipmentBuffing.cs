@@ -1,8 +1,7 @@
 ﻿using Decal.Adapter;
 using Decal.Adapter.Wrappers;
 using System;
-
-
+using System.Collections.Generic;
 using VirindiViewService.Controls;
 
 namespace DoThingsBot.Views.Pages {
@@ -14,8 +13,8 @@ namespace DoThingsBot.Views.Pages {
             try {
                 UIEquipmentBuffingAddSelected = mainView.view != null ? (HudButton)mainView.view["UIEquipmentBuffingAddSelected"] : new HudButton();
                 UIEquipmentBuffingList = mainView.view != null ? (HudList)mainView.view["UIEquipmentBuffingList"] : new HudList();
-
-                Config.BotConfigChangedEvent += (e, v) => {
+                
+                Config2.Equipment.BuffEquipmentIds.Changed += obj => {
                     RefreshBuffingEquipmentList();
                 };
 
@@ -24,7 +23,9 @@ namespace DoThingsBot.Views.Pages {
                 UIEquipmentBuffingAddSelected.Hit += (s, e) => {
                     try {
                         WorldObject selectedObject = Globals.Core.WorldFilter[Globals.Host.Actions.CurrentSelection];
-                        DoThingsBot.ConfigurationManager().AddBuffingEquipment(selectedObject);
+                        List<int> newList = Config2.Equipment.BuffEquipmentIds.Value;
+                        newList.Add(selectedObject.Id);
+                        Config2.Equipment.BuffEquipmentIds.Value = newList;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
@@ -38,14 +39,19 @@ namespace DoThingsBot.Views.Pages {
             try {
                 UIEquipmentBuffingList.ClearRows();
 
-                var buffingEquipment = DoThingsBot.ConfigurationManager().BuffEquipment;
+                var buffingEquipment = Config2.Equipment.BuffEquipmentIds.Value;
 
                 for (int equipmentIndex = 0; equipmentIndex < buffingEquipment.Count; equipmentIndex++) {
                     WorldObject wo = Globals.Core.WorldFilter[buffingEquipment[equipmentIndex]];
 
                     if (wo == null) {
                         Util.WriteToChat(String.Format("Removing unknown item from buffing equipment list: {0}", buffingEquipment[equipmentIndex]));
-                        DoThingsBot.ConfigurationManager().RemoveBuffingEquipmentAt(equipmentIndex);
+                        var newList = Config2.Equipment.BuffEquipmentIds.Value;
+
+                        if (newList.Count > equipmentIndex) {
+                            newList.RemoveAt(equipmentIndex);
+                            Config2.Equipment.BuffEquipmentIds.Value = newList;
+                        }
                         continue;
                     }
                     else {
@@ -61,7 +67,12 @@ namespace DoThingsBot.Views.Pages {
 
         private void UIEquipmentBuffingList_Click(object sender, int row, int col) {
             try {
-                DoThingsBot.ConfigurationManager().RemoveBuffingEquipmentAt(row);
+                var newList = Config2.Equipment.BuffEquipmentIds.Value;
+
+                if (newList.Count > row) {
+                    newList.RemoveAt(row);
+                    Config2.Equipment.BuffEquipmentIds.Value = newList;
+                }
             }
             catch (Exception ex) { Util.LogException(ex); }
         }

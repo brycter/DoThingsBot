@@ -37,7 +37,7 @@ namespace Mag.Shared.Settings {
             set {
                 try {
                     // If we're setting it to the value its already at, don't continue with the set.
-                    if (Object.Equals(this.value, value) && typeof(T) != typeof(List<string>))
+                    if (Object.Equals(this.value, value) && typeof(T) != typeof(List<string>) && typeof(T) != typeof(List<int>))
                         return;
 
                     if (Validate != null) {
@@ -52,8 +52,9 @@ namespace Mag.Shared.Settings {
 
                     // The value differs, set it.
                     this.value = value;
-
-                    Util.WriteToChat(String.Format("{0} = {1}", this.Xpath, this.value.ToString()));
+                    if (typeof(T) != typeof(List<string>) && typeof(T) != typeof(List<int>)) {
+                        Util.WriteToChat(String.Format("{0} = {1}", this.Xpath, this.value.ToString()));
+                    }
 
                     StoreValueInConfigFile();
 

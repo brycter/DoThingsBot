@@ -1,8 +1,7 @@
 ﻿using Decal.Adapter;
 using Decal.Adapter.Wrappers;
 using System;
-
-
+using System.Collections.Generic;
 using VirindiViewService.Controls;
 
 namespace DoThingsBot.Views.Pages {
@@ -15,7 +14,7 @@ namespace DoThingsBot.Views.Pages {
                 UIEquipmentTinkeringAddSelected = mainView.view != null ? (HudButton)mainView.view["UIEquipmentTinkeringAddSelected"] : new HudButton();
                 UIEquipmentTinkeringList = mainView.view != null ? (HudList)mainView.view["UIEquipmentTinkeringList"] : new HudList();
 
-                Config.BotConfigChangedEvent += (e, v) => {
+                Config2.Equipment.TinkerEquipmentIds.Changed += obj => {
                     RefreshTinkeringEquipmentList();
                 };
 
@@ -24,7 +23,9 @@ namespace DoThingsBot.Views.Pages {
                 UIEquipmentTinkeringAddSelected.Hit += (s, e) => {
                     try {
                         WorldObject selectedObject = Globals.Core.WorldFilter[Globals.Host.Actions.CurrentSelection];
-                        DoThingsBot.ConfigurationManager().AddTinkeringEquipment(selectedObject);
+                        List<int> newList = Config2.Equipment.TinkerEquipmentIds.Value;
+                        newList.Add(selectedObject.Id);
+                        Config2.Equipment.TinkerEquipmentIds.Value = newList;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
@@ -38,13 +39,18 @@ namespace DoThingsBot.Views.Pages {
             try {
                 UIEquipmentTinkeringList.ClearRows();
 
-                var tinkeringEquipment = DoThingsBot.ConfigurationManager().TinkerEquipment;
+                var tinkeringEquipment = Config2.Equipment.TinkerEquipmentIds.Value;
 
                 for (int equipmentIndex = 0; equipmentIndex < tinkeringEquipment.Count; equipmentIndex++) {
 
                     if (!CoreManager.Current.Actions.IsValidObject(tinkeringEquipment[equipmentIndex])) {
                         Util.WriteToChat(String.Format("Removing unknown item from tinkering equipment list: {0}", tinkeringEquipment[equipmentIndex]));
-                        DoThingsBot.ConfigurationManager().RemoveTinkeringEquipmentAt(equipmentIndex);
+                        var newList = Config2.Equipment.TinkerEquipmentIds.Value;
+
+                        if (newList.Count > equipmentIndex) {
+                            newList.RemoveAt(equipmentIndex);
+                            Config2.Equipment.TinkerEquipmentIds.Value = newList;
+                        }
                         continue;
                     }
                     else {
@@ -61,7 +67,12 @@ namespace DoThingsBot.Views.Pages {
 
         private void UIEquipmentTinkeringList_Click(object sender, int row, int col) {
             try {
-                DoThingsBot.ConfigurationManager().RemoveTinkeringEquipmentAt(row);
+                var newList = Config2.Equipment.TinkerEquipmentIds.Value;
+
+                if (newList.Count > row) {
+                    newList.RemoveAt(row);
+                    Config2.Equipment.TinkerEquipmentIds.Value = newList;
+                }
             }
             catch (Exception ex) { Util.LogException(ex); }
         }

@@ -1,8 +1,7 @@
 ﻿using Decal.Adapter;
 using Decal.Adapter.Wrappers;
 using System;
-
-
+using System.Collections.Generic;
 using VirindiViewService.Controls;
 
 namespace DoThingsBot.Views.Pages {
@@ -14,8 +13,8 @@ namespace DoThingsBot.Views.Pages {
             try {
                 UIEquipmentIdleAddSelected = mainView.view != null ? (HudButton)mainView.view["UIEquipmentIdleAddSelected"] : new HudButton();
                 UIEquipmentIdleList = mainView.view != null ? (HudList)mainView.view["UIEquipmentIdleList"] : new HudList();
-
-                Config.BotConfigChangedEvent += (e, v) => {
+                
+                Config2.Equipment.IdleEquipmentIds.Changed += obj => {
                     RefreshIdleEquipmentList();
                 };
 
@@ -24,7 +23,9 @@ namespace DoThingsBot.Views.Pages {
                 UIEquipmentIdleAddSelected.Hit += (s, e) => {
                     try {
                         WorldObject selectedObject = Globals.Core.WorldFilter[Globals.Host.Actions.CurrentSelection];
-                        DoThingsBot.ConfigurationManager().AddIdleEquipment(selectedObject);
+                        List<int> newList = Config2.Equipment.IdleEquipmentIds.Value;
+                        newList.Add(selectedObject.Id);
+                        Config2.Equipment.IdleEquipmentIds.Value = newList;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
@@ -38,14 +39,19 @@ namespace DoThingsBot.Views.Pages {
             try {
                 UIEquipmentIdleList.ClearRows();
 
-                var idleEquipment = DoThingsBot.ConfigurationManager().IdleEquipment;
+                var idleEquipment = Config2.Equipment.IdleEquipmentIds.Value;
 
                 for (int equipmentIndex = 0; equipmentIndex < idleEquipment.Count; equipmentIndex++) {
                     WorldObject wo = Globals.Core.WorldFilter[idleEquipment[equipmentIndex]];
 
                     if (wo == null) {
                         Util.WriteToChat(String.Format("Removing unknown item from idle equipment list: {0}", idleEquipment[equipmentIndex]));
-                        DoThingsBot.ConfigurationManager().RemoveIdleEquipmentAt(equipmentIndex);
+                        var newList = Config2.Equipment.IdleEquipmentIds.Value;
+
+                        if (newList.Count > equipmentIndex) {
+                            newList.RemoveAt(equipmentIndex);
+                            Config2.Equipment.IdleEquipmentIds.Value = newList;
+                        }
                         continue;
                     }
                     else {
@@ -61,7 +67,12 @@ namespace DoThingsBot.Views.Pages {
 
         private void UIEquipmentIdleList_Click(object sender, int row, int col) {
             try {
-                DoThingsBot.ConfigurationManager().RemoveIdleEquipmentAt(row);
+                var newList = Config2.Equipment.IdleEquipmentIds.Value;
+
+                if (newList.Count > row) {
+                    newList.RemoveAt(row);
+                    Config2.Equipment.IdleEquipmentIds.Value = newList;
+                }
             }
             catch (Exception ex) { Util.LogException(ex); }
         }

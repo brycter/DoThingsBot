@@ -57,6 +57,10 @@ namespace Mag.Shared.Settings {
                     return GetSetting<T>(xPath, defaultValue as List<string>, description);
                 }
 
+                if (typeof(T) == typeof(List<int>)) {
+                    return GetSetting<T>(xPath, defaultValue as List<int>, description);
+                }
+
                 XmlNode xmlNode = XmlDocument.SelectSingleNode(_rootNodeName + "/" + xPath);
 
                 if (xmlNode != null) {
@@ -103,6 +107,71 @@ namespace Mag.Shared.Settings {
             catch (Exception e) { Util.LogException(e); return (T)Convert.ChangeType(defaultValue, typeof(T)); }
         }
 
+        public static T GetSetting<T>(string xPath, List<int> defaultValue, string description = "") {
+            try {
+                var xpathParts = new List<string>(xPath.Split('/'));
+                Util.WriteToDebugLog(_rootNodeName + "/" + String.Join("/", xpathParts.GetRange(0, xpathParts.Count - 1).ToArray()));
+                XmlNode xmlNode = XmlDocument.SelectSingleNode(_rootNodeName + "/" + String.Join("/", xpathParts.GetRange(0, xpathParts.Count - 1).ToArray()));
+                var lastPart = xpathParts[xpathParts.Count - 1];
+
+                List<int> returnVals = new List<int>();
+
+                if (xmlNode != null) {
+                    foreach (XmlNode childNode in xmlNode.ChildNodes) {
+                        if (int.TryParse(childNode.InnerText, out int value)) {
+                            returnVals.Add(value);
+                        }
+                        else {
+                            Util.WriteToChat("can't parse item: " + childNode.InnerText);
+                        }
+                    }
+
+                    return (T)Convert.ChangeType(returnVals, typeof(T));
+                }
+
+                Util.WriteToDebugLog(String.Format("Creating {0} because it doesn't exist", xPath));
+
+                // save default setting to xml if it doesn't exist
+                PutSetting(xPath, defaultValue, description, false);
+
+                return (T)Convert.ChangeType(returnVals, typeof(T));
+            }
+            catch (Exception e) { Util.LogException(e); return (T)Convert.ChangeType(defaultValue, typeof(T)); }
+        }
+
+        public static void PutSetting(string xPath, List<int> values, string helpText, bool doSave) {
+            try {
+                // Before we save a setting, we reload the document to make sure we don't overwrite settings saved from another session.
+                ReloadXmlDocument();
+
+                var xpathParts = new List<string>(xPath.Split('/'));
+
+                Util.WriteToChat(_rootNodeName + "/" + String.Join("/", xpathParts.GetRange(0, xpathParts.Count - 1).ToArray()));
+
+                XmlNode xmlNode = XmlDocument.SelectSingleNode(_rootNodeName + "/" + String.Join("/", xpathParts.GetRange(0, xpathParts.Count - 1).ToArray()));
+
+                if (xmlNode == null) {
+                    xmlNode = createMissingNode(_rootNodeName + "/" + String.Join("/", xpathParts.GetRange(0, xpathParts.Count - 1).ToArray()));
+
+                    xmlNode.ParentNode.InsertBefore(XmlDocument.CreateComment(" " + helpText + " "), xmlNode);
+                }
+
+                xmlNode.InnerText = "";
+
+                foreach (var value in values) {
+                        var child = XmlDocument.CreateElement(xpathParts[xpathParts.Count - 1]);
+                        child.InnerText = value.ToString();
+
+                        xmlNode.AppendChild(child);
+                }
+
+                if (doSave) {
+                    SaveXmlDocument();
+                }
+            }
+            catch (Exception e) { Util.LogException(e); }
+        }
+
         public static void PutSetting(string xPath, List<string> values, string helpText, bool doSave) {
             try {
                 // Before we save a setting, we reload the document to make sure we don't overwrite settings saved from another session.
@@ -121,18 +190,18 @@ namespace Mag.Shared.Settings {
                 }
 
                 xmlNode.InnerText = "";
-                        foreach (var value in values) {
+                foreach (var value in values) {
                             if (value != null) {
                                 var child = XmlDocument.CreateElement(xpathParts[xpathParts.Count - 1]);
                                 child.InnerText = value;
 
                                 xmlNode.AppendChild(child);
-
-                                if (doSave) {
-                                    SaveXmlDocument();
-                                }
                             }
-                        }
+                }
+
+                if (doSave) {
+                    SaveXmlDocument();
+                }
             }
             catch (Exception e) { Util.LogException(e); }
         }
@@ -141,6 +210,10 @@ namespace Mag.Shared.Settings {
             try {
                 if (typeof(T) == typeof(List<string>)) {
                     PutSetting(xPath, value as List<string>, helpText, doSave);
+                    return;
+                }
+                if (typeof(T) == typeof(List<int>)) {
+                    PutSetting(xPath, value as List<int>, helpText, doSave);
                     return;
                 }
 

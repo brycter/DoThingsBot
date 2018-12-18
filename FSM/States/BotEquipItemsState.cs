@@ -27,15 +27,15 @@ namespace DoThingsBot.FSM.States {
             try {
                 switch (itemBundle.GetEquipMode()) {
                     case EquipMode.Idle:
-                        return DoThingsBot.ConfigurationManager().IdleEquipment;
+                        return Config2.Equipment.IdleEquipmentIds.Value;
                     case EquipMode.Buff:
-                        return DoThingsBot.ConfigurationManager().BuffEquipment;
+                        return Config2.Equipment.BuffEquipmentIds.Value;
                     case EquipMode.SummonPortal:
-                        return DoThingsBot.ConfigurationManager().BuffEquipment;
+                        return Config2.Equipment.BuffEquipmentIds.Value;
                     case EquipMode.Tinker:
-                        return DoThingsBot.ConfigurationManager().TinkerEquipment;
+                        return Config2.Equipment.TinkerEquipmentIds.Value;
                     default:
-                        return new List<int>();
+                        return Config2.Equipment.IdleEquipmentIds.Value;
                 }
             }
             catch (Exception e) { Util.LogException(e); }

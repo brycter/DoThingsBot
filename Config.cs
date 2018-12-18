@@ -33,6 +33,25 @@ namespace DoThingsBot {
             }
         }
 
+        public static class Equipment {
+            public static readonly Setting<List<int>> IdleEquipmentIds;
+            public static readonly Setting<List<int>> BuffEquipmentIds;
+            public static readonly Setting<List<int>> TinkerEquipmentIds;
+
+            static Equipment() {
+                try {
+                    IdleEquipmentIds = new Setting<List<int>>("Config/Equipment/Idle/Item", "These item ids will be equipped when you are idle. (everything else will be unequipped)", new List<int>());
+                    BuffEquipmentIds = new Setting<List<int>>("Config/Equipment/Buffing/Item", "These item ids will be equipped when you are buffing. (everything else will be unequipped)", new List<int>());
+                    TinkerEquipmentIds = new Setting<List<int>>("Config/Equipment/Tinkering/Item", "These item ids will be equipped when you are tinkering. (everything else will be unequipped)", new List<int>());
+                }
+                catch (Exception e) { Util.LogException(e); }
+            }
+
+            public static void Init() {
+
+            }
+        }
+
         public static class Announcements {
             public static readonly Setting<bool> Enabled;
 
@@ -91,7 +110,7 @@ namespace DoThingsBot {
             public static readonly Setting<int> KeepEquipmentOnDelay;
 
             static Tinkering() {
-                KeepEquipmentOnDelay = new Setting<int>("Config/Tinkering/KeepEquipmentOnDelay", "How long to keep tinkering equipment equipped after a job in seconds", 30);
+                KeepEquipmentOnDelay = new Setting<int>("Config/Tinkering/KeepEquipmentOnDelay", "How long to keep tinkering equipment equipped after a job is finished (in seconds)", 30);
             }
 
             public static void Init() {
@@ -102,6 +121,7 @@ namespace DoThingsBot {
         public static void Init() {
             try {
                 Bot.Init();
+                Equipment.Init();
                 Announcements.Init();
                 Portals.Init();
                 Tinkering.Init();
@@ -119,10 +139,6 @@ namespace DoThingsBot {
         private static Config _instance = null;
 
         public bool IsLoaded = false;
-
-        public List<int> IdleEquipment = new List<int>();
-        public List<int> BuffEquipment = new List<int>();
-        public List<int> TinkerEquipment = new List<int>();
 
         public List<Spells.SpellClass> WantedIdleEnchantments = new List<Spells.SpellClass>();
         public List<Spells.SpellClass> WantedTinkerEnchantments = new List<Spells.SpellClass>();
@@ -161,9 +177,6 @@ namespace DoThingsBot {
 
 
                     _instance = new Config();
-                    _instance.IdleEquipment = configData.IdleEquipment;
-                    _instance.BuffEquipment = configData.BuffEquipment;
-                    _instance.TinkerEquipment = configData.TinkerEquipment;
                 }
                 else {
                     _instance = new Config();
@@ -210,132 +223,6 @@ namespace DoThingsBot {
         protected static void OnRaiseBotEnabledChangeEvent(BotConfigChangedEventArgs e) {
             try {
                 BotConfigChangedEvent?.Invoke(null, e);
-            }
-            catch (Exception ex) { Util.LogException(ex); }
-        }
-
-        public void AddIdleEquipment(WorldObject wo) {
-            try {
-                if (wo != null) {
-                    if (!IdleEquipment.Contains(wo.Id)) {
-                        IdleEquipment.Add(wo.Id);
-
-                        if (IsLoaded) {
-                            Util.WriteToChat(String.Format("Config.IdleEquipment += {0}", Util.GetGameItemDisplayName(wo)));
-
-                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                            Save();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex) { Util.LogException(ex); }
-        }
-
-        public void RemoveIdleEquipmentAt(int index) {
-            try {
-                if (index >= IdleEquipment.Count) return;
-
-                int id = IdleEquipment[index];
-                WorldObject wo = CoreManager.Current.WorldFilter[id];
-                string itemName = String.Format("Unknown ({0})", id.ToString());
-
-                if (wo != null) {
-                    itemName = Util.GetGameItemDisplayName(wo);
-                }
-                
-                IdleEquipment.RemoveAt(index);
-
-                if (IsLoaded) {
-                    Util.WriteToChat(String.Format("Config.IdleEquipment -= {0}", itemName));
-
-                    BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                    Save();
-                }
-            }
-            catch (Exception ex) { Util.LogException(ex); }
-        }
-
-        public void AddBuffingEquipment(WorldObject wo) {
-            try {
-                if (wo != null) {
-                    if (!BuffEquipment.Contains(wo.Id)) {
-                        BuffEquipment.Add(wo.Id);
-
-                        if (IsLoaded) {
-                            Util.WriteToChat(String.Format("Config.BuffingEquipment += {0}", Util.GetGameItemDisplayName(wo)));
-
-                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                            Save();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex) { Util.LogException(ex); }
-        }
-
-        public void RemoveBuffingEquipmentAt(int index) {
-            try {
-                if (index >= BuffEquipment.Count) return;
-
-                int id = BuffEquipment[index];
-                WorldObject wo = CoreManager.Current.WorldFilter[id];
-                string itemName = String.Format("Unknown ({0})", id.ToString());
-
-                if (wo != null) {
-                    itemName = Util.GetGameItemDisplayName(wo);
-                }
-
-                BuffEquipment.RemoveAt(index);
-
-                if (IsLoaded) {
-                    Util.WriteToChat(String.Format("Config.BuffEquipment -= {0}", itemName));
-
-                    BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                    Save();
-                }
-            }
-            catch (Exception ex) { Util.LogException(ex); }
-        }
-
-        public void AddTinkeringEquipment(WorldObject wo) {
-            try {
-                if (wo != null) {
-                    if (!TinkerEquipment.Contains(wo.Id)) {
-                        TinkerEquipment.Add(wo.Id);
-
-                        if (IsLoaded) {
-                            Util.WriteToChat(String.Format("Config.TinkerEquipment += {0}", Util.GetGameItemDisplayName(wo)));
-
-                            BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                            Save();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex) { Util.LogException(ex); }
-        }
-
-        public void RemoveTinkeringEquipmentAt(int index) {
-            try {
-                if (index >= TinkerEquipment.Count) return;
-
-                int id = TinkerEquipment[index];
-                WorldObject wo = CoreManager.Current.WorldFilter[id];
-                string itemName = String.Format("Unknown ({0})", id.ToString());
-
-                if (wo != null) {
-                    itemName = Util.GetGameItemDisplayName(wo);
-                }
-
-                TinkerEquipment.RemoveAt(index);
-
-                if (IsLoaded) {
-                    Util.WriteToChat(String.Format("Config.TinkerEquipment -= {0}", itemName));
-
-                    BotConfigChangedEvent(this, new BotConfigChangedEventArgs());
-                    Save();
-                }
             }
             catch (Exception ex) { Util.LogException(ex); }
         }
