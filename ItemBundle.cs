@@ -64,36 +64,60 @@ namespace DoThingsBot {
         }
 
         public ItemBundle(string playerName) {
-            owner = playerName;
-            LoadPlayerData();
+            try {
+                owner = playerName;
+                LoadPlayerData();
+            }
+            catch (Exception e) { Util.LogException(e); }
         }
 
         public string GetOwner() {
-            return owner;
+            try {
+                return owner;
+            }
+            catch (Exception e) { Util.LogException(e); return "UnknownOwner"; }
         }
 
         public bool HasOwner() {
-            return owner != null && owner.Length > 0;
+            try {
+                return owner != null && owner.Length > 0;
+            }
+            catch (Exception e) { Util.LogException(e); return false; }
         }
 
         public void SetCraftMode(CraftMode m) {
-            craftMode = m;
+            try {
+                craftMode = m;
+            }
+            catch (Exception e) { Util.LogException(e); }
         }
 
         public bool GetForceBuffMode() {
-            return forceBuff;
+            try {
+                return forceBuff;
+            }
+            catch (Exception e) { Util.LogException(e); return false; }
         }
 
         public void SetForceBuffMode(bool m) {
-            forceBuff = m;
+            try {
+                forceBuff = m;
+            }
+            catch (Exception e) { Util.LogException(e); }
         }
 
         public CraftMode GetCraftMode() {
-            return craftMode;
+            try {
+                return craftMode;
+            }
+            catch (Exception e) { Util.LogException(e); return CraftMode.None; }
         }
 
         public List<int> GetItems() {
-            return playerData.itemIds;
+            try {
+                return playerData.itemIds;
+            }
+            catch (Exception e) { Util.LogException(e); return new List<int>(); }
         }
 
         public bool IsValid() {
@@ -169,110 +193,126 @@ namespace DoThingsBot {
         }
 
         public bool AddWorldObject(WorldObject wo) {
-            if (!CanAddWorldObject(wo)) {
-                isValid = false;
-                return false;
+            try {
+                if (!CanAddWorldObject(wo)) {
+                    isValid = false;
+                    return false;
+                }
+
+                playerData.itemIds.Add(wo.Id);
+
+                SetTargetCraftType(wo);
+
+                isValid = CheckIsValid();
+
+                if (isValid) SetItemTargets();
+
+                return isValid;
             }
-
-            playerData.itemIds.Add(wo.Id);
-
-            SetTargetCraftType(wo);
-
-            isValid = CheckIsValid();
-
-            if (isValid) SetItemTargets();
-
-            return isValid;
+            catch (Exception e) { Util.LogException(e); return false; }
         }
 
         public string GetCachedItemName(int id) {
-            if (playerData.itemNames.ContainsKey(id)) {
-                return playerData.itemNames[id];
+            try {
+                if (playerData.itemNames.ContainsKey(id)) {
+                    return playerData.itemNames[id];
+                }
             }
+            catch (Exception e) { Util.LogException(e); }
 
             return "Unknown Item";
         }
 
         private void SetTargetCraftType(WorldObject wo) {
-            if (targetType == CraftTargetType.None || targetType == CraftTargetType.Unkown) {
-                if (IsWandOrWeapon(wo)) {
-                    targetType = CraftTargetType.Weapon;
+            try {
+                if (targetType == CraftTargetType.None || targetType == CraftTargetType.Unkown) {
+                    if (IsWandOrWeapon(wo)) {
+                        targetType = CraftTargetType.Weapon;
 
-                    if (wo.ObjectClass == ObjectClass.WandStaffOrb) {
-                        weaponType = WeaponType.Wand;
+                        if (wo.ObjectClass == ObjectClass.WandStaffOrb) {
+                            weaponType = WeaponType.Wand;
+                        }
+                        else if (wo.ObjectClass == ObjectClass.MeleeWeapon) {
+                            weaponType = WeaponType.Melee;
+                        }
+                        else if (wo.ObjectClass == ObjectClass.MissileWeapon) {
+                            weaponType = WeaponType.Missile;
+                        }
                     }
-                    else if (wo.ObjectClass == ObjectClass.MeleeWeapon) {
-                        weaponType = WeaponType.Melee;
+                    else if (wo.ObjectClass == ObjectClass.Armor) {
+                        targetType = CraftTargetType.Armor;
                     }
-                    else if (wo.ObjectClass == ObjectClass.MissileWeapon) {
-                        weaponType = WeaponType.Missile;
+                    else if (wo.ObjectClass == ObjectClass.Jewelry) {
+                        targetType = CraftTargetType.Jewelry;
                     }
-                }
-                else if (wo.ObjectClass == ObjectClass.Armor) {
-                    targetType = CraftTargetType.Armor;
-                }
-                else if (wo.ObjectClass == ObjectClass.Jewelry) {
-                    targetType = CraftTargetType.Jewelry;
-                }
 
-                if (targetType == CraftTargetType.None) {
-                    targetType = CraftTargetType.Unkown;
+                    if (targetType == CraftTargetType.None) {
+                        targetType = CraftTargetType.Unkown;
+                    }
                 }
             }
+            catch (Exception e) { Util.LogException(e); }
         }
 
         private string CraftModeToString(CraftMode cm) {
-            switch (cm) {
-                case CraftMode.None:
-                    return "None";
-                case CraftMode.Unknown:
-                    return "Unknown";
-                case CraftMode.WeaponTinkering:
-                    return "Weapon Tinkering";
+            try {
+                switch (cm) {
+                    case CraftMode.None:
+                        return "None";
+                    case CraftMode.Unknown:
+                        return "Unknown";
+                    case CraftMode.WeaponTinkering:
+                        return "Weapon Tinkering";
 
-                default:
-                    return "Unkown";
+                    default:
+                        return "Unknown";
+                }
             }
+            catch (Exception e) { Util.LogException(e); return "Unknown"; }
         }
 
         public bool CheckIsValidFinal() {
-            int targetId = GetTargetId();
-            WorldObject targetWo = CoreManager.Current.WorldFilter[targetId];
+            try {
+                int targetId = GetTargetId();
+                WorldObject targetWo = CoreManager.Current.WorldFilter[targetId];
 
-            // no target
-            if (targetId == 0) {
-                if (GetSalvages().Count > 0) {
-                    invalidReason = "You didn't add an item for me to use those salvages on.";
-                }
-                else {
-                    invalidReason = "You didn't add any items?";
-                }
-                return false;
-            }
-            else if (GetSalvages().Count <= 0) {
-                invalidReason = "You need to add salvages with that!";
-                return false;
-            }
-
-            // check salvages will work on this thing
-            foreach (var salvage in GetSalvages()) {
-                bool canApply = false;
-
-                switch (targetWo.ObjectClass) {
-                    case ObjectClass.MeleeWeapon: canApply = Salvage.IsAbleToApplyToMeleeWeapon(salvage); break;
-                    case ObjectClass.MissileWeapon: canApply = Salvage.IsAbleToApplyToMissileWeapon(salvage); break;
-                    case ObjectClass.WandStaffOrb: canApply = Salvage.IsAbleToApplyToAnyMagicWeapon(salvage); break;
-                    case ObjectClass.Armor: canApply = Salvage.IsAbleToApplyToArmor(salvage); break;
-                    case ObjectClass.Jewelry: canApply = Salvage.IsAbleToApplyToJewelry(salvage); break;
-                }
-
-                if (!CheckSalvageAgainstTarget(salvage, targetWo)) {
-                    invalidReason = String.Format("I can't use the {0} on the {1}", Util.GetItemName(salvage), Util.GetItemName(targetWo));
+                // no target
+                if (targetId == 0) {
+                    if (GetSalvages().Count > 0) {
+                        invalidReason = "You didn't add an item for me to use those salvages on.";
+                    }
+                    else {
+                        invalidReason = "You didn't add any items?";
+                    }
                     return false;
                 }
+                else if (GetSalvages().Count <= 0) {
+                    invalidReason = "You need to add salvages with that!";
+                    return false;
+                }
+
+                // check salvages will work on this thing
+                foreach (var salvage in GetSalvages()) {
+                    bool canApply = false;
+
+                    switch (targetWo.ObjectClass) {
+                        case ObjectClass.MeleeWeapon: canApply = Salvage.IsAbleToApplyToMeleeWeapon(salvage); break;
+                        case ObjectClass.MissileWeapon: canApply = Salvage.IsAbleToApplyToMissileWeapon(salvage); break;
+                        case ObjectClass.WandStaffOrb: canApply = Salvage.IsAbleToApplyToAnyMagicWeapon(salvage); break;
+                        case ObjectClass.Armor: canApply = Salvage.IsAbleToApplyToArmor(salvage); break;
+                        case ObjectClass.Jewelry: canApply = Salvage.IsAbleToApplyToJewelry(salvage); break;
+                    }
+
+                    if (!CheckSalvageAgainstTarget(salvage, targetWo)) {
+                        invalidReason = String.Format("I can't use the {0} on the {1}", Util.GetItemName(salvage), Util.GetItemName(targetWo));
+                        return false;
+                    }
+                }
+
+                return CheckIsValid();
             }
 
-            return CheckIsValid();
+            catch (Exception e) { Util.LogException(e); return false; }
         }
 
         public bool CheckIsValid() {
@@ -280,7 +320,10 @@ namespace DoThingsBot {
         }
 
         public bool HasItemsLeftToWorkOn() {
-            return GetSalvages().Count > 0;
+            try {
+                return GetSalvages().Count > 0;
+            }
+            catch (Exception e) { Util.LogException(e); return false; }
         }
 
         public int GetUseItemTarget() {
@@ -292,122 +335,131 @@ namespace DoThingsBot {
         }
 
         private bool CanAddWorldObject(WorldObject wo) {
-            if (!CheckValidItem(wo)) {
-                return false;
-            }
-
-            WorldObject targetItem = GetTargetItem();
-
-            // only one imbue allowed
-            if (Salvage.IsImbueSalvage(wo) && GetImbueSalvages().Count > 0) {
-                invalidReason = String.Format("You can only add one imbue salvage to an item, you already added {0}", Util.GetItemName(GetImbueSalvages()[0]));
-                return false;
-            }
-            
-            // we have a target set already
-            if (targetItem != null) {
-                // you can only add one weapon
-                if (IsWandOrWeapon(wo)) {
-                    invalidReason = String.Format("You can only add one target item to be tinkered, you already added your {0}!", Util.GetItemName(wo));
+            try {
+                if (!CheckValidItem(wo)) {
                     return false;
                 }
-                else if (wo.ObjectClass == ObjectClass.Salvage) {
-                    // can we add this salvage to our target item?
-                    if (!CheckSalvageAgainstTarget(wo, targetItem)) {
-                        if (invalidReason == null || invalidReason == "") {
-                            invalidReason = String.Format("I can't add {0} to your {1}, that's the wrong type of salvage!", Util.GetItemName(wo), Util.GetItemName(targetItem));
+
+                WorldObject targetItem = GetTargetItem();
+
+                // only one imbue allowed
+                if (Salvage.IsImbueSalvage(wo) && GetImbueSalvages().Count > 0) {
+                    invalidReason = String.Format("You can only add one imbue salvage to an item, you already added {0}", Util.GetItemName(GetImbueSalvages()[0]));
+                    return false;
+                }
+
+                // we have a target set already
+                if (targetItem != null) {
+                    // you can only add one weapon
+                    if (IsWandOrWeapon(wo)) {
+                        invalidReason = String.Format("You can only add one target item to be tinkered, you already added your {0}!", Util.GetItemName(wo));
+                        return false;
+                    }
+                    else if (wo.ObjectClass == ObjectClass.Salvage) {
+                        // can we add this salvage to our target item?
+                        if (!CheckSalvageAgainstTarget(wo, targetItem)) {
+                            if (invalidReason == null || invalidReason == "") {
+                                invalidReason = String.Format("I can't add {0} to your {1}, that's the wrong type of salvage!", Util.GetItemName(wo), Util.GetItemName(targetItem));
+                            }
+                            return false;
                         }
-                        return false;
-                    }
 
-                    if (targetItem.Values(LongValueKey.NumberTimesTinkered) + GetSalvages().Count >= 10) {
+                        if (targetItem.Values(LongValueKey.NumberTimesTinkered) + GetSalvages().Count >= 10) {
+                            invalidReason = String.Format("You can only tinker an item 10 times.  That's too much salvage.");
+                            return false;
+                        }
+                    }
+                }
+                // no item target set
+                else {
+
+                    if (wo.ObjectClass == ObjectClass.Salvage && GetSalvages().Count >= 10) {
                         invalidReason = String.Format("You can only tinker an item 10 times.  That's too much salvage.");
                         return false;
                     }
-                }
-            }
-            // no item target set
-            else {
 
-                if (wo.ObjectClass == ObjectClass.Salvage && GetSalvages().Count >= 10) {
-                        invalidReason = String.Format("You can only tinker an item 10 times.  That's too much salvage.");
-                        return false;
-                }
+                    // looks like a new target item
+                    if (IsWorldObjectTinkerable(wo) && wo.ObjectClass != ObjectClass.Salvage) {
 
-                // looks like a new target item
-                if (IsWorldObjectTinkerable(wo) && wo.ObjectClass != ObjectClass.Salvage) {
+                        if (wo.Values(LongValueKey.NumberTimesTinkered) >= 10) {
+                            invalidReason = String.Format("That item has already been tinkered 10 times, that's the max!");
+                            return false;
+                        }
 
-                    if (wo.Values(LongValueKey.NumberTimesTinkered) >= 10) {
-                        invalidReason = String.Format("That item has already been tinkered 10 times, that's the max!");
-                        return false;
-                    }
-
-                    // and we have salvages, so check them
-                    if (GetSalvages().Count > 0) {
-                        foreach (var salvage in GetSalvages()) {
-                            if (!CheckSalvageAgainstTarget(salvage, wo)) {
-                                if (invalidReason == null || invalidReason.Length == 0) {
-                                    invalidReason = String.Format("I wouldn't be able to apply the {0} to your {1}", Util.GetItemName(salvage), Util.GetItemName(wo));
+                        // and we have salvages, so check them
+                        if (GetSalvages().Count > 0) {
+                            foreach (var salvage in GetSalvages()) {
+                                if (!CheckSalvageAgainstTarget(salvage, wo)) {
+                                    if (invalidReason == null || invalidReason.Length == 0) {
+                                        invalidReason = String.Format("I wouldn't be able to apply the {0} to your {1}", Util.GetItemName(salvage), Util.GetItemName(wo));
+                                    }
+                                    return false;
                                 }
-                                return false;
                             }
                         }
                     }
                 }
-            }
-
-            return true;
-        }
-
-        private bool CheckValidItem(WorldObject wo) {
-            if (IsWandOrWeapon(wo) || wo.ObjectClass == ObjectClass.Armor || wo.ObjectClass == ObjectClass.Jewelry) {
-                if (IsWorldObjectTinkerable(wo)) {
-                    return true;
-                }
-
-                invalidReason = "I can only work with loot generated items.";
-                return false;
-            }
-            else if (wo.ObjectClass == ObjectClass.Salvage) {
-                SalvageData data = Salvage.GetFromWorldObject(wo);
-
-                if (wo.Values(LongValueKey.UsesRemaining) != 100) {
-                    invalidReason = "I can only work with full bags of Salvage.";
-                    return false;
-                }
 
                 return true;
             }
+            catch (Exception e) { Util.LogException(e); return false; }
+        }
 
-            invalidReason = String.Format("I don't know how to work with that {0}.", Util.GetItemName(wo));
+        private bool CheckValidItem(WorldObject wo) {
+            try {
+                if (IsWandOrWeapon(wo) || wo.ObjectClass == ObjectClass.Armor || wo.ObjectClass == ObjectClass.Jewelry) {
+                    if (IsWorldObjectTinkerable(wo)) {
+                        return true;
+                    }
 
-            return false;
+                    invalidReason = "I can only work with loot generated items.";
+                    return false;
+                }
+                else if (wo.ObjectClass == ObjectClass.Salvage) {
+                    SalvageData data = Salvage.GetFromWorldObject(wo);
+
+                    if (wo.Values(LongValueKey.UsesRemaining) != 100) {
+                        invalidReason = "I can only work with full bags of Salvage.";
+                        return false;
+                    }
+
+                    return true;
+                }
+
+                invalidReason = String.Format("I don't know how to work with that {0}.", Util.GetItemName(wo));
+
+                return false;
+            }
+            catch (Exception e) { Util.LogException(e); return false; }
         }
 
         public bool CheckSalvageAgainstTarget(WorldObject salvage, WorldObject targetItem) {
-            // make sure we can add this salvage to the target item
+            try {
+                // make sure we can add this salvage to the target item
 
-            /*
-             *  this is wrong....
-            if (Salvage.IsImbueSalvage(salvage) && targetItem.Values(22, false) == true) { // multi-strike
-                invalidReason = "I can't imbue Multi-Strike weapons.";
-                return false;
-            }
-            */
+                /*
+                 *  this is wrong....
+                if (Salvage.IsImbueSalvage(salvage) && targetItem.Values(22, false) == true) { // multi-strike
+                    invalidReason = "I can't imbue Multi-Strike weapons.";
+                    return false;
+                }
+                */
 
-            if (Salvage.IsImbueSalvage(salvage) && targetItem.Values(LongValueKey.Imbued) > 0) {
-                invalidReason = String.Format("I can't add {0} to your {1}, it's already imbued!", Util.GetItemName(salvage), Util.GetItemName(targetItem));
-                return false;
-            }
+                if (Salvage.IsImbueSalvage(salvage) && targetItem.Values(LongValueKey.Imbued) > 0) {
+                    invalidReason = String.Format("I can't add {0} to your {1}, it's already imbued!", Util.GetItemName(salvage), Util.GetItemName(targetItem));
+                    return false;
+                }
 
-            switch (targetItem.ObjectClass) {
-                case ObjectClass.MeleeWeapon: return Salvage.IsAbleToApplyToMeleeWeapon(salvage);
-                case ObjectClass.MissileWeapon: return Salvage.IsAbleToApplyToMissileWeapon(salvage);
-                case ObjectClass.WandStaffOrb: return Salvage.IsAbleToApplyToAnyMagicWeapon(salvage);
-                case ObjectClass.Armor: return Salvage.IsAbleToApplyToArmor(salvage);
-                case ObjectClass.Jewelry: return Salvage.IsAbleToApplyToJewelry(salvage);
-                default: return false;
+                switch (targetItem.ObjectClass) {
+                    case ObjectClass.MeleeWeapon: return Salvage.IsAbleToApplyToMeleeWeapon(salvage);
+                    case ObjectClass.MissileWeapon: return Salvage.IsAbleToApplyToMissileWeapon(salvage);
+                    case ObjectClass.WandStaffOrb: return Salvage.IsAbleToApplyToAnyMagicWeapon(salvage);
+                    case ObjectClass.Armor: return Salvage.IsAbleToApplyToArmor(salvage);
+                    case ObjectClass.Jewelry: return Salvage.IsAbleToApplyToJewelry(salvage);
+                    default: return false;
+                }
             }
+            catch (Exception e) { Util.LogException(e); return false; }
         }
 
         public bool HasItems() {
@@ -415,33 +467,44 @@ namespace DoThingsBot {
         }
 
         public List<int> GetStolenItems() {
-            List<int> stolenIds = new List<int>();
-            List<int> idsIveSeen = new List<int>(playerData.itemNames.Keys);
+            try {
+                List<int> stolenIds = new List<int>();
+                List<int> idsIveSeen = new List<int>(playerData.itemNames.Keys);
 
-            foreach (var wo in CoreManager.Current.WorldFilter.GetInventory()) {
-                if (idsIveSeen.Contains(wo.Id) && !stolenIds.Contains(wo.Id) && !destroyedIds.Contains(wo.Id)) {
-                    stolenIds.Add(wo.Id);
+                foreach (var wo in CoreManager.Current.WorldFilter.GetInventory()) {
+                    if (idsIveSeen.Contains(wo.Id) && !stolenIds.Contains(wo.Id) && !destroyedIds.Contains(wo.Id)) {
+                        stolenIds.Add(wo.Id);
+                    }
                 }
-            }
 
-            return stolenIds;
+                return stolenIds;
+            }
+            catch (Exception e) { Util.LogException(e); return new List<int>(); }
         }
 
         List<int> destroyedIds = new List<int>();
 
         public void SetItemDestroyed(int id) {
-            playerData.itemIds.Remove(id);
-            destroyedIds.Add(id);
-            Util.WriteToChat("Item " + id + " marked as destroyed");
+            try {
+                playerData.itemIds.Remove(id);
+                destroyedIds.Add(id);
+                Util.WriteToChat("Item " + id + " marked as destroyed");
 
-            SavePlayerData();
+                SavePlayerData();
+            }
+            catch (Exception e) { Util.LogException(e); }
         }
 
         public void RemoveItem(int id) {
-            playerData.itemIds.Remove(id);
-            Util.WriteToChat("Item " + id + " marked as removed");
+            try {
+                if (playerData.itemIds.Contains(id)) {
+                    playerData.itemIds.Remove(id);
+                    Util.WriteToChat("Item " + id + " marked as removed");
+                }
 
-            SavePlayerData();
+                SavePlayerData();
+            }
+            catch (Exception e) { Util.LogException(e); }
         }
 
         public WorldObject GetTargetItem() {
@@ -449,22 +512,26 @@ namespace DoThingsBot {
         }
 
         public int GetTargetId() {
-            if (GetWeapon() != null) {
-                return GetWeapon().Id;
-            }
-            if (GetArmor() != null) {
-                return GetArmor().Id;
-            }
-            if (GetJewelry() != null) {
-                return GetJewelry().Id;
-            }
+            try {
+                if (GetWeapon() != null) {
+                    return GetWeapon().Id;
+                }
+                if (GetArmor() != null) {
+                    return GetArmor().Id;
+                }
+                if (GetJewelry() != null) {
+                    return GetJewelry().Id;
+                }
 
-            return 0;
+                return 0;
+            }
+            catch (Exception e) { Util.LogException(e); return 0; }
         }
 
         public string sortedSalvageNames;
 
         public void SetItemTargets() {
+            try {
                 List<WorldObject> salvages = GetWeaponTinkeringSalvages();
 
                 // imbue first, then lowest wk
@@ -501,7 +568,7 @@ namespace DoThingsBot {
                         itemNames += Util.GetItemShortName(item);
                     }
                 }
-                
+
                 sortedSalvageNames = itemNames;
 
                 if (salvages.Count > 0) {
@@ -509,6 +576,8 @@ namespace DoThingsBot {
                 }
 
                 UseItemOnId = GetTargetId();
+            }
+            catch (Exception e) { Util.LogException(e); }
         }
 
         public static bool IsWandOrWeapon(WorldObject wo) {
@@ -522,94 +591,112 @@ namespace DoThingsBot {
         }
 
         public void SetItemMissing(int id) {
-            if (playerData.itemIds.Contains(id)) {
-                playerData.itemIds.Remove(id);
-                if (!playerData.missingItemIds.Contains(id)) {
-                    playerData.missingItemIds.Add(id);
+            try {
+                if (playerData.itemIds.Contains(id)) {
+                    playerData.itemIds.Remove(id);
+                    if (!playerData.missingItemIds.Contains(id)) {
+                        playerData.missingItemIds.Add(id);
+                    }
                 }
-            }
 
-            SavePlayerData();
+                SavePlayerData();
+            }
+            catch (Exception e) { Util.LogException(e); }
         }
 
         public void AddStolenItemsToMainItems() {
-            foreach (int id in playerData.stolenItemIds) {
-                if (!playerData.itemIds.Contains(id)) {
-                    playerData.itemIds.Add(id);
+            try {
+                foreach (int id in playerData.stolenItemIds) {
+                    if (!playerData.itemIds.Contains(id)) {
+                        playerData.itemIds.Add(id);
+                    }
                 }
-            }
-            playerData.stolenItemIds.Clear();
+                playerData.stolenItemIds.Clear();
 
-            SavePlayerData();
+                SavePlayerData();
+            }
+            catch (Exception e) { Util.LogException(e); }
         }
 
         public string GetItemNames() {
-            string itemNames = "";
+            try {
+                string itemNames = "";
 
-            foreach (int id in playerData.itemIds) {
-                WorldObject item = CoreManager.Current.WorldFilter[id];
+                foreach (int id in playerData.itemIds) {
+                    WorldObject item = CoreManager.Current.WorldFilter[id];
 
-                if (item == null) continue;
+                    if (item == null) continue;
 
-                if (itemNames.Length > 0) itemNames += ", ";
+                    if (itemNames.Length > 0) itemNames += ", ";
 
-                if (item.ObjectClass == ObjectClass.Salvage) {
-                    itemNames += Salvage.GetName(item);
+                    if (item.ObjectClass == ObjectClass.Salvage) {
+                        itemNames += Salvage.GetName(item);
+                    }
+                    else {
+                        itemNames += Util.GetItemName(item);
+                    }
                 }
-                else {
-                    itemNames += Util.GetItemName(item);
-                }
+
+                return itemNames;
             }
-
-            return itemNames;
+            catch (Exception e) { Util.LogException(e); return ""; }
         }
 
         public string GetItemNames(bool useCache) {
-            string itemNames = "";
+            try {
+                string itemNames = "";
 
-            if (useCache == false) return GetItemNames();
+                if (useCache == false) return GetItemNames();
 
-            foreach (int id in playerData.itemIds) {
-                string name = "";
+                foreach (int id in playerData.itemIds) {
+                    string name = "";
 
-                if (playerData.itemNames.ContainsKey(id)) {
-                    name = playerData.itemNames[id];
+                    if (playerData.itemNames.ContainsKey(id)) {
+                        name = playerData.itemNames[id];
+                    }
+
+                    if (name.Length > 0) {
+                        if (itemNames.Length > 0) itemNames += ", ";
+
+                        itemNames += name;
+                    }
                 }
 
-                if (name.Length > 0) {
-                    if (itemNames.Length > 0) itemNames += ", ";
-
-                    itemNames += name;
-                }
+                return itemNames;
             }
-
-            return itemNames;
+            catch (Exception e) { Util.LogException(e); return ""; }
         }
 
         public string GetStolenItemsNames() {
-            string itemNames = "";
+            try {
+                string itemNames = "";
 
-            foreach (int id in GetStolenItems()) {
-                string name = "";
+                foreach (int id in GetStolenItems()) {
+                    string name = "";
 
-                if (playerData.itemNames.ContainsKey(id)) {
-                    name = playerData.itemNames[id];
+                    if (playerData.itemNames.ContainsKey(id)) {
+                        name = playerData.itemNames[id];
+                    }
+
+                    if (name.Length > 0) {
+                        if (itemNames.Length > 0) itemNames += ", ";
+
+                        itemNames += name;
+                    }
                 }
 
-                if (name.Length > 0) {
-                    if (itemNames.Length > 0) itemNames += ", ";
-
-                    itemNames += name;
-                }
+                return itemNames;
             }
-
-            return itemNames;
+            catch (Exception e) { Util.LogException(e); return ""; }
         }
 
         public void ClearItems() {
-            isValid = true;
-            playerData.itemIds.Clear();
-            SavePlayerData();
+            try {
+                isValid = true;
+                playerData.itemIds.Clear();
+                SavePlayerData();
+            }
+            catch (Exception e) { Util.LogException(e); }
         }
 
         public WorldObject GetItemByObjectClass(ObjectClass objectClass) {
@@ -649,84 +736,102 @@ namespace DoThingsBot {
         }
 
         public List<WorldObject> GetImbueSalvages() {
-            List<WorldObject> imbueSalvages = new List<WorldObject>();
+            try {
+                List<WorldObject> imbueSalvages = new List<WorldObject>();
 
-            foreach (int id in playerData.itemIds) {
-                WorldObject item = CoreManager.Current.WorldFilter[id];
+                foreach (int id in playerData.itemIds) {
+                    WorldObject item = CoreManager.Current.WorldFilter[id];
 
-                if (Salvage.IsImbueSalvage(item)) {
-                    imbueSalvages.Add(item);
+                    if (item != null && Salvage.IsImbueSalvage(item)) {
+                        imbueSalvages.Add(item);
+                    }
                 }
-            }
 
-            return imbueSalvages;
+                return imbueSalvages;
+            }
+            catch (Exception e) { Util.LogException(e); return new List<WorldObject>(); }
         }
 
         public List<WorldObject> GetWeaponTinkeringSalvages() {
-            List<WorldObject> weaponTinkeringSalvages = new List<WorldObject>();
+            try {
+                List<WorldObject> weaponTinkeringSalvages = new List<WorldObject>();
 
-            foreach (int id in playerData.itemIds) {
-                WorldObject item = CoreManager.Current.WorldFilter[id];
+                foreach (int id in playerData.itemIds) {
+                    WorldObject item = CoreManager.Current.WorldFilter[id];
 
-                if (item.ObjectClass == ObjectClass.Salvage) {
-                    weaponTinkeringSalvages.Add(item);
+                    if (item != null && item.ObjectClass == ObjectClass.Salvage) {
+                        weaponTinkeringSalvages.Add(item);
+                    }
                 }
-            }
 
-            return weaponTinkeringSalvages;
+                return weaponTinkeringSalvages;
+            }
+            catch (Exception e) { Util.LogException(e); return new List<WorldObject>(); }
         }
 
         public List<WorldObject> GetWeaponImbueSalvages() {
-            List<WorldObject> weaponImbueSalvages = new List<WorldObject>();
+            try {
+                List<WorldObject> weaponImbueSalvages = new List<WorldObject>();
 
-            foreach (int id in playerData.itemIds) {
-                WorldObject item = CoreManager.Current.WorldFilter[id];
+                foreach (int id in playerData.itemIds) {
+                    WorldObject item = CoreManager.Current.WorldFilter[id];
 
-                if (Salvage.IsWeaponImbueSalvage(item)) {
-                    weaponImbueSalvages.Add(item);
+                    if (item != null && Salvage.IsWeaponImbueSalvage(item)) {
+                        weaponImbueSalvages.Add(item);
+                    }
                 }
-            }
 
-            return weaponImbueSalvages;
+                return weaponImbueSalvages;
+            }
+            catch (Exception e) { Util.LogException(e); return new List<WorldObject>(); }
         }
 
         public List<WorldObject> GetSalvages() {
-            List<WorldObject> salvages = new List<WorldObject>();
-            
-            foreach (int id in playerData.itemIds) {
-                WorldObject item = CoreManager.Current.WorldFilter[id];
+            try {
+                List<WorldObject> salvages = new List<WorldObject>();
 
-                if (item.ObjectClass == ObjectClass.Salvage) {
-                    salvages.Add(item);
+                foreach (int id in playerData.itemIds) {
+                    WorldObject item = CoreManager.Current.WorldFilter[id];
+
+                    if (item != null && item.ObjectClass == ObjectClass.Salvage) {
+                        salvages.Add(item);
+                    }
                 }
-            }
 
-            return salvages;
+                return salvages;
+            }
+            catch (Exception e) { Util.LogException(e); return new List<WorldObject>(); }
         }
 
         private bool IsWorldObjectTinkerable(WorldObject wo) {
-            if (wo.Values(LongValueKey.Workmanship) >= 1) {
-                return true;
+            try {
+                if (wo != null && wo.Values(LongValueKey.Workmanship) >= 1) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
             }
-            else {
-                return false;
-            }
+            catch (Exception e) { Util.LogException(e); return false; }
         }
 
         private CraftMode GetCraftModeFromItem(WorldObject wo) {
-            if (IsWandOrWeapon(wo)) {
-                return CraftMode.WeaponTinkering;
-            }
-            else if (wo.ObjectClass == ObjectClass.Salvage) {
-                SalvageData salvageData = Salvage.GetFromWorldObject(wo);
+            try {
+                if (IsWandOrWeapon(wo)) {
+                    return CraftMode.WeaponTinkering;
+                }
+                else if (wo.ObjectClass == ObjectClass.Salvage) {
+                    SalvageData salvageData = Salvage.GetFromWorldObject(wo);
 
-                switch (salvageData.tinkerType) {
-                    case TinkerType.Weapon:
-                        return CraftMode.WeaponTinkering;
-                    default:
-                        return CraftMode.Unknown;
+                    switch (salvageData.tinkerType) {
+                        case TinkerType.Weapon:
+                            return CraftMode.WeaponTinkering;
+                        default:
+                            return CraftMode.Unknown;
+                    }
                 }
             }
+            catch (Exception e) { Util.LogException(e); }
 
             return CraftMode.Unknown;
         }

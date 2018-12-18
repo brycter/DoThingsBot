@@ -149,6 +149,10 @@ namespace DoThingsBot {
                     PrintAboutMessage(e.PlayerName, e.Arguments);
                     break;
 
+                case "version":
+                    PrintAboutMessage(e.PlayerName, e.Arguments);
+                    break;
+
                 case "message":
                     break;
 
@@ -304,15 +308,14 @@ namespace DoThingsBot {
                     break;
 
                 default:
-                    ChatManager.Tell(playerName, String.Format("Tell me 'tinker' and I'll open a trade window with you to get started. Other available commands: tinker, lostitems, whereto, message, about.", Util.GetVersion()));
+                    ChatManager.Tell(playerName, String.Format("I'm a tinkerbot. Tell me 'tinker' and I'll open a trade window with you to get started. Other commands: lostitems, whereto, message, about, version.", Util.GetVersion()));
                     break;
 
             }
         }
 
         void PrintAboutMessage(string playerName, string arguments) {
-            //  - Download the software yourself at https://gitlab.com/trevis/dothingsbot
-            ChatManager.Tell(playerName, String.Format("I'm a Tinker Bot running DoThingsBot v{0} (beta). Available commands: tinker, lostitems, whereto, message, about.  Tell me \"<command>\" or \"help <command>\" to get started.", Util.GetVersion()));
+            ChatManager.Tell(playerName, String.Format("I'm a Tinker Bot running DoThingsBot v{0}. - Download the plugin yourself at https://gitlab.com/trevis/dothingsbot .", Util.GetVersion()));
         }
 
         void RemoveFromQueue(string playerName) {

@@ -10,9 +10,9 @@
         <control progid="DecalControls.StaticText" name="UIImportantTextUseCraftSuccess" left="30" top="50" width="345" height="40" text="'/config UseCraftSuccessDialog' MUST BE SET TO ON"/>
         <control progid="DecalControls.StaticText" name="UIImportantTextACWindow" left="30" top="65" width="295" height="40" text="The AC window CANNOT be minimized, but window focus is not required."/>
 
-        <control progid="DecalControls.StaticText" name="UIImportantHeadingBeta" left="110" top="115" width="345" height="40" text="THIS IS BETA SOFTWARE" fontstyle="bold"/>
-        <control progid="DecalControls.StaticText" name="UIImportantTextIssues" left="25" top="130" width="345" height="40" text="If you encounter an issue please contact trevis@haxit.org or trevis#8444 on discord."/>
-        
+        <control progid="DecalControls.StaticText" name="UIImportantTextIssues" left="20" top="110" width="345" height="20" text="If you encounter an issue please report it on the gitlab page."/>
+        <control progid="DecalControls.StaticText" name="UIImportantTextIssues" left="90" top="135" width="345" height="20" text="https://gitlab.com/trevis/dothingsbot"/>
+
         <control progid="DecalControls.StaticText" name="UIImportantTextCreatedBy" left="100" top="190" width="345" height="40" text="Created by Sunnuj of Reefcull"/>
       </control>
     </page>
