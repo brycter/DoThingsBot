@@ -103,9 +103,12 @@ namespace DoThingsBot.FSM.States {
 
         // You determine that you have a 100 percent chance to succeed.
         private static readonly Regex PercentConfirmation = new Regex("^You (?<msg>have a (?<percent>.+)% chance of using .*)");
+        private bool didFinish = false;
 
         void EchoFilter_ServerDispatch(object sender, NetworkMessageEventArgs e) {
             try {
+                if (didFinish) return;
+
                 if (e.Message.Type == 0xF7B0 && (int)e.Message["event"] == 0x0274 && e.Message.Value<int>("type") == 5) {
                     Match match = PercentConfirmation.Match(e.Message.Value<string>("text"));
 
@@ -121,18 +124,13 @@ namespace DoThingsBot.FSM.States {
                         itemBundle.successChance = percent;
 
                         if (percent >= 100) {
-                            System.Threading.Timer timer = null;
-                            timer = new System.Threading.Timer((obj) => {
-                                _machine.ChangeState(new BotTinkering_ConfirmedState(itemBundle));
-                                timer.Dispose();
-                            },
-                                        null, 200, System.Threading.Timeout.Infinite);
-                            
+                            didFinish = true;
+                            _machine.ChangeState(new BotTinkering_ConfirmedState(itemBundle));
                         }
                         else {
+                            didFinish = true;
                             _machine.ChangeState(new BotTinkering_AwaitCommandState(itemBundle));
                         }
-
                     }
                 }
             }
