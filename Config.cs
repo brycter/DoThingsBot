@@ -21,7 +21,9 @@ namespace DoThingsBot {
             public static readonly Setting<int> DontResendDuplicateMessagesWindow;
             public static readonly Setting<int> BuffRefreshTime;
             
-            public static List<Spells.SpellClass> WantedIdleEnchantments = new List<Spells.SpellClass>();
+            public static List<Spells.SpellClass> WantedIdleEnchantments = new List<Spells.SpellClass> {
+                Spells.SpellClass.ARCANE_ENLIGHTENMENT
+            };
             public static List<Spells.SpellClass> WantedTinkerEnchantments = new List<Spells.SpellClass> {
                 Spells.SpellClass.CREATURE_ENCHANTMENT_MASTERY,
                 Spells.SpellClass.FOCUS,
