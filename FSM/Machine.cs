@@ -102,7 +102,7 @@ namespace DoThingsBot.FSM {
 
         public void ChangeState(IBotState NewState) {
             Util.WriteToDebugLog(String.Format("{0}{1}: ChangeState -> {2}", ParentState == null ? "" : ParentState + ".", CurrentState == null ? "None" : CurrentState.Name, NewState.Name));
-
+            
             NextState = NewState;
         }
 
