@@ -111,6 +111,9 @@ namespace DoThingsBot {
 
                 bot.IsLoggedIn = false;
 
+                if (bot != null) bot.Dispose();
+                if (mainView != null) mainView.Dispose();
+
                 Util.WriteToDebugLog("Logoff");
             }
             catch (Exception ex) { Util.LogException(ex); }

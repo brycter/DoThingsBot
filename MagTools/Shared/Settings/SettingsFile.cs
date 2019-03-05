@@ -11,7 +11,7 @@ using System.Reflection;
 
 namespace Mag.Shared.Settings {
     static class SettingsFile {
-        internal static readonly XmlDocument XmlDocument = new XmlDocument();
+        internal static XmlDocument XmlDocument = new XmlDocument();
 
         static string _documentPath;
 
@@ -22,6 +22,7 @@ namespace Mag.Shared.Settings {
         }
 
         public static void Init(string filePath, string rootNode = "Settings") {
+            XmlDocument = new XmlDocument();
             _documentPath = filePath;
 
             _rootNodeName = rootNode;

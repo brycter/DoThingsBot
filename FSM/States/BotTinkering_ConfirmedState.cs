@@ -41,7 +41,6 @@ namespace DoThingsBot.FSM.States {
 
         public void Exit(Machine machine) {
             CoreManager.Current.ChatBoxMessage -= new EventHandler<ChatTextInterceptEventArgs>(Current_ChatBoxMessage);
-
         }
 
         private static readonly Regex CraftSuccess = new Regex("^You apply the \\S+( \\S+)?\\.$");

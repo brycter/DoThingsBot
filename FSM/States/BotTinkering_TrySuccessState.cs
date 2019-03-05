@@ -123,7 +123,12 @@ namespace DoThingsBot.FSM.States {
                         itemBundle.successChanceFullString = match.Groups["msg"].Value;
                         itemBundle.successChance = percent;
 
+
                         if (percent >= 100) {
+                            didFinish = true;
+                            _machine.ChangeState(new BotTinkering_ConfirmedState(itemBundle));
+                        }
+                        else if (percent >= 38 && itemBundle.GetImbueSalvages().Count == 1 && itemBundle.GetSalvages().Count == itemBundle.GetImbueSalvages().Count) {
                             didFinish = true;
                             _machine.ChangeState(new BotTinkering_ConfirmedState(itemBundle));
                         }

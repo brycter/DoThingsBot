@@ -14,15 +14,14 @@ namespace DoThingsBot {
 
     static class Config {
         public static class Bot {
-            public static readonly Setting<bool> Enabled;
-            public static readonly Setting<int> DefaultHeading;
-            public static readonly Setting<string> Location;
-            public static readonly Setting<bool> RespondToUnknownCommands;
-            public static readonly Setting<int> DontResendDuplicateMessagesWindow;
-            public static readonly Setting<int> BuffRefreshTime;
+            public static  Setting<bool> Enabled;
+            public static  Setting<int> DefaultHeading;
+            public static  Setting<string> Location;
+            public static  Setting<bool> RespondToUnknownCommands;
+            public static  Setting<int> DontResendDuplicateMessagesWindow;
+            public static  Setting<int> BuffRefreshTime;
             
             public static List<Spells.SpellClass> WantedIdleEnchantments = new List<Spells.SpellClass> {
-                Spells.SpellClass.ARCANE_ENLIGHTENMENT
             };
             public static List<Spells.SpellClass> WantedTinkerEnchantments = new List<Spells.SpellClass> {
                 Spells.SpellClass.CREATURE_ENCHANTMENT_MASTERY,
@@ -35,18 +34,19 @@ namespace DoThingsBot {
                 Spells.SpellClass.ITEM_TINKERING_EXPERTISE,
                 Spells.SpellClass.MAGIC_ITEM_TINKERING_EXPERTISE,
                 Spells.SpellClass.WEAPON_TINKERING_EXPERTISE,
+                Spells.SpellClass.ARCANE_ENLIGHTENMENT
             };
 
             static Bot() {
+            }
+
+            public static void Init() {
                 Enabled = new Setting<bool>("Config/Bot/Enabled", "Enable the bot", false);
                 DefaultHeading = new Setting<int>("Config/Bot/DefaultHeading", "Default heading while the bot is idle. 0-359. (0=North, 90=East, 180=South, 270=West)", 0);
                 Location = new Setting<string>("Config/Bot/Location", "Where in Auberean is your bot? (eg: Holtburg, just east of the lifestone)", "Somewhere in Auberean");
                 RespondToUnknownCommands = new Setting<bool>("Config/Bot/RespondToUnknownCommands", "Respond to unknown commands", true);
                 DontResendDuplicateMessagesWindow = new Setting<int>("Config/Bot/DontResendDuplicateMessagesWindow", "Don't send repeat messages if they fall within this time window (in seconds)", 2);
                 BuffRefreshTime = new Setting<int>("Config/Bot/BuffRefreshTime", "Refresh buffs if time left falls below this amount before a job request. (in minutes)", 5);
-            }
-
-            public static void Init() {
                 DefaultHeading.Validate += ValidateHeading;
             }
 
@@ -77,63 +77,64 @@ namespace DoThingsBot {
         }
 
         public static class Equipment {
-            public static readonly Setting<List<int>> IdleEquipmentIds;
-            public static readonly Setting<List<int>> BuffEquipmentIds;
-            public static readonly Setting<List<int>> TinkerEquipmentIds;
+            public static  Setting<List<int>> IdleEquipmentIds;
+            public static  Setting<List<int>> BuffEquipmentIds;
+            public static  Setting<List<int>> TinkerEquipmentIds;
 
             static Equipment() {
                 try {
-                    IdleEquipmentIds = new Setting<List<int>>("Config/Equipment/Idle/Item", "These item ids will be equipped when you are idle. (everything else will be unequipped)", new List<int>());
-                    BuffEquipmentIds = new Setting<List<int>>("Config/Equipment/Buffing/Item", "These item ids will be equipped when you are buffing. (everything else will be unequipped)", new List<int>());
-                    TinkerEquipmentIds = new Setting<List<int>>("Config/Equipment/Tinkering/Item", "These item ids will be equipped when you are tinkering. (everything else will be unequipped)", new List<int>());
                 }
                 catch (Exception e) { Util.LogException(e); }
             }
 
             public static void Init() {
-
+                IdleEquipmentIds = new Setting<List<int>>("Config/Equipment/Idle/Item", "These item ids will be equipped when you are idle. (everything else will be unequipped)", new List<int>());
+                BuffEquipmentIds = new Setting<List<int>>("Config/Equipment/Buffing/Item", "These item ids will be equipped when you are buffing. (everything else will be unequipped)", new List<int>());
+                TinkerEquipmentIds = new Setting<List<int>>("Config/Equipment/Tinkering/Item", "These item ids will be equipped when you are tinkering. (everything else will be unequipped)", new List<int>());
             }
         }
 
         public static class Announcements {
-            public static readonly Setting<bool> Enabled;
+            public static  Setting<bool> Enabled;
 
-            public static readonly Setting<string> StartupMessage;
-            public static readonly Setting<int> SpamInterval;
+            public static  Setting<string> StartupMessage;
+            public static  Setting<int> SpamInterval;
 
-            public static readonly Setting<List<string>> Messages;
+            public static  Setting<List<string>> Messages;
 
             static Announcements() {
                 try {
-                    Enabled = new Setting<bool>("Config/Announcements/Enabled", "Enable startup / periodic announcements", true);
-
-                    StartupMessage = new Setting<string>("Config/Announcements/StartupMessage", "Puts a message/command into the chatbox when the bot starts (leave blank for none)", "/s Tinkerbot online. Tell me 'tinker' to get started.");
-                    SpamInterval = new Setting<int>("Config/Announcements/SpamInterval", "The interval in minutes that announcements are sent out.", 15);
-
-                    var defaultMessages = new List<string> {
-                        "I'm a tinkerbot. Stand nearby and tell me 'tinker' to get started."
-                    };
-
-                    Messages = new Setting<List<string>>("Config/Announcements/Spam/Message", "Announcements go here. It will spam every `Config/Announcements/SpamInterval` seconds.", defaultMessages);
                 }
                 catch (Exception e) { Util.LogException(e); }
             }
 
             public static void Init() {
+                Enabled = new Setting<bool>("Config/Announcements/Enabled", "Enable startup / periodic announcements", true);
 
+                StartupMessage = new Setting<string>("Config/Announcements/StartupMessage", "Puts a message/command into the chatbox when the bot starts (leave blank for none)", "/s Tinkerbot online. Tell me 'tinker' to get started.");
+                SpamInterval = new Setting<int>("Config/Announcements/SpamInterval", "The interval in minutes that announcements are sent out.", 15);
+
+                var defaultMessages = new List<string> {
+                        "I'm a tinkerbot. Stand nearby and tell me 'tinker' to get started."
+                    };
+
+                Messages = new Setting<List<string>>("Config/Announcements/Spam/Message", "Announcements go here. It will spam every `Config/Announcements/SpamInterval` seconds.", defaultMessages);
             }
         }
 
         public static class Portals {
-            public static readonly Setting<bool> Enabled;
+            public static  Setting<bool> Enabled;
 
-            public static readonly Setting<string> PrimaryPortalTieLocation;
-            public static readonly Setting<int> PrimaryPortalHeading;
+            public static  Setting<string> PrimaryPortalTieLocation;
+            public static  Setting<int> PrimaryPortalHeading;
 
-            public static readonly Setting<string> SecondaryPortalTieLocation;
-            public static readonly Setting<int> SecondaryPortalHeading;
+            public static  Setting<string> SecondaryPortalTieLocation;
+            public static  Setting<int> SecondaryPortalHeading;
 
             static Portals() {
+            }
+
+            public static void Init() {
                 Enabled = new Setting<bool>("Config/Portals/Enabled", "Enable portal bot functionality", false);
 
                 PrimaryPortalTieLocation = new Setting<string>("Config/Portals/PrimaryPortalTieLocation", "Your primary portal tie location (eg: Temple of Enlightenment)", "Somewhere");
@@ -142,22 +143,19 @@ namespace DoThingsBot {
                 SecondaryPortalTieLocation = new Setting<string>("Config/Portals/SecondaryPortalTieLocation", "Your secondary portal tie location (eg: Temple of Forgetfulness)", "Somewhere else");
                 SecondaryPortalHeading = new Setting<int>("Config/Portals/SecondaryPortalHeading", "Heading while summoning your secondary portal tie. 0-359. (0=North, 90=East, 180=South, 270=West)", 45);
 
-            }
-
-            public static void Init() {
                 PrimaryPortalHeading.Validate += ValidateHeading;
                 SecondaryPortalHeading.Validate += ValidateHeading;
             }
         }
 
         public static class Tinkering {
-            public static readonly Setting<int> KeepEquipmentOnDelay;
+            public static  Setting<int> KeepEquipmentOnDelay;
 
             static Tinkering() {
-                KeepEquipmentOnDelay = new Setting<int>("Config/Tinkering/KeepEquipmentOnDelay", "How long to keep tinkering equipment equipped after a job is finished (in seconds)", 30);
             }
 
             public static void Init() {
+                KeepEquipmentOnDelay = new Setting<int>("Config/Tinkering/KeepEquipmentOnDelay", "How long to keep tinkering equipment equipped after a job is finished (in seconds)", 30);
 
             }
         }

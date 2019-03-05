@@ -116,6 +116,7 @@ namespace DoThingsBot.FSM.States {
 
                     // skip this item if its taking too long
                     if (lastEquipItemCommand > DateTime.MinValue && DateTime.UtcNow - lastEquipItemCommand > TimeSpan.FromSeconds(5)) {
+                        var a = DateTime.UtcNow - lastEquipItemCommand;
                         currentEquipIndex++;
                     }
 
@@ -195,3 +196,5 @@ namespace DoThingsBot.FSM.States {
         }
     }
 }
+
+
