@@ -20,11 +20,15 @@ namespace DoThingsBot
         }
 
         public static string GetPlayerDataDirectory() {
-            return GetCharacterDataDirectory() + @"users\";
+            return Path.Combine(GetCharacterDataDirectory(), "users");
+        }
+
+        internal static string GetDataDirectory() {
+            return DataDirectory;
         }
 
         public static string GetLogDirectory() {
-            return GetCharacterDataDirectory() + @"logs\";
+            return Path.Combine(GetCharacterDataDirectory(), "logs");
         }
 
         public static void CreateDataDirectories() {
@@ -50,7 +54,7 @@ namespace DoThingsBot
 		{
 			try
 			{
-				using (StreamWriter writer = new StreamWriter(Util.GetCharacterDataDirectory() + @"exceptions.txt", true))
+				using (StreamWriter writer = new StreamWriter(Path.Combine(Util.GetCharacterDataDirectory(), "exceptions.txt"), true))
 				{
 					writer.WriteLine("============================================================================");
 					writer.WriteLine(DateTime.Now.ToString());
@@ -88,11 +92,11 @@ namespace DoThingsBot
         }
 
         public static void WriteGiftToLog(string player, string item) {
-            File.AppendAllText(Util.GetCharacterDataDirectory() + @"gifts.txt", DateTime.Now.ToString("yy/MM/dd H:mm") + "|" + player + "|" + item + Environment.NewLine);
+            File.AppendAllText(Path.Combine(Util.GetCharacterDataDirectory(), "gifts.txt"), DateTime.Now.ToString("yy/MM/dd H:mm") + "|" + player + "|" + item + Environment.NewLine);
         }
 
         public static void WriteMessageToLog(string player, string message) {
-            File.AppendAllText(Util.GetCharacterDataDirectory() + @"messages.txt", DateTime.Now.ToString("yy/MM/dd H:mm") + "|" + player + "|" + message + Environment.NewLine);
+            File.AppendAllText(Path.Combine(Util.GetCharacterDataDirectory(), "messages.txt"), DateTime.Now.ToString("yy/MM/dd H:mm") + "|" + player + "|" + message + Environment.NewLine);
         }
 
         public static void WriteToLogFile(string logName, string message, bool addTimestamp=false) {
@@ -103,7 +107,7 @@ namespace DoThingsBot
                 message = String.Format("{0} {1}", DateTime.Now.ToString("yy/MM/dd H:mm:ss"), message);
             }
 
-            File.AppendAllText(Util.GetLogDirectory() + logFileName, message + Environment.NewLine);
+            File.AppendAllText(Path.Combine(Util.GetLogDirectory(), logFileName), message + Environment.NewLine);
         }
 
         public static string GetFullLootName(WorldObject wo) {
@@ -535,6 +539,34 @@ namespace DoThingsBot
             }
 
             return null;
+        }
+
+        public static bool EnsureCombatState(CombatState state) {
+            if (CoreManager.Current.Actions.CombatMode != state) {
+                CoreManager.Current.Actions.SetCombatMode(state);
+                return false;
+            }
+
+            return true;
+        }
+
+        internal static bool HasItem(string fociName) {
+            foreach (var item in CoreManager.Current.WorldFilter.GetInventory()) {
+                if (item.Name == fociName) return true;
+            }
+
+            return false;
+        }
+
+        internal static int GetItemCount(string itemName) {
+            int count = 0;
+            foreach (var item in CoreManager.Current.WorldFilter.GetInventory()) {
+                if (item.Name == itemName) {
+                    count += item.Values(LongValueKey.StackCount, 1);
+                }
+            }
+
+            return count;
         }
     }
 }

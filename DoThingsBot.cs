@@ -270,6 +270,28 @@ namespace DoThingsBot {
                     break;
 
                 default:
+                    // check for buff command
+                    // todo: handle single buff commands
+                    if (Buffs.Buffs.GetAllProfileCommands().Contains(e.Command)) {
+                        var commands = e.Command;
+                        if (!string.IsNullOrEmpty(e.Arguments)) {
+                            commands += " " + e.Arguments;
+                        }
+                        if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
+                            ItemBundle itemBundle = new ItemBundle(e.PlayerName);
+                            currentItemBundle = itemBundle;
+                            itemBundle.SetCraftMode(CraftMode.Buff);
+                            itemBundle.SetEquipMode(EquipMode.Buff);
+                            itemBundle.SetBuffProfiles(commands);
+
+                            _machine.ChangeState(new BotEquipItemsState(itemBundle));
+                        }
+                        else {
+                            AddToQueue(e.PlayerName, commands);
+                        }
+                        return;
+                    }
+                    
                     if (Config.Bot.RespondToUnknownCommands.Value == true) {
                         ChatManager.Tell(e.PlayerName, "Sorry, I'm a bot and do not understand that command.  Please tell me \"help\" for a list of available commands.");
                     }

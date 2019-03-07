@@ -60,13 +60,13 @@ namespace DoThingsBot.FSM.States {
                     lastThought = DateTime.UtcNow;
 
                     // enter magic combat state before casting buffs
-                    if (!EnsureCombatState(CombatState.Magic)) return;
+                    if (!Util.EnsureCombatState(CombatState.Magic)) return;
 
                     // make sure we have enough stamina
-                    if (!EnsureEnoughStamina()) return;
+                    if (!Spells.EnsureEnoughStamina()) return;
 
                     // make sure we have enough mana
-                    if (!EnsureEnoughMana()) return;
+                    if (!Spells.EnsureEnoughMana()) return;
 
                     // refresh wanted enchantments in case of skill change
                     WantedEnchantments.Clear();
@@ -81,9 +81,6 @@ namespace DoThingsBot.FSM.States {
                         WantedEnchantments.AddRange(Config.Bot.GetWantedIdleEnchantments());
                     }
 
-                    if (DateTime.UtcNow - startedCasting < TimeSpan.FromMilliseconds(800)) return;
-                    if (DateTime.UtcNow - lastCasted < TimeSpan.FromMilliseconds(800)) return;
-
                     // cast next needed buff
                     foreach (var enchantment in WantedEnchantments) {
                         if (CastedEnchantments.Contains(enchantment)) continue;
@@ -93,7 +90,7 @@ namespace DoThingsBot.FSM.States {
                             currentlyCasting = enchantment;
                             startedCasting = DateTime.UtcNow;
 
-                            Util.WriteToChat(String.Format("Attempting to cast {0} ({1})",  enchantment, spellId));
+                            //Util.WriteToChat(String.Format("Attempting to cast {0} ({1})",  enchantment, spellId));
 
                             CoreManager.Current.Actions.CastSpell(spellId, CoreManager.Current.CharacterFilter.Id);
                             return;
@@ -105,66 +102,12 @@ namespace DoThingsBot.FSM.States {
 
                 if (doneCasting) {
                     // peace mode before we are done
-                    if (!EnsureCombatState(CombatState.Peace)) return;
+                    if (!Util.EnsureCombatState(CombatState.Peace)) return;
                     
                     machine.ChangeState(new BotBuffing_FinishedState(itemBundle));
                 }
             }
             catch (Exception e) { Util.LogException(e); }
-        }
-
-        public bool EnsureCombatState(CombatState state) {
-            if (CoreManager.Current.Actions.CombatMode != state) {
-                CoreManager.Current.Actions.SetCombatMode(state);
-                //lastThought = DateTime.UtcNow + TimeSpan.FromMilliseconds(1);
-                return false;
-            }
-
-            return true;
-        }
-
-        public bool EnsureEnoughStamina() {
-            int effectiveStamina = CoreManager.Current.CharacterFilter.EffectiveVital[CharFilterVitalType.Stamina];
-            int currentStamina = CoreManager.Current.CharacterFilter.Stamina;
-
-            if (currentStamina < effectiveStamina / 2) {
-                var spell = Spells.GetBestStaminaRecoverySpell(true);
-                
-
-                if (spell == null || !CoreManager.Current.CharacterFilter.SpellBook.Contains(spell.Id)) {
-                    Util.WriteToChat(String.Format("ERROR: No known castable spell for: Revitalize Self"));
-                    return false;
-                }
-
-                Util.WriteToChat(String.Format("Stamina is: {0}/{1}", currentStamina, effectiveStamina));
-
-                CoreManager.Current.Actions.CastSpell(spell.Id, CoreManager.Current.CharacterFilter.Id);
-                return false;
-            }
-
-            return true;
-        }
-
-        public bool EnsureEnoughMana() {
-            int effectiveMana = CoreManager.Current.CharacterFilter.EffectiveVital[CharFilterVitalType.Mana];
-            int currentMana = CoreManager.Current.CharacterFilter.Mana;
-
-            // stam to mana
-            if (currentMana < effectiveMana / 2) {
-                var spell = Spells.GetBestManaRecoverySpell(true);
-
-                if (spell == null || !CoreManager.Current.CharacterFilter.SpellBook.Contains(spell.Id)) {
-                    Util.WriteToChat("ERROR: No known castable spell for: Stamina to Mana Self");
-                    return false;
-                }
-
-                Util.WriteToChat(String.Format("Mana is: {0}/{1}", currentMana, effectiveMana));
-
-                CoreManager.Current.Actions.CastSpell(spell.Id, CoreManager.Current.CharacterFilter.Id);
-                return false;
-            }
-
-            return true;
         }
 
     public ItemBundle GetItemBundle() {

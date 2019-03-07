@@ -42,7 +42,7 @@ namespace DoThingsBot.FSM.States {
 
         public void Think(Machine machine) {
             if (DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(30)) {
-                EnsureCombatState(CombatState.Peace);
+                Util.EnsureCombatState(CombatState.Peace);
 
                 itemBundle.SetEquipMode(EquipMode.Idle);
                 machine.ChangeState(new BotEquipItemsState(machine.CurrentState.GetItemBundle()));
@@ -53,13 +53,13 @@ namespace DoThingsBot.FSM.States {
 
                 if (didCastSpell == false) {
                     // enter magic combat state before casting buffs
-                    if (!EnsureCombatState(CombatState.Magic)) return;
+                    if (!Util.EnsureCombatState(CombatState.Magic)) return;
 
                     // make sure we have enough stamina
-                    if (!EnsureEnoughStamina()) return;
+                    if (!Spells.EnsureEnoughStamina()) return;
 
                     // make sure we have enough mana
-                    if (!EnsureEnoughMana()) return;
+                    if (!Spells.EnsureEnoughMana()) return;
 
                     int spellId = itemBundle.GetCraftMode() == CraftMode.PrimaryPortal ? 157 : 2648;
 
@@ -69,53 +69,12 @@ namespace DoThingsBot.FSM.States {
                 }
                 else {
                     // make sure we are in peace mode
-                    if (!EnsureCombatState(CombatState.Peace)) return;
+                    if (!Util.EnsureCombatState(CombatState.Peace)) return;
 
                     itemBundle.SetEquipMode(EquipMode.Idle);
                     machine.ChangeState(new BotEquipItemsState(machine.CurrentState.GetItemBundle()));
                 }
             }
-        }
-
-        public bool EnsureCombatState(CombatState state) {
-            if (CoreManager.Current.Actions.CombatMode != state) {
-                CoreManager.Current.Actions.SetCombatMode(state);
-                lastThought = DateTime.UtcNow + TimeSpan.FromSeconds(1);
-                return false;
-            }
-
-            return true;
-        }
-
-        public bool EnsureEnoughStamina() {
-            int effectiveStamina = CoreManager.Current.CharacterFilter.EffectiveVital[CharFilterVitalType.Stamina];
-            int currentStamina = CoreManager.Current.CharacterFilter.Stamina;
-
-            if (currentStamina < effectiveStamina / 2) {
-                var spell = Spells.GetBestStaminaRecoverySpell(true);
-                Util.WriteToChat(String.Format("Stamina is: {0}/{1}", currentStamina, effectiveStamina));
-                Util.WriteToChat("Trying to cast: " + spell.Id + " : Revitalize Self");
-                CoreManager.Current.Actions.CastSpell(spell.Id, CoreManager.Current.CharacterFilter.Id);
-                return false;
-            }
-
-            return true;
-        }
-
-        public bool EnsureEnoughMana() {
-            int effectiveMana = CoreManager.Current.CharacterFilter.EffectiveVital[CharFilterVitalType.Mana];
-            int currentMana = CoreManager.Current.CharacterFilter.Mana;
-
-            // stam to mana
-            if (currentMana < effectiveMana / 2) {
-                var spell = Spells.GetBestManaRecoverySpell(true);
-                Util.WriteToChat(String.Format("Mana is: {0}/{1}", currentMana, effectiveMana));
-                Util.WriteToChat("Trying to cast: " + spell.Id + " : Meditative Trance");
-                CoreManager.Current.Actions.CastSpell(spell.Id, CoreManager.Current.CharacterFilter.Id);
-                return false;
-            }
-
-            return true;
         }
 
         public ItemBundle GetItemBundle() {

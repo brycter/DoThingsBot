@@ -69,6 +69,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Buffs\BuffProfile.cs" />
+    <Compile Include="Buffs\Buffs.cs" />
     <Compile Include="Chat\ChatManager.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="DoThingsBot.cs" />
@@ -76,6 +78,7 @@
     <Compile Include="FSM\Machine.cs" />
     <Compile Include="FSM\States\BotBuffingState.cs" />
     <Compile Include="FSM\States\BotBuffing_EnsureBuffedState.cs" />
+    <Compile Include="FSM\States\BotBuffState.cs" />
     <Compile Include="FSM\States\BotCheckSkillsState.cs" />
     <Compile Include="FSM\States\BotEquipItemsState.cs" />
     <Compile Include="FSM\States\BotBuffing_FinishedState.cs" />

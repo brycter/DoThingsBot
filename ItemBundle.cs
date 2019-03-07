@@ -14,7 +14,8 @@ namespace DoThingsBot {
         PrimaryPortal = 3,
         SecondaryPortal = 4,
         CheckSkills = 5,
-        GiveBackItems = 6
+        GiveBackItems = 6,
+        Buff = 7
     }
 
     public enum EquipMode {
@@ -51,6 +52,8 @@ namespace DoThingsBot {
         string invalidReason = "";
         bool isValid = false;
         string owner;
+
+        private string buffProfile = "";
 
         private int UseItemId;
         private int UseItemOnId;
@@ -118,6 +121,14 @@ namespace DoThingsBot {
                 return playerData.itemIds;
             }
             catch (Exception e) { Util.LogException(e); return new List<int>(); }
+        }
+
+        public void SetBuffProfiles(string profiles) {
+            buffProfile = profiles;
+        }
+
+        public string GetBuffProfiles() {
+            return buffProfile;
         }
 
         public bool IsValid() {

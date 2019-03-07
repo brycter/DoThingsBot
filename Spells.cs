@@ -631,12 +631,109 @@ namespace DoThingsBot {
             return false;
         }
 
+        public static bool HasComponents(Decal.Filters.Spell spell) {
+            if (!HasFociFor(spell.School)) return false;
+            if (Util.GetItemCount("Prismatic Taper") < 5) return false;
+            if (!HasScarabsFor(spell)) return false;
+
+            return true;
+        }
+
+        private static bool HasScarabsFor(Spell spell) {
+            var spellLevel = GetSpellLevel(spell);
+            var scarabNeeded = "Unknown";
+
+            switch (spellLevel) {
+                case 1:
+                    scarabNeeded = "Lead Scarab";
+                    break;
+                case 2:
+                    scarabNeeded = "Iron Scarab";
+                    break;
+                case 3:
+                    scarabNeeded = "Copper Scarab";
+                    break;
+                case 4:
+                    scarabNeeded = "Silver Scarab";
+                    break;
+                case 5:
+                    scarabNeeded = "Gold Scarab";
+                    break;
+                case 6:
+                    scarabNeeded = "Pyreal Scarab";
+                    break;
+                case 7:
+                    scarabNeeded = "Platinum Scarab";
+                    break;
+                case 8:
+                    scarabNeeded = "Mana Scarab";
+                    break;
+            }
+
+            return Util.GetItemCount(scarabNeeded) > 1;
+        }
+
+        private static bool HasFociFor(SpellSchool school) {
+            var fociName = "Unknown";
+
+            switch (school.ToString()) {
+                case "Creature Enchantment":
+                    fociName = "Foci of Enchantment";
+                    break;
+
+                case "Life Magic":
+                    fociName = "Foci of Verdancy";
+                    break;
+
+                case "Item Enchantment":
+                    fociName = "Foci of Artifice";
+                    break;
+
+                case "War Magic":
+                    fociName = "Foci of Strife";
+                    break;
+
+                case "Void Magic":
+                    fociName = "Foci of Shadow";
+                    break;
+            }
+
+            return Util.HasItem(fociName);
+        }
+
+        // this seems wrong
+        public static int GetSpellLevel(Spell spell) {
+            if (spell.Name.EndsWith(" I")) return 1;
+            if (spell.Name.EndsWith(" II")) return 2;
+            if (spell.Name.EndsWith(" III")) return 3;
+            if (spell.Name.EndsWith(" IV")) return 4;
+            if (spell.Name.EndsWith(" V")) return 5;
+            if (spell.Name.EndsWith(" VI")) return 6;
+            if (spell.Name.EndsWith(" VII")) return 7;
+            if (spell.Name.EndsWith(" VIII")) return 8;
+            if (spell.Name.StartsWith("Incantation ")) return 8;
+
+            return 7;
+        }
+
         public static bool CanCast(Decal.Filters.Spell spell) {
             // is this spell known?
             if (!CoreManager.Current.CharacterFilter.SpellBook.Contains(spell.Id)) {
                 return false;
             }
 
+            // has skill?
+            if (!HasSkillToCast(spell)) return false;
+
+            // has components?
+            if (!HasComponents(spell)) return false;
+            
+            // TODO: components
+
+            return true;
+        }
+
+        private static bool HasSkillToCast(Spell spell) {
             var currentSkill = 0;
 
             switch (spell.School.ToString()) {
@@ -663,8 +760,6 @@ namespace DoThingsBot {
 
             // enough skill?
             if (currentSkill < spell.Difficulty) return false;
-            
-            // TODO: components
 
             return true;
         }
@@ -707,7 +802,7 @@ namespace DoThingsBot {
             foreach (var spellId in CoreManager.Current.CharacterFilter.SpellBook) {
                 var spell = fs.SpellTable.GetById(spellId);
 
-                if (isSelf && !spell.IsUntargetted) continue;
+                if (isSelf != spell.IsUntargetted) continue;
 
                 if (spell.Family == (int)spellClass && CanCast(spell)) {
                     if (bestSpell == null) {
@@ -742,6 +837,37 @@ namespace DoThingsBot {
             }
 
             return 0;
+        }
+
+        public static bool EnsureEnoughStamina() {
+            int effectiveStamina = CoreManager.Current.CharacterFilter.EffectiveVital[CharFilterVitalType.Stamina];
+            int currentStamina = CoreManager.Current.CharacterFilter.Stamina;
+
+            if (currentStamina < effectiveStamina / 2) {
+                var spell = Spells.GetBestStaminaRecoverySpell(true);
+                //Util.WriteToChat(String.Format("Stamina is: {0}/{1}", currentStamina, effectiveStamina));
+                //Util.WriteToChat("Trying to cast: " + spell.Id + " : Revitalize Self");
+                CoreManager.Current.Actions.CastSpell(spell.Id, CoreManager.Current.CharacterFilter.Id);
+                return false;
+            }
+
+            return true;
+        }
+
+        public static bool EnsureEnoughMana() {
+            int effectiveMana = CoreManager.Current.CharacterFilter.EffectiveVital[CharFilterVitalType.Mana];
+            int currentMana = CoreManager.Current.CharacterFilter.Mana;
+
+            // stam to mana
+            if (currentMana < effectiveMana / 2) {
+                var spell = Spells.GetBestManaRecoverySpell(true);
+                //Util.WriteToChat(String.Format("Mana is: {0}/{1}", currentMana, effectiveMana));
+                //Util.WriteToChat("Trying to cast: " + spell.Id + " : Meditative Trance");
+                CoreManager.Current.Actions.CastSpell(spell.Id, CoreManager.Current.CharacterFilter.Id);
+                return false;
+            }
+
+            return true;
         }
     }
 }

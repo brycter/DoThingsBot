@@ -86,7 +86,12 @@ namespace DoThingsBot.FSM.States {
                     _machine.ChangeState(new BotIdleState());
                     return;
                 case EquipMode.Buff:
-                    _machine.ChangeState(new BotBuffingState(GetItemBundle()));
+                    if (itemBundle.GetCraftMode() == CraftMode.Buff) {
+                        _machine.ChangeState(new BotBuffState(GetItemBundle()));
+                    }
+                    else {
+                        _machine.ChangeState(new BotBuffingState(GetItemBundle()));
+                    }
                     return;
                 case EquipMode.SummonPortal:
                     _machine.ChangeState(new BotSummonPortalState(GetItemBundle()));

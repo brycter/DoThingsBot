@@ -78,50 +78,6 @@ namespace DoThingsBot {
 		private void CharacterFilter_LoginComplete(object sender, EventArgs e)
 		{
             try {
-
-                /*
-                using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"F:\spells.txt")) {
-                    FileService service = CoreManager.Current.Filter<FileService>();
-                    var format = "|{0,6}|{1,50}|{2,5}|{3,7}|{4,14}|{5,10}|{6,12}|{7,5}|{8,12}|{9,20}|{10,11}|{11,22}|{12,10}|{13,100}";
-                    var header = String.Format(format, "id", "name", "diff", "family", "selfCast", "speed", "targetMask", "type", "duration", "school", "generation", "components", "effect", "description");
-
-                    file.WriteLine(header);
-
-                    for (int index = 0; index < service.SpellTable.Length; index++) {
-                        var spell = service.SpellTable[index];
-
-                        if (index % 10 == 0) file.WriteLine(header);
-
-                        string componentIds = "";
-
-                        for (var i = 0; i < spell.ComponentIDs.Length; i++) {
-                            var cId = spell.ComponentIDs[i];
-                            if (CoreManager.Current.WorldFilter[cId] != null) {
-                                componentIds += string.Format("{0},", CoreManager.Current.WorldFilter[cId].Name);
-                            }
-                            else {
-                                componentIds += string.Format("{0},", cId);
-                            }
-                        }
-
-                        file.WriteLine(String.Format(format,
-                            spell.Id,
-                            spell.Name,
-                            spell.Difficulty,
-                            spell.Family,
-                            spell.IsUntargetted,
-                            spell.Speed,
-                            spell.TargetMask,
-                            spell.Type,
-                            spell.Duration,
-                            spell.School,
-                            spell.Generation,
-                            componentIds,
-                            spell.CasterEffect,
-                            spell.Description));
-                    }
-                }
-                //*/
                 string configFilePath = Util.GetCharacterDataDirectory() + "config.xml";
 
                 Util.CreateDataDirectories();
@@ -134,7 +90,8 @@ namespace DoThingsBot {
                 Config.Init();
 
                 Mag.Shared.Settings.SettingsFile.SaveXmlDocument();
-
+                Buffs.Buffs.LoadProfiles();
+                
                 mainView = new MainView();
                 bot = new DoThingsBot();
 
