@@ -1,0 +1,8 @@
+﻿<profile name="heavy" aliases="hw heavyweapons">
+  <spell profile="_generic" />
+  <spell family="HEAVY_WEAPON_MASTERY" />
+  <spell family="SHIELD_MASTERY" />
+  <spell family="DUAL_WIELD_MASTERY" />
+  <spell family="DIRTY_FIGHTING_MASTERY" />
+  <spell family="SNEAK_ATTACK_MASTERY" />
+</profile>

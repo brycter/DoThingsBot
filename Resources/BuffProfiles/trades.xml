@@ -1,0 +1,9 @@
+﻿<profile name="trades" aliases="">
+  <spell family="FLETCHING_MASTERY" />
+  <spell family="ALCHEMY_MASTERY" />
+  <spell family="COOKING_MASTERY" />
+  <spell family="LOCKPICK_MASTERY" />
+  <spell family="LEADERSHIP_MASTERY" />
+  <spell family="FEALTY" />
+  <spell family="SPRINT" />
+</profile>

@@ -1,0 +1,6 @@
+﻿<profile name="2h" aliases="twohand twohanded twohandedweapons">
+  <spell profile="_generic" />
+  <spell family="TWO_HANDED_COMBAT_INEPTITUDE" />
+  <spell family="DIRTY_FIGHTING_MASTERY" />
+  <spell family="SNEAK_ATTACK_MASTERY" />
+</profile>

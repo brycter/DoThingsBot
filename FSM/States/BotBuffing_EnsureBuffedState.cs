@@ -81,8 +81,8 @@ namespace DoThingsBot.FSM.States {
                         WantedEnchantments.AddRange(Config.Bot.GetWantedIdleEnchantments());
                     }
 
-                    if (DateTime.UtcNow - startedCasting < TimeSpan.FromMilliseconds(900)) return;
-                    if (DateTime.UtcNow - lastCasted < TimeSpan.FromMilliseconds(900)) return;
+                    if (DateTime.UtcNow - startedCasting < TimeSpan.FromMilliseconds(800)) return;
+                    if (DateTime.UtcNow - lastCasted < TimeSpan.FromMilliseconds(800)) return;
 
                     // cast next needed buff
                     foreach (var enchantment in WantedEnchantments) {

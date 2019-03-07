@@ -168,6 +168,17 @@
   <ItemGroup>
     <EmbeddedResource Include="Views\confirmView.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\BuffProfiles\2h.xml" />
+    <Content Include="Resources\BuffProfiles\finesse.xml" />
+    <Content Include="Resources\BuffProfiles\heavy.xml" />
+    <Content Include="Resources\BuffProfiles\light.xml" />
+    <Content Include="Resources\BuffProfiles\mage.xml" />
+    <Content Include="Resources\BuffProfiles\missile.xml" />
+    <Content Include="Resources\BuffProfiles\tink.xml" />
+    <Content Include="Resources\BuffProfiles\trades.xml" />
+    <Content Include="Resources\BuffProfiles\_generic.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

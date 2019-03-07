@@ -28,50 +28,6 @@ namespace DoThingsBot.FSM.States {
                 ChatManager.Tell(itemBundle.GetOwner(), String.Format("I am summoning a portal to {0}.", Config.Portals.SecondaryPortalTieLocation.Value));
                 ChatManager.Say(String.Format("I am summoning a portal to {0}.", Config.Portals.SecondaryPortalTieLocation.Value));
             }
-            
-            WorldObject player = Util.FindPlayerWorldObjectByName(itemBundle.GetOwner());
-
-            /*
-            if (player != null && Util.GetDistanceFromPlayer(player) < 5) {
-                // find a hissop
-                WorldObject hissop = null;
-                string itemName = "Hyssop";
-
-                if (Util.HasSingleStackOfItem(itemName)) {
-                    hissop = Util.GetSingleStackOfitem(itemName);
-                    Util.WriteToChat("We already have a single stack of hyssop");
-                }
-                else {
-                    Util.WriteToChat("Attempting to make a single stack of hyssop");
-                    Util.MakeSingleStackOfItem(itemName);
-                }
-
-                bool gaveHyssop = false;
-                if (hissop != null) {
-                    CoreManager.Current.Actions.GiveItem(hissop.Id, player.Id);
-                    gaveHyssop = true;
-                }
-
-                if (!gaveHyssop) {
-                    System.Threading.Timer timer = null;
-                    timer = new System.Threading.Timer((obj) => {
-                        hissop = Util.GetSingleStackOfitem(itemName);
-                        if (hissop != null) {
-                            CoreManager.Current.Actions.GiveItem(hissop.Id, player.Id);
-                            ChatManager.Tell(itemBundle.GetOwner(), "Hyssop is on the house!  Enjoy your trip.");
-                        }
-                        timer.Dispose();
-                    },
-                                null, 500, System.Threading.Timeout.Infinite);
-                }
-                else {
-                    ChatManager.Tell(itemBundle.GetOwner(), "Hyssop is on the house!  Enjoy your trip.");
-                }
-            }
-            else {
-                Util.WriteToChat("Player is null");
-            }
-            */
         }
 
         public void Exit(Machine machine) {
@@ -136,10 +92,10 @@ namespace DoThingsBot.FSM.States {
             int currentStamina = CoreManager.Current.CharacterFilter.Stamina;
 
             if (currentStamina < effectiveStamina / 2) {
-                int spellId = Spells.GetIdFromName("Robustification");
+                var spell = Spells.GetBestStaminaRecoverySpell(true);
                 Util.WriteToChat(String.Format("Stamina is: {0}/{1}", currentStamina, effectiveStamina));
-                Util.WriteToChat("Trying to cast: " + spellId + " : Robustification");
-                CoreManager.Current.Actions.CastSpell(spellId, CoreManager.Current.CharacterFilter.Id);
+                Util.WriteToChat("Trying to cast: " + spell.Id + " : Revitalize Self");
+                CoreManager.Current.Actions.CastSpell(spell.Id, CoreManager.Current.CharacterFilter.Id);
                 return false;
             }
 
@@ -152,10 +108,10 @@ namespace DoThingsBot.FSM.States {
 
             // stam to mana
             if (currentMana < effectiveMana / 2) {
-                int spellId = Spells.GetIdFromName("Meditative Trance");
+                var spell = Spells.GetBestManaRecoverySpell(true);
                 Util.WriteToChat(String.Format("Mana is: {0}/{1}", currentMana, effectiveMana));
-                Util.WriteToChat("Trying to cast: " + spellId + " : Meditative Trance");
-                CoreManager.Current.Actions.CastSpell(spellId, CoreManager.Current.CharacterFilter.Id);
+                Util.WriteToChat("Trying to cast: " + spell.Id + " : Meditative Trance");
+                CoreManager.Current.Actions.CastSpell(spell.Id, CoreManager.Current.CharacterFilter.Id);
                 return false;
             }
 

@@ -1,0 +1,6 @@
+﻿<profile name="missile" aliases="bow xbow thrown">
+  <spell profile="_generic" />
+  <spell family="MISSILE_WEAPON_MASTERY" />
+  <spell family="FLETCHING_MASTERY" />
+  <spell family="ALCHEMY_MASTERY" />
+</profile>
