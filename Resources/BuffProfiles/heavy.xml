@@ -1,5 +1,8 @@
 ﻿<profile name="heavy" aliases="hw heavyweapons">
   <spell profile="_generic" />
+  <spell family="AURA_OF_HEART_SEEKER" />
+  <spell family="AURA_OF_BLOOD_DRINKER" />
+  <spell family="AURA_OF_SWIFT_KILLER" />
   <spell family="HEAVY_WEAPON_MASTERY" />
   <spell family="SHIELD_MASTERY" />
   <spell family="DUAL_WIELD_MASTERY" />

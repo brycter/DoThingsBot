@@ -12,7 +12,6 @@
   <spell family="LIFE_MAGIC_MASTERY" />
   <spell family="MANA_CONVERSION_MASTERY" />
   <spell family="ARCANE_ENLIGHTENMENT" />
-  <spell family="DECEPTION_MASTERY" />
   <spell family="HEAL_OTHER" />
   <spell family="JUMPING_MASTERY" />
   <spell family="LEADERSHIP_MASTERY" />
@@ -20,7 +19,6 @@
   <spell family="FEALTY" />
   <spell family="SPRINT" />
   <spell family="SUMMONING_MASTERY" />
-  <spell family="MANA_BOOST" />
   <spell family="REGENERATION" />
   <spell family="REJUVENATION" />
   <spell family="MANA_RENEWAL" />
@@ -32,16 +30,6 @@
   <spell family="PIERCING_PROTECTION" />
   <spell family="BLADE_PROTECTION" />
   <spell family="ARMOR" />
-  <spell family="AURA_OF_HEART_SEEKER" />
-  <spell family="AURA_OF_BLOOD_DRINKER" />
   <spell family="AURA_OF_DEFENDER" />
-  <spell family="AURA_OF_SWIFT_KILLER" />
-  <spell family="IMPENETRABILITY" />
-  <spell family="ACID_BANE" />
-  <spell family="BLUDGEON_BANE" />
-  <spell family="FROST_BANE" />
-  <spell family="LIGHTNING_BANE" />
-  <spell family="FLAME_BANE" />
-  <spell family="PIERCING_BANE" />
-  <spell family="BLADE_BANE" />
+  <spell family="AURA_OF_HERMETIC_LINK" />
 </profile>
