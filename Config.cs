@@ -54,9 +54,11 @@ namespace DoThingsBot {
                 List<string> wantedEnchantments = new List<string>();
 
                 foreach (var spellClass in WantedIdleEnchantments) {
-                    var spell = Spells.GetBestKnownSpellByClass(spellClass);
+                    var spell = Spells.GetBestKnownSpellByClass(spellClass, true);
 
-                    wantedEnchantments.Add(spell.name);
+                    if (spell != null) {
+                        wantedEnchantments.Add(spell.Name);
+                    }
                 }
 
                 return wantedEnchantments;
@@ -66,9 +68,11 @@ namespace DoThingsBot {
                 List<string> wantedEnchantments = new List<string>();
 
                 foreach (var spellClass in WantedTinkerEnchantments) {
-                    var spell = Spells.GetBestKnownSpellByClass(spellClass);
+                    var spell = Spells.GetBestKnownSpellByClass(spellClass, true);
 
-                    wantedEnchantments.Add(spell.name);
+                    if (spell != null) {
+                        wantedEnchantments.Add(spell.Name);
+                    }
                 }
 
                 return wantedEnchantments;

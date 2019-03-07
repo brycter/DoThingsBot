@@ -93,7 +93,7 @@ namespace DoThingsBot.FSM.States {
                             currentlyCasting = enchantment;
                             startedCasting = DateTime.UtcNow;
 
-                            Util.WriteToDebugLog(String.Format("Attempting to cast {0} ({1})",  enchantment, spellId));
+                            Util.WriteToChat(String.Format("Attempting to cast {0} ({1})",  enchantment, spellId));
 
                             CoreManager.Current.Actions.CastSpell(spellId, CoreManager.Current.CharacterFilter.Id);
                             return;
@@ -128,16 +128,17 @@ namespace DoThingsBot.FSM.States {
             int currentStamina = CoreManager.Current.CharacterFilter.Stamina;
 
             if (currentStamina < effectiveStamina / 2) {
-                //var bestSpell = Spells.GetBestKnownSpellByClass(Spells.SpellClass.REVITALIZE);
-                var spellId = Spells.GetIdFromName("Robustification");
+                var spell = Spells.GetBestStaminaRecoverySpell(true);
+                
 
-                if (!CoreManager.Current.CharacterFilter.SpellBook.Contains(spellId)) {
-                    Util.WriteToChat(String.Format("ERROR: No known castable spell for: SpellsClass.REVITALIZE ({0})", spellId));
+                if (spell == null || !CoreManager.Current.CharacterFilter.SpellBook.Contains(spell.Id)) {
+                    Util.WriteToChat(String.Format("ERROR: No known castable spell for: Revitalize Self"));
                     return false;
                 }
 
-                //Util.WriteToDebugLog(String.Format("Stamina is: {0}/{1}", currentStamina, effectiveStamina));
-                CoreManager.Current.Actions.CastSpell(spellId, CoreManager.Current.CharacterFilter.Id);
+                Util.WriteToChat(String.Format("Stamina is: {0}/{1}", currentStamina, effectiveStamina));
+
+                CoreManager.Current.Actions.CastSpell(spell.Id, CoreManager.Current.CharacterFilter.Id);
                 return false;
             }
 
@@ -150,17 +151,16 @@ namespace DoThingsBot.FSM.States {
 
             // stam to mana
             if (currentMana < effectiveMana / 2) {
-                //var bestSpell = Spells.GetBestKnownSpellByClass(Spells.SpellClass.DRAIN_STAMINA);
-                var spellId = Spells.GetIdFromName("Meditative Trance");
+                var spell = Spells.GetBestManaRecoverySpell(true);
 
-                if (!CoreManager.Current.CharacterFilter.SpellBook.Contains(spellId)) {
-                    Util.WriteToChat("ERROR: No known castable spell for: SpellsClass.DRAIN_STAMINA");
+                if (spell == null || !CoreManager.Current.CharacterFilter.SpellBook.Contains(spell.Id)) {
+                    Util.WriteToChat("ERROR: No known castable spell for: Stamina to Mana Self");
                     return false;
                 }
 
-                //Util.WriteToDebugLog(String.Format("Mana is: {0}/{1}", currentMana, effectiveMana));
+                Util.WriteToChat(String.Format("Mana is: {0}/{1}", currentMana, effectiveMana));
 
-                CoreManager.Current.Actions.CastSpell(spellId, CoreManager.Current.CharacterFilter.Id);
+                CoreManager.Current.Actions.CastSpell(spell.Id, CoreManager.Current.CharacterFilter.Id);
                 return false;
             }
 
