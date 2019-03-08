@@ -269,6 +269,21 @@ namespace DoThingsBot {
                 case "cancel":
                     break;
 
+                case "buff":
+                    if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
+                        ItemBundle itemBundle = new ItemBundle(e.PlayerName);
+                        currentItemBundle = itemBundle;
+                        itemBundle.SetCraftMode(CraftMode.Buff);
+                        itemBundle.SetEquipMode(EquipMode.Buff);
+                        itemBundle.SetBuffProfiles("treestats");
+
+                        _machine.ChangeState(new BotEquipItemsState(itemBundle));
+                    }
+                    else {
+                        AddToQueue(e.PlayerName, "lostitems");
+                    }
+                    break;
+
                 default:
                     // check for buff command
                     // todo: handle single buff commands

@@ -21,6 +21,8 @@ namespace DoThingsBot.FSM.States {
         private int fizzleCounter = 0;
         private Dictionary<string, int> burnedComponents = new Dictionary<string, int>();
         private int targetId = 0;
+        private bool waitingForTreeStatsData = false;
+        private BuffProfile treeStatsProfile = null;
 
         private ItemBundle itemBundle;
 
@@ -29,40 +31,45 @@ namespace DoThingsBot.FSM.States {
         }
 
         public void Enter(Machine machine) {
-            var profiles = itemBundle.GetBuffProfiles().Split(' ');
-            List<string> invalidProfiles = new List<string>();
-            List<string> validProfiles = new List<string>();
-
             foreach (var obj in CoreManager.Current.WorldFilter.GetByName(itemBundle.GetOwner())) {
                 if (obj.ObjectClass == ObjectClass.Player) {
                     targetId = obj.Id;
                 }
             }
 
-            foreach (var profile in profiles) {
-                if (!Buffs.Buffs.IsValidProfile(profile)) {
-                    invalidProfiles.Add(profile);
-                    continue;
+            if (itemBundle.GetBuffProfiles() == "treestats") {
+                waitingForTreeStatsData = true;
+                treeStatsProfile = new BuffProfile(itemBundle.GetOwner(), true);
+            }
+            else {
+                var profiles = itemBundle.GetBuffProfiles().Split(' ');
+                List<string> invalidProfiles = new List<string>();
+                List<string> validProfiles = new List<string>();
+
+                foreach (var profile in profiles) {
+                    if (!Buffs.Buffs.IsValidProfile(profile)) {
+                        invalidProfiles.Add(profile);
+                        continue;
+                    }
+
+                    if (!validProfiles.Contains(profile)) {
+                        validProfiles.Add(profile);
+
+                        AddProfile(profile);
+                    }
                 }
 
-                if (!validProfiles.Contains(profile)) {
-                    validProfiles.Add(profile);
-
-                    AddProfile(profile);
+                if (invalidProfiles.Count > 0) {
+                    ChatManager.Tell(itemBundle.GetOwner(), string.Format("The following profiles were invalid: {0}", string.Join(", ", invalidProfiles.ToArray())));
                 }
+
+                ChatManager.Tell(itemBundle.GetOwner(), string.Format("Starting to cast {0} buffs on you ({1})", buffIds.Count, string.Join(", ", validProfiles.ToArray())));
             }
 
-            if (invalidProfiles.Count > 0) {
-                ChatManager.Tell(itemBundle.GetOwner(), string.Format("The following profiles were invalid: {0}", string.Join(", ", invalidProfiles.ToArray())));
-            }
-
-            ChatManager.Tell(itemBundle.GetOwner(), string.Format("Starting to cast {0} buffs on you ({1})", buffIds.Count, string.Join(", ", validProfiles.ToArray())));
             CoreManager.Current.ChatBoxMessage += new EventHandler<ChatTextInterceptEventArgs>(Current_ChatBoxMessage);
         }
 
-        private void AddProfile(string profile) {
-            var buffProfile = Buffs.Buffs.GetProfile(profile);
-
+        private void AddProfile(BuffProfile buffProfile) {
             foreach (var family in buffProfile.familyIds) {
                 var spell = Spells.GetBestKnownSpellByClass(family, false);
 
@@ -75,6 +82,10 @@ namespace DoThingsBot.FSM.States {
                     buffIds.Add(spell.Id);
                 }
             }
+        }
+
+        private void AddProfile(string profile) {
+            AddProfile(Buffs.Buffs.GetProfile(profile));
         }
 
         public void Exit(Machine machine) {
@@ -114,8 +125,26 @@ namespace DoThingsBot.FSM.States {
         private bool doneCasting = false;
 
         public void Think(Machine machine) {
-            if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(1000)) {
+            if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(500)) {
                 lastThought = DateTime.UtcNow;
+
+                if (waitingForTreeStatsData && treeStatsProfile != null) {
+                    if (treeStatsProfile.IsLoaded()) {
+                        waitingForTreeStatsData = false;
+
+                        if (!treeStatsProfile.IsValid()) {
+                            doneCasting = true;
+                            ChatManager.Tell(itemBundle.GetOwner(), "I was unable to load your profile from treestats :(");
+                            return;
+                        }
+
+                        AddProfile(treeStatsProfile);
+                        ChatManager.Tell(itemBundle.GetOwner(), string.Format("Starting to cast {0} buffs on you, based on your treestats character sheet.", buffIds.Count));
+                    }
+                    else {
+                        return;
+                    }
+                }
                 
                 if (doneCasting == false) {
                     // enter magic combat state before casting buffs
@@ -180,7 +209,9 @@ namespace DoThingsBot.FSM.States {
                         response += string.Format("{1}burned: {0}.", string.Join(", ", components.ToArray()), fizzleCounter > 0 ? "" : " I ");
                     }
 
-                    ChatManager.Tell(itemBundle.GetOwner(), response);
+                    if (CastedEnchantments.Count > 0) {
+                        ChatManager.Tell(itemBundle.GetOwner(), response);
+                    }
 
                     machine.ChangeState(new BotEquipItemsState(machine.CurrentState.GetItemBundle()));
                 }

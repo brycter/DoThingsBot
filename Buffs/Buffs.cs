@@ -67,5 +67,9 @@ namespace DoThingsBot.Buffs {
             string file = Path.Combine(Util.GetDataDirectory(), "profiles");
             return Path.Combine(file, profile + ".xml");
         }
+
+        public static BuffProfile GetProfileFromTreeStats(string character) {
+            return new BuffProfile(character, true);
+        }
     }
 }

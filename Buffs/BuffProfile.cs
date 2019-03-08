@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Decal.Adapter;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Xml;
 
@@ -10,11 +13,195 @@ namespace DoThingsBot.Buffs {
         public List<string> aliases = new List<string>();
         public List<Spells.SpellClass> familyIds = new List<Spells.SpellClass>();
         private List<string> includedProfiles = new List<string>();
+        private bool isLoading = false;
+        private string json = "";
 
         bool isValid = false;
 
         public BuffProfile(string profileName) {
             Load(profileName);
+        }
+
+        public BuffProfile(string characterName, bool useTreeStats) {
+            // TODO: urlencode?
+            isLoading = true;
+            name = characterName;
+
+            new Newtonsoft.Json.Serialization.Action(FetchTreeStatsProfile).BeginInvoke(new AsyncCallback(OnTreeStatsProfileComplete), null);
+        }
+
+        private void FetchTreeStatsProfile() {
+            try {
+                var url = string.Format("http://treestats.net/{0}/{1}.json", CoreManager.Current.CharacterFilter.Server, CoreManager.Current.CharacterFilter.Name);
+                
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
+                    using (Stream stream = response.GetResponseStream()) {
+                        using (StreamReader reader = new StreamReader(stream)) {
+                            json = reader.ReadToEnd();
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private void OnTreeStatsProfileComplete(IAsyncResult result) {
+            try {
+                if (!string.IsNullOrEmpty(json)) {
+                    try {
+                        var profile = JsonConvert.DeserializeObject<TreeStatsCharacter>(json);
+
+                        foreach (var skill in profile.skills.Keys) {
+                            if (profile.skills[skill]["training"] != "Unusable" && profile.skills[skill]["training"] != "Untrained") {
+                                AddBuffForSkill(profile.skills[skill]["name"]);
+                            }
+                        }
+
+                        isValid = true;
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                }
+            }
+            catch (Exception ex) {
+                Util.LogException(ex);
+            }
+
+            if (isValid) {
+                familyIds.Add(Spells.SpellClass.AURA_OF_DEFENDER);
+                familyIds.Add(Spells.SpellClass.AURA_OF_HERMETIC_LINK);
+                familyIds.Add(Spells.SpellClass.STRENGTH);
+                familyIds.Add(Spells.SpellClass.ENDURANCE);
+                familyIds.Add(Spells.SpellClass.QUICKNESS);
+                familyIds.Add(Spells.SpellClass.COORDINATION);
+                familyIds.Add(Spells.SpellClass.FOCUS);
+                familyIds.Add(Spells.SpellClass.WILLPOWER);
+                familyIds.Add(Spells.SpellClass.IMPREGNABILITY);
+                familyIds.Add(Spells.SpellClass.MAGIC_RESISTANCE);
+                familyIds.Add(Spells.SpellClass.ARCANE_ENLIGHTENMENT);
+                familyIds.Add(Spells.SpellClass.LEADERSHIP_MASTERY);
+                familyIds.Add(Spells.SpellClass.FEALTY);
+                familyIds.Add(Spells.SpellClass.SPRINT);
+                familyIds.Add(Spells.SpellClass.REGENERATION);
+                familyIds.Add(Spells.SpellClass.REJUVENATION);
+                familyIds.Add(Spells.SpellClass.MANA_RENEWAL);
+                familyIds.Add(Spells.SpellClass.ACID_PROTECTION);
+                familyIds.Add(Spells.SpellClass.BLUDGEONING_PROTECTION);
+                familyIds.Add(Spells.SpellClass.COLD_PROTECTION);
+                familyIds.Add(Spells.SpellClass.LIGHTNING_PROTECTION);
+                familyIds.Add(Spells.SpellClass.FIRE_PROTECTION);
+                familyIds.Add(Spells.SpellClass.PIERCING_PROTECTION);
+                familyIds.Add(Spells.SpellClass.BLADE_PROTECTION);
+                familyIds.Add(Spells.SpellClass.ARMOR);
+                familyIds.Add(Spells.SpellClass.ARCANUM_SALVAGING);
+
+                // melee/missile chars
+                if (familyIds.Contains(Spells.SpellClass.HEAVY_WEAPON_MASTERY) ||
+                    familyIds.Contains(Spells.SpellClass.LIGHT_WEAPON_MASTERY) ||
+                    familyIds.Contains(Spells.SpellClass.TWO_HANDED_COMBAT_MASTERY) ||
+                    familyIds.Contains(Spells.SpellClass.FINESSE_WEAPON_MASTERY) ||
+                    familyIds.Contains(Spells.SpellClass.MISSILE_WEAPON_MASTERY)) {
+                    familyIds.Add(Spells.SpellClass.AURA_OF_HEART_SEEKER);
+                    familyIds.Add(Spells.SpellClass.AURA_OF_BLOOD_DRINKER);
+                    familyIds.Add(Spells.SpellClass.AURA_OF_SWIFT_KILLER);
+                }
+
+                // war mages
+                if (familyIds.Contains(Spells.SpellClass.WAR_MAGIC_MASTERY)) {
+                    familyIds.Add(Spells.SpellClass.AURA_OF_SPIRIT_DRINKER);
+                }
+            }
+
+            isLoading = false;
+        }
+
+        private void AddBuffForSkill(string skill) {
+            switch (skill) {
+                case "item_tinkering":
+                    familyIds.Add(Spells.SpellClass.ITEM_TINKERING_EXPERTISE);
+                    break;
+                case "deception":
+                    familyIds.Add(Spells.SpellClass.DECEPTION_MASTERY);
+                    break;
+                case "healing":
+                    familyIds.Add(Spells.SpellClass.HEALING_MASTERY);
+                    break;
+                case "lockpick":
+                    familyIds.Add(Spells.SpellClass.LOCKPICK_MASTERY);
+                    break;
+                case "weapon_tinkering":
+                    familyIds.Add(Spells.SpellClass.WEAPON_TINKERING_EXPERTISE);
+                    break;
+                case "armor_tinkering":
+                    familyIds.Add(Spells.SpellClass.ARMOR_TINKERING_EXPERTISE);
+                    break;
+                case "magic_item_tinkering":
+                    familyIds.Add(Spells.SpellClass.MAGIC_ITEM_TINKERING_EXPERTISE);
+                    break;
+                case "creature_enchantment":
+                    familyIds.Add(Spells.SpellClass.CREATURE_ENCHANTMENT_MASTERY);
+                    break;
+                case "item_enchantment":
+                    familyIds.Add(Spells.SpellClass.ITEM_ENCHANTMENT_MASTERY);
+                    break;
+                case "life_magic":
+                    familyIds.Add(Spells.SpellClass.LIFE_MAGIC_MASTERY);
+                    break;
+                case "war_magic":
+                    familyIds.Add(Spells.SpellClass.WAR_MAGIC_MASTERY);
+                    break;
+                case "fletching":
+                    familyIds.Add(Spells.SpellClass.FLETCHING_MASTERY);
+                    break;
+                case "alchemy":
+                    familyIds.Add(Spells.SpellClass.ALCHEMY_MASTERY);
+                    break;
+                case "cooking":
+                    familyIds.Add(Spells.SpellClass.COOKING_MASTERY);
+                    break;
+                case "two_handed_combat":
+                    familyIds.Add(Spells.SpellClass.TWO_HANDED_COMBAT_MASTERY);
+                    break;
+                case "void_magic":
+                    familyIds.Add(Spells.SpellClass.VOID_MAGIC_MASTERY);
+                    break;
+                case "heavy_weapons":
+                    familyIds.Add(Spells.SpellClass.HEAVY_WEAPON_MASTERY);
+                    break;
+                case "light_weapons":
+                    familyIds.Add(Spells.SpellClass.LIGHT_WEAPON_MASTERY);
+                    break;
+                case "finesse_weapons":
+                    familyIds.Add(Spells.SpellClass.FINESSE_WEAPON_MASTERY);
+                    break;
+                case "missile_weapons":
+                    familyIds.Add(Spells.SpellClass.MISSILE_WEAPON_MASTERY);
+                    break;
+                case "shield":
+                    familyIds.Add(Spells.SpellClass.SHIELD_MASTERY);
+                    break;
+                case "dual_wield":
+                    familyIds.Add(Spells.SpellClass.DUAL_WIELD_MASTERY);
+                    break;
+                case "recklessness":
+                    familyIds.Add(Spells.SpellClass.RECKLESSNESS_MASTERY);
+                    break;
+                case "sneak_attack":
+                    familyIds.Add(Spells.SpellClass.SNEAK_ATTACK_MASTERY);
+                    break;
+                case "dirty_fighting":
+                    familyIds.Add(Spells.SpellClass.DIRTY_FIGHTING_MASTERY);
+                    break;
+                case "summoning":
+                    familyIds.Add(Spells.SpellClass.SUMMONING_MASTERY);
+                    break;
+            }
+        }
+
+        public bool IsLoaded() {
+            return !isLoading;
         }
 
         public bool IsValid() {
@@ -44,16 +231,11 @@ namespace DoThingsBot.Buffs {
                 XmlDocument doc = new XmlDocument();
                 doc.Load(Buffs.GetProfilePath(profileName));
 
-                Util.WriteToChat("loading profile: " + profileName);
-
                 if (doc.DocumentElement.Attributes["aliases"] != null) {
                     var definedAliases = doc.DocumentElement.Attributes["aliases"].InnerText;
                     aliases.AddRange(definedAliases.Split(' '));
                 }
                 name = profileName;
-
-                Util.WriteToChat("name: " + name);
-                Util.WriteToChat("aliases: " + string.Join(", ", aliases.ToArray()));
 
                 foreach (XmlNode node in doc.DocumentElement.ChildNodes) {
                     Spells.SpellClass spellClass = Spells.SpellClass.UNKNOWN;

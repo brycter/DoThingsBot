@@ -144,7 +144,7 @@ namespace DoThingsBot {
         }
 
         private string GetJsonDataPathForOwner() {
-            return Util.GetPlayerDataDirectory() + GetOwner() + ".json";
+            return Path.Combine(Util.GetPlayerDataDirectory(), GetOwner() + ".json");
         }
 
         private void LoadPlayerData() {

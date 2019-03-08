@@ -71,6 +71,7 @@
   <ItemGroup>
     <Compile Include="Buffs\BuffProfile.cs" />
     <Compile Include="Buffs\Buffs.cs" />
+    <Compile Include="Buffs\TreeStatsCharacter.cs" />
     <Compile Include="Chat\ChatManager.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="DoThingsBot.cs" />
