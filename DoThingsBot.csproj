@@ -141,6 +141,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <COMReference Include="D3DService">
+      <Guid>{8F6EF6AD-E982-40A4-B6CC-79E80B77313B}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
     <COMReference Include="Decal">
       <Guid>{FF7F5F6D-34E0-4B6F-B3BB-8141DE2EF732}</Guid>
       <VersionMajor>2</VersionMajor>

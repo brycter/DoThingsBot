@@ -1,19 +1,16 @@
 ﻿using Decal.Adapter;
 using Decal.Adapter.Wrappers;
-using Decal.Filters;
 using DoThingsBot.Chat;
 using DoThingsBot.Buffs;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml;
 
 namespace DoThingsBot.FSM.States {
 
     class BotBuffState : IBotState {
         public string Name { get => "BotBuffState"; }
+        public List<int> SkippedEnchantments = new List<int>();
+
         public List<int> buffIds = new List<int>();
         private List<string> CastedEnchantments = new List<string>();
         private string castingSpellName = "";
@@ -23,6 +20,12 @@ namespace DoThingsBot.FSM.States {
         private int targetId = 0;
         private bool waitingForTreeStatsData = false;
         private BuffProfile treeStatsProfile = null;
+        private bool doneCasting = false;
+        private bool hasWarnedAboutShield = false;
+        private bool retriedBanes = false;
+
+        private DateTime lastThought = DateTime.UtcNow;
+        private DateTime firstThought = DateTime.UtcNow;
 
         private ItemBundle itemBundle;
 
@@ -130,10 +133,6 @@ namespace DoThingsBot.FSM.States {
             catch (Exception ex) { Util.LogException(ex); }
         }
 
-        private DateTime lastThought = DateTime.UtcNow;
-        private DateTime firstThought = DateTime.UtcNow;
-        private bool doneCasting = false;
-
         public void Think(Machine machine) {
             if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(500)) {
                 lastThought = DateTime.UtcNow;
@@ -169,25 +168,56 @@ namespace DoThingsBot.FSM.States {
                     if (!CoreManager.Current.Actions.IsValidObject(targetId)) {
                         ChatManager.Tell(itemBundle.GetOwner(), "You moved too far away, cancelling your buffs.");
                         doneCasting = true;
+                        return;
                     }
 
                     var player = CoreManager.Current.WorldFilter[targetId];
 
-                    if (Util.GetDistanceFromPlayer(player) > 30) {
+                    if (player == null || Util.GetDistanceFromPlayer(player) > 30) {
                         ChatManager.Tell(itemBundle.GetOwner(), "You moved too far away, cancelling your buffs.");
                         doneCasting = true;
+                        return;
+                    }
+
+                    var hasShield = false;
+
+                    // find shield?
+                    foreach (var item in CoreManager.Current.WorldFilter.GetByContainer(targetId)) {
+                        if (item.Name.Contains("Buckler") || item.Name.Contains("Shield")) {
+                            hasShield = true;
+                            break;
+                        }
                     }
 
                     // cast next needed buff
                     foreach (var spellId in buffIds) {
                         var spellName = Spells.GetNameFromId(spellId);
                         if (CastedEnchantments.Contains(spellName)) continue;
+                        if (SkippedEnchantments.Contains(spellId)) continue;
 
                         castingSpellName = spellName;
+                        
+                        if (spellName.Contains(" Bane")) {
+                            if (!hasShield && !hasWarnedAboutShield) {
+                                hasWarnedAboutShield = true;
+                                ChatManager.Tell(itemBundle.GetOwner(), "I cannot cast banes on you since you do not have a shield equipped.");
+                            }
 
-                        //Util.WriteToChat(String.Format("Attempting to cast {0} ({1})",  spellName, spellId));
+                            if (!hasShield) {
+                                SkippedEnchantments.Add(spellId);
+                                Util.WriteToChat("skipping: " + spellName);
+                                continue;
+                            }
+                        }
 
                         CoreManager.Current.Actions.CastSpell(spellId, targetId);
+                        return;
+                    }
+
+                    if (hasWarnedAboutShield && !retriedBanes) {
+                        retriedBanes = true;
+                        SkippedEnchantments.Clear();
+                        Util.WriteToChat("clearing skipped enchantments");
                         return;
                     }
 

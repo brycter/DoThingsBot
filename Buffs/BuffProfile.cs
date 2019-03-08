@@ -32,9 +32,10 @@ namespace DoThingsBot.Buffs {
 
         private void FetchTreeStatsProfile() {
             try {
-                var url = string.Format("http://treestats.net/{0}/{1}.json?t={2}", CoreManager.Current.CharacterFilter.Server, name, DateTime.UtcNow.ToFileTimeUtc());
+                var url = string.Format(@"http://treestats.net/{0}/{1}.json?t={2}.DoThingsBot", CoreManager.Current.CharacterFilter.Server, name, DateTime.UtcNow.ToFileTimeUtc());
                 
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Timeout = 5;
                 request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
@@ -79,6 +80,7 @@ namespace DoThingsBot.Buffs {
                 familyIds.Add(Spells.SpellClass.FOCUS);
                 familyIds.Add(Spells.SpellClass.WILLPOWER);
                 familyIds.Add(Spells.SpellClass.IMPREGNABILITY);
+                familyIds.Add(Spells.SpellClass.INVULNERABILITY);
                 familyIds.Add(Spells.SpellClass.MAGIC_RESISTANCE);
                 familyIds.Add(Spells.SpellClass.ARCANE_ENLIGHTENMENT);
                 familyIds.Add(Spells.SpellClass.LEADERSHIP_MASTERY);
@@ -111,6 +113,17 @@ namespace DoThingsBot.Buffs {
                 // war mages
                 if (familyIds.Contains(Spells.SpellClass.WAR_MAGIC_MASTERY)) {
                     familyIds.Add(Spells.SpellClass.AURA_OF_SPIRIT_DRINKER);
+                }
+
+                // shield banes
+                if (familyIds.Contains(Spells.SpellClass.SHIELD_MASTERY)) {
+                    familyIds.Add(Spells.SpellClass.ACID_BANE);
+                    familyIds.Add(Spells.SpellClass.BLUDGEON_BANE);
+                    familyIds.Add(Spells.SpellClass.FROST_BANE);
+                    familyIds.Add(Spells.SpellClass.LIGHTNING_BANE);
+                    familyIds.Add(Spells.SpellClass.FLAME_BANE);
+                    familyIds.Add(Spells.SpellClass.PIERCING_BANE);
+                    familyIds.Add(Spells.SpellClass.BLADE_BANE);
                 }
             }
 
@@ -211,6 +224,11 @@ namespace DoThingsBot.Buffs {
         public void LoadIncluded() {
             foreach (var profile in includedProfiles) {
                 var buffProfile = Buffs.GetProfile(profile);
+
+                if (buffProfile == null) {
+                    Util.WriteToChat("Invalid buff profile while generating (" + name + "): " + profile);
+                    continue;
+                }
 
                 foreach (var familyId in buffProfile.familyIds) {
                     if (!familyIds.Contains(familyId)) {

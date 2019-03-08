@@ -119,7 +119,7 @@ namespace DoThingsBot {
                 SpamInterval = new Setting<int>("Config/Announcements/SpamInterval", "The interval in minutes that announcements are sent out.", 15);
 
                 var defaultMessages = new List<string> {
-                        "I'm a tinkerbot. Stand nearby and tell me 'tinker' to get started."
+                        "I'm a dothingsbot. Tell me 'help' to get started."
                     };
 
                 Messages = new Setting<List<string>>("Config/Announcements/Spam/Message", "Announcements go here. It will spam every `Config/Announcements/SpamInterval` seconds.", defaultMessages);
@@ -127,13 +127,13 @@ namespace DoThingsBot {
         }
 
         public static class Portals {
-            public static  Setting<bool> Enabled;
+            public static Setting<bool> Enabled;
 
-            public static  Setting<string> PrimaryPortalTieLocation;
-            public static  Setting<int> PrimaryPortalHeading;
+            public static Setting<string> PrimaryPortalTieLocation;
+            public static Setting<int> PrimaryPortalHeading;
 
-            public static  Setting<string> SecondaryPortalTieLocation;
-            public static  Setting<int> SecondaryPortalHeading;
+            public static Setting<string> SecondaryPortalTieLocation;
+            public static Setting<int> SecondaryPortalHeading;
 
             static Portals() {
             }
@@ -149,6 +149,19 @@ namespace DoThingsBot {
 
                 PrimaryPortalHeading.Validate += ValidateHeading;
                 SecondaryPortalHeading.Validate += ValidateHeading;
+            }
+        }
+
+        public static class BuffBot {
+            public static Setting<bool> Enabled;
+            public static Setting<bool> EnableTreeStatsBuffs;
+
+            static BuffBot() {
+            }
+
+            public static void Init() {
+                Enabled = new Setting<bool>("Config/BuffBot/Enabled", "Enable buff bot functionality", false);
+                EnableTreeStatsBuffs = new Setting<bool>("Config/BuffBot/EnableTreeStatsBuffs", "Enable treestats buffs when someone tells you 'buffs'", false);
             }
         }
 
@@ -171,6 +184,7 @@ namespace DoThingsBot {
                 Portals.Init();
                 Tinkering.Init();
                 Equipment.Init();
+                BuffBot.Init();
             }
             catch (Exception e) { Util.LogException(e); }
         }

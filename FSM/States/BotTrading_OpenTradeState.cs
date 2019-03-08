@@ -39,7 +39,7 @@ namespace DoThingsBot.FSM.States {
             openTradeCount++;
 
 
-            if (player == null || Util.GetDistanceFromPlayer(player) > 1) {
+            if (player == null || Util.GetDistanceFromPlayer(player) > 2) {
                 if (openTradeCount > 1) {
                     ChatManager.Tell(itemBundle.GetOwner(), "I was unable to open a trade with you. You'll have to start over.");
 

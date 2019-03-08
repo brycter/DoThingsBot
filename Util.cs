@@ -199,7 +199,7 @@ namespace DoThingsBot
                 FileInfo[] Files = d.GetFiles("*.json");
                 
                 foreach (FileInfo file in Files) {
-                    string json = File.ReadAllText(GetPlayerDataDirectory() + file.Name);
+                    string json = File.ReadAllText(Path.Combine(GetPlayerDataDirectory(), file.Name));
 
                     PlayerData playerData = JsonConvert.DeserializeObject<PlayerData>(json);
 
