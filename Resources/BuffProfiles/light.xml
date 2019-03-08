@@ -5,6 +5,7 @@
   <spell family="AURA_OF_SWIFT_KILLER" />
   <spell family="LIGHT_WEAPON_MASTERY" />
   <spell family="SHIELD_MASTERY" />
+  <spell profile="banes" />
   <spell family="DUAL_WIELD_MASTERY" />
   <spell family="DIRTY_FIGHTING_MASTERY" />
   <spell family="SNEAK_ATTACK_MASTERY" />

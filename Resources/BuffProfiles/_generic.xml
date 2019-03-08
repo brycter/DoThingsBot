@@ -11,8 +11,8 @@
   <spell family="ITEM_ENCHANTMENT_MASTERY" />
   <spell family="LIFE_MAGIC_MASTERY" />
   <spell family="MANA_CONVERSION_MASTERY" />
+  <spell family="HEALING_MASTERY" />
   <spell family="ARCANE_ENLIGHTENMENT" />
-  <spell family="HEAL_OTHER" />
   <spell family="JUMPING_MASTERY" />
   <spell family="LEADERSHIP_MASTERY" />
   <spell family="LOCKPICK_MASTERY" />
@@ -32,4 +32,5 @@
   <spell family="ARMOR" />
   <spell family="AURA_OF_DEFENDER" />
   <spell family="AURA_OF_HERMETIC_LINK" />
+  <spell family="ARCANUM_SALVAGING" />
 </profile>
