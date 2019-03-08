@@ -95,6 +95,16 @@ namespace DoThingsBot.FSM.States {
 
         void Current_ChatBoxMessage(object sender, ChatTextInterceptEventArgs e) {
             try {
+                if (Util.IsChat(e.Text, Util.ChatFlags.PlayerTellsYou)) {
+                    string playerName = Util.GetSourceOfChat(e.Text);
+                    string command = Util.GetMessageFromChat(e.Text);
+                    if (playerName == itemBundle.GetOwner() && command == "cancel" || command == "remove") {
+                        ChatManager.Tell(playerName, "Ok, cancelling your current buff queue.");
+                        doneCasting = true;
+                        return;
+                    }
+                }
+
                 if (e.Text.StartsWith(String.Format("You cast {0}", castingSpellName))) {
                     CastedEnchantments.Add(castingSpellName);
                     castingSpellName = "";

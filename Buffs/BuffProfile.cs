@@ -32,7 +32,7 @@ namespace DoThingsBot.Buffs {
 
         private void FetchTreeStatsProfile() {
             try {
-                var url = string.Format("http://treestats.net/{0}/{1}.json", CoreManager.Current.CharacterFilter.Server, CoreManager.Current.CharacterFilter.Name);
+                var url = string.Format("http://treestats.net/{0}/{1}.json?t={2}", CoreManager.Current.CharacterFilter.Server, name, DateTime.UtcNow.ToFileTimeUtc());
                 
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                 request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
