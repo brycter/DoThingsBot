@@ -22,6 +22,12 @@ namespace DoThingsBot.Buffs {
             Load(profileName);
         }
 
+        public BuffProfile(string name, Spells.SpellClass familyId) {
+            this.name = name;
+            familyIds.Add(familyId);
+            isValid = true;
+        }
+
         public BuffProfile(string characterName, bool useTreeStats) {
             // TODO: urlencode?
             isLoading = true;

@@ -154,7 +154,10 @@ namespace DoThingsBot {
 
         public static class BuffBot {
             public static Setting<bool> Enabled;
+            public static Setting<bool> EnableSingleBuffs;
             public static Setting<bool> EnableTreeStatsBuffs;
+            public static Setting<bool> AlwaysEnableBanes;
+            public static Setting<int> LimitBuffLevel;
 
             static BuffBot() {
             }
@@ -162,6 +165,11 @@ namespace DoThingsBot {
             public static void Init() {
                 Enabled = new Setting<bool>("Config/BuffBot/Enabled", "Enable buff bot functionality", false);
                 EnableTreeStatsBuffs = new Setting<bool>("Config/BuffBot/EnableTreeStatsBuffs", "Enable treestats buffs when someone tells you 'buffs'", false);
+                EnableSingleBuffs = new Setting<bool>("Config/BuffBot/EnableSingleBuffs", "Enable single buffs (strength, focus, war magic, etc)", false);
+                AlwaysEnableBanes = new Setting<bool>("Config/BuffBot/AlwaysEnableBanes", "Enable banes even when target doesn't have a shield equipped. (keep off on GDLE)", false);
+                LimitBuffLevel = new Setting<int>("Config/BuffBot/LimitBuffLevel", "Limit buff spell levels to this value", 7);
+
+                LimitBuffLevel.Validate += ValidateSpellLevel;
             }
         }
 
@@ -192,6 +200,11 @@ namespace DoThingsBot {
         private static void ValidateHeading(object sender, ValidateSettingEventArgs<int> e) {
             if (e.Value < 0) e.Invalidate("Should not be less than 0");
             if (e.Value > 360) e.Invalidate("Should be less than 360");
+        }
+
+        private static void ValidateSpellLevel(object sender, ValidateSettingEventArgs<int> e) {
+            if (e.Value < 1) e.Invalidate("Should not be less than 1");
+            if (e.Value > 8) e.Invalidate("Should not be greater than 8");
         }
     }
 }

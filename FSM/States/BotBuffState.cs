@@ -28,6 +28,7 @@ namespace DoThingsBot.FSM.States {
         private DateTime firstThought = DateTime.UtcNow;
 
         private ItemBundle itemBundle;
+        private int castCount = 0;
 
         public BotBuffState(ItemBundle items) {
             itemBundle = items;
@@ -74,7 +75,7 @@ namespace DoThingsBot.FSM.States {
 
         private void AddProfile(BuffProfile buffProfile) {
             foreach (var family in buffProfile.familyIds) {
-                var spell = Spells.GetBestKnownSpellByClass(family, false);
+                var spell = Spells.GetBestKnownSpellByClass(family, false, Config.BuffBot.LimitBuffLevel.Value);
 
                 if (spell == null) {
                     Util.WriteToChat("I dont know any spell for: " + family);
@@ -111,6 +112,7 @@ namespace DoThingsBot.FSM.States {
                 if (e.Text.StartsWith(String.Format("You cast {0}", castingSpellName))) {
                     CastedEnchantments.Add(castingSpellName);
                     castingSpellName = "";
+                    castCount = 0;
                 }
                 else if (e.Text.StartsWith("Your spell fizzled.")) {
                     fizzleCounter++;
@@ -181,11 +183,13 @@ namespace DoThingsBot.FSM.States {
 
                     var hasShield = false;
 
-                    // find shield?
-                    foreach (var item in CoreManager.Current.WorldFilter.GetByContainer(targetId)) {
-                        if (item.Name.Contains("Buckler") || item.Name.Contains("Shield")) {
-                            hasShield = true;
-                            break;
+                    if (!Config.BuffBot.AlwaysEnableBanes.Value) {
+                        // find shield?
+                        foreach (var item in CoreManager.Current.WorldFilter.GetByContainer(targetId)) {
+                            if (item.Name.Contains("Buckler") || item.Name.Contains("Shield")) {
+                                hasShield = true;
+                                break;
+                            }
                         }
                     }
 
@@ -195,9 +199,15 @@ namespace DoThingsBot.FSM.States {
                         if (CastedEnchantments.Contains(spellName)) continue;
                         if (SkippedEnchantments.Contains(spellId)) continue;
 
+                        if (castCount > 15) {
+                            castCount = 0;
+                            CastedEnchantments.Add(spellName);
+                            return;
+                        }
+
                         castingSpellName = spellName;
                         
-                        if (spellName.Contains(" Bane")) {
+                        if (!Config.BuffBot.AlwaysEnableBanes.Value && spellName.Contains(" Bane")) {
                             if (!hasShield && !hasWarnedAboutShield) {
                                 hasWarnedAboutShield = true;
                                 ChatManager.Tell(itemBundle.GetOwner(), "I cannot cast banes on you since you do not have a shield equipped.");
@@ -205,19 +215,18 @@ namespace DoThingsBot.FSM.States {
 
                             if (!hasShield) {
                                 SkippedEnchantments.Add(spellId);
-                                Util.WriteToChat("skipping: " + spellName);
                                 continue;
                             }
                         }
 
                         CoreManager.Current.Actions.CastSpell(spellId, targetId);
+                        castCount++;
                         return;
                     }
 
                     if (hasWarnedAboutShield && !retriedBanes) {
                         retriedBanes = true;
                         SkippedEnchantments.Clear();
-                        Util.WriteToChat("clearing skipped enchantments");
                         return;
                     }
 

@@ -10,17 +10,18 @@ namespace DoThingsBot.Buffs {
         public static Dictionary<string, BuffProfile> profiles = new Dictionary<string, BuffProfile>();
         public static Dictionary<string, string> aliases = new Dictionary<string, string>();
 
-        public static void LoadProfiles() {
+        public static void LoadProfiles(bool verbose=false) {
             profiles = new Dictionary<string, BuffProfile>();
 
             DirectoryInfo d = new DirectoryInfo(Path.Combine(Util.GetDataDirectory(), "profiles"));
             FileInfo[] files = d.GetFiles("*.xml");
 
+            if (verbose) Util.WriteToChat("Loading buff profiles:");
+
             foreach (FileInfo file in files) {
                 var profile = new BuffProfile(file.Name.Replace(".xml", ""));
 
                 profiles.Add(profile.name, profile);
-
                 if (!aliases.ContainsKey(profile.name)) {
                     aliases.Add(profile.name, profile.name);
                 }
@@ -34,7 +35,26 @@ namespace DoThingsBot.Buffs {
 
             foreach (var profile in profiles.Keys) {
                 profiles[profile].LoadIncluded();
+                
+                if (verbose) Util.WriteToChat("  " + profiles[profile].name + "(" + string.Join(",", profiles[profile].aliases.ToArray()) + ") (" + profiles[profile].familyIds.Count + " buffs)");
             }
+
+            if (Config.BuffBot.EnableSingleBuffs.Value) {
+                var values = Enum.GetValues(typeof(Spells.SpellClass));
+
+                foreach (Spells.SpellClass family in values) {
+                    var name = family.ToString().ToLower()
+                        .Replace("_", "").Replace("mastery", "").Replace("expertise", "").Trim();
+                    AddSingle(name, family);
+                }
+            }
+        }
+
+        private static void AddSingle(string name, Spells.SpellClass family) {
+            if (aliases.ContainsKey(name)) return;
+
+            aliases.Add(name, name);
+            profiles.Add(name, new BuffProfile(name, family));
         }
 
         public static List<string> GetAllProfileCommands() {
@@ -70,6 +90,13 @@ namespace DoThingsBot.Buffs {
 
         public static BuffProfile GetProfileFromTreeStats(string character) {
             return new BuffProfile(character, true);
+        }
+
+        internal static void ReloadProfiles() {
+            aliases.Clear();
+            profiles.Clear();
+            LoadProfiles(true);
+
         }
     }
 }

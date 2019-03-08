@@ -114,6 +114,7 @@
     <Compile Include="Spells.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="Views\Pages\Announcements.cs" />
+    <Compile Include="Views\Pages\BuffBot.cs" />
     <Compile Include="Views\Pages\Config.cs" />
     <Compile Include="Views\Pages\EquipmentBuffing.cs" />
     <Compile Include="Views\Pages\EquipmentIdle.cs" />

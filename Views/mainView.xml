@@ -56,6 +56,21 @@
         </page>
       </control>
     </page>
+    <page label="BuffBot">
+      <control progid="DecalControls.FixedLayout" clipped="">
+        <control progid="DecalControls.Checkbox" name="UIBotBuffBotEnabled" left="8" top="8" width="300" height="20" text="Enable Buff Bot Functionality"/>
+        <control progid="DecalControls.Checkbox" name="UIBotBuffBotEnableTreeStatsBuffs" left="8" top="28" width="300" height="20" text="Enable TreeStats automatic buffs ('buff' command)"/>
+        <control progid="DecalControls.Checkbox" name="UIBotBuffBotEnableSingleBuffs" left="8" top="48" width="330" height="20" text="Enable single buffs (strength, coordination, warmagic, etc)"/>
+        <control progid="DecalControls.Checkbox" name="UIBotBuffBotAlwaysEnableBanes" left="8" top="68" width="330" height="20" text="Bane when no shield present on target (keep off on GDLE)"/>
+        
+        <control progid="DecalControls.StaticText" name="UIBotBuffBotLimitBuffLevelLabel" left="8" top="88" width="110" height="40" text="Limit buffs to level:"/>
+        <control progid="DecalControls.Edit" name="UIBotBuffBotLimitBuffLevel" left="120" top="88" width="20" height="20" text="7"/>
+
+        <control progid="DecalControls.PushButton" name="UIBotBuffBotReloadBuffProfiles" left="45" top="178" width="120" height="22" text="Reload Buff Profiles" fontstyle="bold"/>
+        <control progid="DecalControls.PushButton" name="UIBotBuffBotManageBuffProfiles" left="185" top="178" width="120" height="22" text="Manage Buff Profiles" fontstyle="bold"/>
+
+      </control>
+    </page>
     <page label="Portals">
       <control progid="DecalControls.FixedLayout" clipped="">
         <control progid="DecalControls.Checkbox" name="UIBotPortalsEnabled" left="8" top="8" width="220" height="20" text="Enable Portal Bot Functionality"/>

@@ -270,6 +270,10 @@ namespace DoThingsBot {
                     break;
 
                 case "buff":
+                    if (_machine.IsRunning && !Config.BuffBot.EnableTreeStatsBuffs.Value) {
+                        ChatManager.Tell(e.PlayerName, "My TreeStats buffing functionality is currently disabled, sorry!");
+                        return;
+                    }
                     if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
                         ItemBundle itemBundle = new ItemBundle(e.PlayerName);
                         currentItemBundle = itemBundle;
@@ -288,10 +292,16 @@ namespace DoThingsBot {
                     // check for buff command
                     // todo: handle single buff commands
                     if (Buffs.Buffs.GetAllProfileCommands().Contains(e.Command)) {
+                        if (_machine.IsRunning && !Config.BuffBot.Enabled.Value) {
+                            ChatManager.Tell(e.PlayerName, "My Buff Bot functionality is currently disabled, sorry!");
+                            return;
+                        }
+
                         var commands = e.Command;
                         if (!string.IsNullOrEmpty(e.Arguments)) {
                             commands += " " + e.Arguments;
                         }
+
                         if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
                             ItemBundle itemBundle = new ItemBundle(e.PlayerName);
                             currentItemBundle = itemBundle;
