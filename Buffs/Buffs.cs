@@ -16,7 +16,7 @@ namespace DoThingsBot.Buffs {
             DirectoryInfo d = new DirectoryInfo(Path.Combine(Util.GetDataDirectory(), "profiles"));
             FileInfo[] files = d.GetFiles("*.xml");
 
-            if (verbose) Util.WriteToChat("Loading buff profiles:");
+            //if (verbose) Util.WriteToChat("Loading buff profiles:");
 
             foreach (FileInfo file in files) {
                 var profile = new BuffProfile(file.Name.Replace(".xml", ""));
@@ -36,7 +36,7 @@ namespace DoThingsBot.Buffs {
             foreach (var profile in profiles.Keys) {
                 profiles[profile].LoadIncluded();
                 
-                Util.WriteToChat("Load: " + profiles[profile].name + "(" + string.Join(",", profiles[profile].aliases.ToArray()) + ") (" + profiles[profile].familyIds.Count + " buffs)");
+                //Util.WriteToChat("Load: " + profiles[profile].name + "(" + string.Join(",", profiles[profile].aliases.ToArray()) + ") (" + profiles[profile].familyIds.Count + " buffs)");
             }
 
             if (Config.BuffBot.EnableSingleBuffs.Value) {

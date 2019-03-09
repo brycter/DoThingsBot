@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-
+using System.IO;
 using DoThingsBot.Views.Pages;
 
 using VirindiViewService.Controls;
@@ -77,27 +77,41 @@ namespace DoThingsBot.Views {
         private void UIBuffProfileManagerSaveProfile_Hit(object sender, EventArgs e) {
             var alreadyListed = new List<string>();
 
+            var aliases = UIBuffProfileManagerAliases.Text;
+            var profileName = ((HudStaticText)(UIBuffProfileManagerEdit[UIBuffProfileManagerEdit.Current])).Text;
+            var fileContents = string.Format("<profile name=\"{0}\" aliases=\"{1}\">\n", profileName, aliases);
+
             for (var i = 0; i < UIBuffProfileManagerProfileSpells.RowCount; i++) {
                 var r = (HudList.HudListRowAccessor)UIBuffProfileManagerProfileSpells[i];
                 var name = ((HudStaticText)r[1]).Text.Replace("> ", "");
                 if (((HudStaticText)r[4]).Text == "-1") {
                     var profile = Buffs.Buffs.profiles[name];
 
-                    foreach (var family in profile.familyIds) {
-                        var fName = FriendlyName(family);
-                        if (!alreadyListed.Contains(fName)) {
-                            alreadyListed.Add(fName);
-                            Util.WriteToChat(fName);
-                        }
+                    if (profile != null) {
+                        fileContents += string.Format(" <spell profile=\"{0}\" />\n", profile.name);
                     }
                 }
                 else {
                     if (!alreadyListed.Contains(name)) {
                         alreadyListed.Add(name);
-                        Util.WriteToChat(name);
+                        fileContents += string.Format(" <spell family=\"{0}\" />\n", UnFriendlyName(name));
                     }
                 }
             }
+
+            fileContents += "</profile>";
+
+            var path = Buffs.Buffs.GetProfilePath(profileName);
+
+            File.WriteAllText(path, fileContents);
+
+            Util.WriteToChat("Saved profile: " + profileName);
+
+            Buffs.Buffs.ReloadProfiles();
+        }
+
+        private object UnFriendlyName(string name) {
+            return name.Replace(" ", "_").ToUpper();
         }
 
         private void FiltersChanged(object sender, EventArgs e) {
