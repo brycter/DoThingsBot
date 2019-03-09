@@ -26,9 +26,11 @@ namespace DoThingsBot.FSM.States {
 
         private DateTime lastThought = DateTime.UtcNow;
         private DateTime firstThought = DateTime.UtcNow;
+        private DateTime lastCasted = DateTime.UtcNow;
 
         private ItemBundle itemBundle;
         private int castCount = 0;
+        private bool readyToCast = true;
 
         public BotBuffState(ItemBundle items) {
             itemBundle = items;
@@ -113,8 +115,10 @@ namespace DoThingsBot.FSM.States {
                     CastedEnchantments.Add(castingSpellName);
                     castingSpellName = "";
                     castCount = 0;
+                    readyToCast = true;
                 }
                 else if (e.Text.StartsWith("Your spell fizzled.")) {
+                    readyToCast = true;
                     fizzleCounter++;
                 }
                 else if (e.Text.StartsWith("The spell consumed the following components: ")) {
@@ -136,7 +140,7 @@ namespace DoThingsBot.FSM.States {
         }
 
         public void Think(Machine machine) {
-            if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(500)) {
+            if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(1000)) {
                 lastThought = DateTime.UtcNow;
 
                 if (waitingForTreeStatsData && treeStatsProfile != null) {
@@ -219,7 +223,11 @@ namespace DoThingsBot.FSM.States {
                             }
                         }
 
-                        CoreManager.Current.Actions.CastSpell(spellId, targetId);
+                        if (DateTime.UtcNow - lastCasted > TimeSpan.FromMilliseconds(1500)) {
+                            lastCasted = DateTime.UtcNow;
+                            Util.WriteToChat("Cast: " + castingSpellName);
+                            CoreManager.Current.Actions.CastSpell(spellId, targetId);
+                        }
                         castCount++;
                         return;
                     }

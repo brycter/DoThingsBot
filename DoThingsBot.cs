@@ -140,6 +140,10 @@ namespace DoThingsBot {
                 return;
             }
 
+            if (currentItemBundle != null && queue.Count > 0) {
+                currentItemBundle = null;
+            }
+
             switch (e.Command) {
                 case "help":
                     PrintHelpMessage(e.PlayerName, e.Arguments);
@@ -284,7 +288,7 @@ namespace DoThingsBot {
                         _machine.ChangeState(new BotEquipItemsState(itemBundle));
                     }
                     else {
-                        AddToQueue(e.PlayerName, "lostitems");
+                        AddToQueue(e.PlayerName, "buff");
                     }
                     break;
 
@@ -418,10 +422,6 @@ namespace DoThingsBot {
 
                 if (isRunning) {
                     if (_machine.IsInState("BotIdleState")) {
-                        if (currentItemBundle != null) {
-                            currentItemBundle = null;
-                        }
-
                         if (queue.Count > 0) {
                             ProcessCommand(new ChatCommandEventArgs(queue[0].PlayerName, queue[0].Command, queue[0].Command), true);
                             queue.RemoveAt(0);
