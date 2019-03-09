@@ -16,10 +16,13 @@ namespace DoThingsBot.Views {
         private readonly HudList UIBuffProfileManagerProfileSpells;
         private readonly HudCombo UIBuffProfileManagerEdit;
         private readonly HudButton UIBuffProfileManagerMoveSpell;
+        private readonly HudTextBox UIBuffProfileManagerAliases;
 
         private int selectedProfileRow = -1;
         private int selectedAvailableRow = 0;
         private List<Spells.SpellClass> profileFamilyIds = new List<Spells.SpellClass>();
+        private List<string> profileIncludes = new List<string>();
+        private Buffs.BuffProfile profile;
 
         public ProfileManagerView() {
             try {
@@ -34,6 +37,7 @@ namespace DoThingsBot.Views {
                 UIBuffProfileManagerAvailableSpells = (HudList)view["BuffProfileManagerAvailableSpells"];
                 UIBuffProfileManagerProfileSpells = (HudList)view["BuffProfileManagerProfileSpells"];
                 UIBuffProfileManagerMoveSpell = (HudButton)view["BuffProfileManagerMoveSpell"];
+                UIBuffProfileManagerAliases = (HudTextBox)view["BuffProfileManagerAliases"];
 
                 view.VisibleChanged += View_VisibleChanged;
                 view.Visible = true;
@@ -51,25 +55,66 @@ namespace DoThingsBot.Views {
 
         private void UIBuffProfileManagerMoveSpell_Hit(object sender, EventArgs e) {
             if (selectedProfileRow >= 0) {
+                selectedAvailableRow = 0;
                 int familyId = 0;
                 var row = (HudList.HudListRowAccessor)UIBuffProfileManagerProfileSpells[selectedProfileRow];
 
-                Int32.TryParse(((HudStaticText)row[4]).Text, out familyId);
+                if (!Int32.TryParse(((HudStaticText)row[4]).Text, out familyId)) return;
 
-                if (familyId == 0) return;
+                var added = false;
+                if (familyId == -1) {
+                    var profileName = ((HudStaticText)row[1]).Text.Replace("> ", "");
+                    profileIncludes.Remove(profileName);
+                    for (var i = 0; i < UIBuffProfileManagerAvailableSpells.RowCount; i++) {
+                        var r = (HudList.HudListRowAccessor)UIBuffProfileManagerAvailableSpells[i];
 
-                profileFamilyIds.Remove((Spells.SpellClass)familyId);
+                        if (profileName.ToLower().CompareTo(((HudStaticText)r[1]).Text.Replace("> ", "").ToLower()) == -1) {
+                            HudList.HudListRowAccessor newRow = (HudList.HudListRowAccessor)UIBuffProfileManagerAvailableSpells.InsertRow(i);
+
+                            ((HudPictureBox)newRow[0]).Image = 0x060016CB;
+                            ((HudStaticText)newRow[1]).Text = profileName;
+                            ((HudStaticText)newRow[2]).Text = "-1";
+
+                            added = true;
+                            selectedAvailableRow = i;
+                            break;
+                        }
+                    }
+
+                    if (!added) {
+                        HudList.HudListRowAccessor newRow = (HudList.HudListRowAccessor)UIBuffProfileManagerAvailableSpells.AddRow();
+                        ((HudPictureBox)newRow[0]).Image = 0x060016CB;
+                        ((HudStaticText)newRow[1]).Text = profileName;
+                        ((HudStaticText)newRow[2]).Text = "-1";
+                        selectedAvailableRow = UIBuffProfileManagerAvailableSpells.RowCount-1;
+                    }
+                    UIBuffProfileManagerProfileSpells.RemoveRow(selectedProfileRow);
+                    selectedProfileRow = -1;
+                    RedrawAvailableList();
+                    FixListDisplay();
+                    return;
+                }
+                else {
+                    profileFamilyIds.Remove((Spells.SpellClass)familyId);
+                }
+
                 UIBuffProfileManagerProfileSpells.RemoveRow(selectedProfileRow);
 
                 selectedAvailableRow = 0;
                 selectedProfileRow = -1;
-                
+
                 for (var i = 0; i < UIBuffProfileManagerAvailableSpells.RowCount; i++) {
                     var r = (HudList.HudListRowAccessor)UIBuffProfileManagerAvailableSpells[i];
                     int fid = 0;
                     Int32.TryParse(((HudStaticText)r[2]).Text, out fid);
-                    if (FriendlyName((Spells.SpellClass)familyId).CompareTo(FriendlyName((Spells.SpellClass)fid)) == -1) {
-                        var newRow = (HudList.HudListRowAccessor)UIBuffProfileManagerAvailableSpells.InsertRow(i);
+                    if (FriendlyName((Spells.SpellClass)familyId).ToLower().CompareTo(FriendlyName((Spells.SpellClass)fid).ToLower()) == -1) {
+                        HudList.HudListRowAccessor newRow;
+                        if (i >= UIBuffProfileManagerAvailableSpells.RowCount) {
+                            newRow = (HudList.HudListRowAccessor)UIBuffProfileManagerAvailableSpells.AddRow();
+                        }
+                        else {
+                            newRow = (HudList.HudListRowAccessor)UIBuffProfileManagerAvailableSpells.InsertRow(i);
+                        }
                         var spell = Spells.GetExampleSpellByClass((Spells.SpellClass)familyId);
                         var friendlyName = FriendlyName((Spells.SpellClass)familyId);
 
@@ -91,8 +136,26 @@ namespace DoThingsBot.Views {
                 Int32.TryParse(((HudStaticText)row[2]).Text, out familyId);
 
                 if (familyId == 0) return;
+                
+                if (familyId == -1) {
+                    var profileName = ((HudStaticText)row[1]).Text.Replace("> ", "");
+                    profileIncludes.Add(profileName);
+                    HudList.HudListRowAccessor newProfileRow = (HudList.HudListRowAccessor)UIBuffProfileManagerProfileSpells.AddRow();
+                            
+                    ((HudPictureBox)newProfileRow[0]).Image = 0x060016CB;
+                    ((HudStaticText)newProfileRow[1]).Text = profileName;
+                    ((HudStaticText)newProfileRow[4]).Text = "-1";
 
-                profileFamilyIds.Add((Spells.SpellClass)familyId);
+                    UIBuffProfileManagerAvailableSpells.RemoveRow(selectedAvailableRow);
+                    selectedAvailableRow = -1;
+                    selectedProfileRow = UIBuffProfileManagerProfileSpells.RowCount - 1;
+                    RedrawAvailableList();
+                    FixListDisplay();
+                    return;
+                }
+                else {
+                    profileFamilyIds.Add((Spells.SpellClass)familyId);
+                }
 
                 var newRow = (HudList.HudListRowAccessor)UIBuffProfileManagerProfileSpells.AddRow();
                 var spell = Spells.GetExampleSpellByClass((Spells.SpellClass)familyId);
@@ -116,8 +179,9 @@ namespace DoThingsBot.Views {
             }
         }
 
-        private void RedrawAvailableList() {
+        private void RefreshAvailableList() {
             var values = new List<Spells.SpellClass>();
+            var alreadyListed = new List<string>();
             var index = 0;
 
             var vs = Enum.GetValues(typeof(Spells.SpellClass));
@@ -125,23 +189,103 @@ namespace DoThingsBot.Views {
                 values.Add((Spells.SpellClass)v);
             }
 
-            UIBuffProfileManagerAvailableSpells.ClearRows();
+            for (var i = 0; i < UIBuffProfileManagerAvailableSpells.RowCount; i++) {
+                var r = (HudList.HudListRowAccessor)UIBuffProfileManagerAvailableSpells[i];
+                alreadyListed.Add(((HudStaticText)r[1]).Text.Replace("> ", ""));
+            }
 
-            values.Sort(delegate (Spells.SpellClass spell1, Spells.SpellClass spell2) {
-                return FriendlyName(spell1).CompareTo(FriendlyName(spell2));
-            });
+            for (var i = 0; i < UIBuffProfileManagerProfileSpells.RowCount; i++) {
+                var r = (HudList.HudListRowAccessor)UIBuffProfileManagerProfileSpells[i];
+                alreadyListed.Add(((HudStaticText)r[1]).Text.Replace("> ", ""));
+            }
 
             foreach (Spells.SpellClass family in values) {
-                if (family != Spells.SpellClass.UNKNOWN && !profileFamilyIds.Contains(family)) {
+                if (family != Spells.SpellClass.UNKNOWN && !alreadyListed.Contains(FriendlyName(family))) {
                     var spell = Spells.GetExampleSpellByClass(family);
                     var friendlyName = FriendlyName(family);
 
                     if (spell == null) continue;
 
+                    var added = false;
+
+                    for (var i = 0; i < UIBuffProfileManagerAvailableSpells.RowCount; i++) {
+                        var r = (HudList.HudListRowAccessor)UIBuffProfileManagerAvailableSpells[i];
+                        if (friendlyName.ToLower().CompareTo(((HudStaticText)r[1]).Text.ToLower()) == -1) {
+                            alreadyListed.Add(friendlyName);
+
+                            HudList.HudListRowAccessor newRow = UIBuffProfileManagerAvailableSpells.InsertRow(i);
+                            ((HudPictureBox)newRow[0]).Image = spell.IconId;
+                            ((HudStaticText)newRow[1]).Text = index == selectedAvailableRow ? "> " + friendlyName : friendlyName;
+                            ((HudStaticText)newRow[2]).Text = ((int)family).ToString();
+                            added = true;
+                        }
+                    }
+
+                    if (!added) {
+                        alreadyListed.Add(friendlyName);
+
+                        HudList.HudListRowAccessor newRow = UIBuffProfileManagerAvailableSpells.AddRow();
+                        ((HudPictureBox)newRow[0]).Image = spell.IconId;
+                        ((HudStaticText)newRow[1]).Text = index == selectedAvailableRow ? "> " + friendlyName : friendlyName;
+                        ((HudStaticText)newRow[2]).Text = ((int)family).ToString();
+                    }
+
+                    index++;
+                }
+            }
+        }
+
+        private void RedrawAvailableList() {
+            var items = new Dictionary<string, int>();
+            var alreadyListed = new List<string>();
+            var index = 0;
+
+            var vs = Enum.GetValues(typeof(Spells.SpellClass));
+            foreach (var v in vs) {
+                items.Add(((Spells.SpellClass)v).ToString(), (int)v);
+            }
+
+            foreach (var v in Buffs.Buffs.profiles.Keys) {
+                if (Buffs.Buffs.profiles[v].IsAutoGenerated()) continue;
+                items.Add(v, -1);
+            }
+
+            UIBuffProfileManagerAvailableSpells.ClearRows();
+
+            var keys = new List<string>(items.Keys);
+
+            keys.Sort(delegate (string spell1, string spell2) {
+                return (spell1.ToLower()).CompareTo((spell2.ToLower()));
+            });
+
+            for (var i = 0; i < UIBuffProfileManagerProfileSpells.RowCount; i++) {
+                var r = (HudList.HudListRowAccessor)UIBuffProfileManagerProfileSpells[i];
+                alreadyListed.Add(((HudStaticText)r[1]).Text.Replace("> ", ""));
+            }
+
+            foreach (string key in keys) {
+                var name = "";
+                int icon = 0x060016CB;
+
+                if (items[key] == -1) {
+                    name = key;
+                }
+                else {
+                    var spell = Spells.GetExampleSpellByClass((Spells.SpellClass)items[key]);
+                    if (spell == null) {
+                        continue;
+                    }
+                    name = FriendlyName((Spells.SpellClass)items[key]);
+                    icon = spell.IconId;
+                }
+
+                if (!alreadyListed.Contains(name)) {
+                    alreadyListed.Add(name);
+
                     HudList.HudListRowAccessor newRow = UIBuffProfileManagerAvailableSpells.AddRow();
-                    ((HudPictureBox)newRow[0]).Image = spell.IconId;
-                    ((HudStaticText)newRow[1]).Text = index == selectedAvailableRow ? "> " + friendlyName : friendlyName;
-                    ((HudStaticText)newRow[2]).Text = ((int)family).ToString();
+                    ((HudPictureBox)newRow[0]).Image = icon;
+                    ((HudStaticText)newRow[1]).Text = index == selectedAvailableRow ? "> " + name : name;
+                    ((HudStaticText)newRow[2]).Text = items[key].ToString();
                     index++;
                 }
             }
@@ -196,8 +340,7 @@ namespace DoThingsBot.Views {
                 HudList.HudListRowAccessor oldRow = (HudList.HudListRowAccessor)UIBuffProfileManagerProfileSpells[row + 1];
                 ((HudPictureBox)newRow[0]).Image = ((HudPictureBox)oldRow[0]).Image;
                 ((HudStaticText)newRow[1]).Text = ((HudStaticText)oldRow[1]).Text;
-                ((HudPictureBox)newRow[2]).Image = row - 1 == 0 ? 100677592 : 100673788; // up arrow
-                ((HudPictureBox)newRow[3]).Image = 100673789; // down arrow
+                ((HudStaticText)newRow[4]).Text = ((HudStaticText)oldRow[4]).Text;
                 UIBuffProfileManagerProfileSpells.RemoveRow(row + 1);
 
                 selectedProfileRow = row - 1;
@@ -209,8 +352,7 @@ namespace DoThingsBot.Views {
                 HudList.HudListRowAccessor oldRow = (HudList.HudListRowAccessor)UIBuffProfileManagerProfileSpells[row];
                 ((HudPictureBox)newRow[0]).Image = ((HudPictureBox)oldRow[0]).Image;
                 ((HudStaticText)newRow[1]).Text = ((HudStaticText)oldRow[1]).Text;
-                ((HudPictureBox)newRow[2]).Image = row - 1 == 0 ? 100677592 : 100673788; // up arrow
-                ((HudPictureBox)newRow[3]).Image = 100673789; // down arrow
+                ((HudStaticText)newRow[4]).Text = ((HudStaticText)oldRow[4]).Text;
                 UIBuffProfileManagerProfileSpells.RemoveRow(row);
 
                 selectedProfileRow = row + 1;
@@ -283,25 +425,44 @@ namespace DoThingsBot.Views {
                 if (selectedAvailableRow != -1) selectedAvailableRow = 0;
                 if (selectedProfileRow != -1) selectedProfileRow = 0;
 
-                var profile = Buffs.Buffs.GetProfile(name);
+                profile = Buffs.Buffs.GetProfile(name);
 
                 var index = 0;
 
                 profileFamilyIds.Clear();
                 profileFamilyIds.AddRange(profile.directFamilyIds);
-
+                profileIncludes.Clear();
+                profileIncludes.AddRange(profile.includedProfiles.Values);
+                
                 foreach (var family in profileFamilyIds) {
+                    while (profile.includedProfiles.ContainsKey(index)) {
+                        HudList.HudListRowAccessor profileRow = UIBuffProfileManagerProfileSpells.AddRow();
+                        ((HudPictureBox)profileRow[0]).Image = 0x060016CB;
+                        ((HudStaticText)profileRow[1]).Text = profile.includedProfiles[index];
+                        ((HudStaticText)profileRow[4]).Text = "-1";
+                        index++;
+                    }
+
                     var spell = Spells.GetExampleSpellByClass(family);
                     var friendlyName = FriendlyName(family);
                     HudList.HudListRowAccessor newRow = UIBuffProfileManagerProfileSpells.AddRow();
                     ((HudPictureBox)newRow[0]).Image = spell.IconId;
                     ((HudStaticText)newRow[1]).Text = index == selectedProfileRow ? "> " + friendlyName : friendlyName;
-                    ((HudPictureBox)newRow[2]).Image = index == 0 ? 100677592 : 100673788; // up arrow
-                    ((HudPictureBox)newRow[3]).Image = index == profile.directFamilyIds.Count-1 ? 100677592 : 100673789; // down arrow
                     ((HudStaticText)newRow[4]).Text = ((int)family).ToString();
 
                     index++;
                 }
+
+                while (profile.includedProfiles.ContainsKey(index)) {
+                    HudList.HudListRowAccessor profileRow = UIBuffProfileManagerProfileSpells.AddRow();
+                    ((HudPictureBox)profileRow[0]).Image = 0x060016CB;
+                    ((HudStaticText)profileRow[1]).Text = profile.includedProfiles[index];
+                    ((HudStaticText)profileRow[4]).Text = "-1";
+
+                    index++;
+                }
+
+                UIBuffProfileManagerAliases.Text = string.Join(" ", profile.aliases.ToArray());
 
                 RedrawAvailableList();
 
@@ -324,6 +485,8 @@ namespace DoThingsBot.Views {
             if (selectedAvailableRow != -1) selectedAvailableRow = 0;
             if (selectedProfileRow != -1) selectedProfileRow = 0;
 
+            UIBuffProfileManagerAliases.Text = "";
+            
             LoadProfileList();
             FixListDisplay();
         }

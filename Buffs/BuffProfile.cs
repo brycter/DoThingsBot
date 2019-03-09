@@ -12,7 +12,7 @@ namespace DoThingsBot.Buffs {
         public string name = "";
         public List<string> aliases = new List<string>();
         public List<Spells.SpellClass> familyIds = new List<Spells.SpellClass>();
-        private List<string> includedProfiles = new List<string>();
+        public Dictionary<int, string> includedProfiles = new Dictionary<int, string>();
         public List<Spells.SpellClass> directFamilyIds = new List<Spells.SpellClass>();
         private bool isLoading = false;
         private string json = "";
@@ -237,17 +237,31 @@ namespace DoThingsBot.Buffs {
         }
 
         public void LoadIncluded() {
-            foreach (var profile in includedProfiles) {
+            var pKeyOffset = 0;
+            List<int> pKeys = new List<int>();
+
+            foreach (var pKey in includedProfiles.Keys) {
+                pKeys.Add(pKey);
+            }
+
+            pKeys.Sort();
+
+            foreach (var pKey in pKeys) {
+                var profile = includedProfiles[pKey];
                 var buffProfile = Buffs.GetProfile(profile);
 
                 if (buffProfile == null) {
-                    Util.WriteToChat("Invalid buff profile while generating (" + name + "): " + profile);
+                    Util.WriteToChat(string.Format("Could not include profile {0} while generating {1}", profile, name));
                     continue;
                 }
 
-                foreach (var familyId in buffProfile.familyIds) {
+                var bFamilyIds = buffProfile.familyIds;
+                bFamilyIds.Reverse();
+
+                foreach (var familyId in bFamilyIds) {
                     if (!familyIds.Contains(familyId)) {
-                        familyIds.Insert(0, familyId);
+                        familyIds.Add(familyId);
+                        pKeyOffset++;
                     }
                 }
             }
@@ -269,6 +283,7 @@ namespace DoThingsBot.Buffs {
                     aliases.AddRange(definedAliases.Split(' '));
                 }
                 name = profileName;
+                var index = 0;
 
                 foreach (XmlNode node in doc.DocumentElement.ChildNodes) {
                     Spells.SpellClass spellClass = Spells.SpellClass.UNKNOWN;
@@ -278,7 +293,10 @@ namespace DoThingsBot.Buffs {
                             spellClass = (Spells.SpellClass)System.Enum.Parse(typeof(Spells.SpellClass), node.Attributes["family"].InnerText);
                         }
                         else if (node.Attributes["profile"] != null && node.Attributes["profile"].InnerText.Length > 0) {
-                            includedProfiles.Add(node.Attributes["profile"].InnerText);
+                            includedProfiles.Add(index, node.Attributes["profile"].InnerText);
+
+                            index++;
+                            continue;
                         }
                     }
                     catch (Exception ex) { }
@@ -290,6 +308,7 @@ namespace DoThingsBot.Buffs {
                         if (!directFamilyIds.Contains(spellClass)) {
                             directFamilyIds.Add(spellClass);
                         }
+                        index++;
                         isValid = true;
                     }
                 }
