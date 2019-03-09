@@ -63,8 +63,25 @@ namespace DoThingsBot.Views {
 
                 selectedAvailableRow = 0;
                 selectedProfileRow = -1;
+                
+                for (var i = 0; i < UIBuffProfileManagerAvailableSpells.RowCount; i++) {
+                    var r = (HudList.HudListRowAccessor)UIBuffProfileManagerAvailableSpells[i];
+                    int fid = 0;
+                    Int32.TryParse(((HudStaticText)r[2]).Text, out fid);
+                    if (FriendlyName((Spells.SpellClass)familyId).CompareTo(FriendlyName((Spells.SpellClass)fid)) == -1) {
+                        var newRow = (HudList.HudListRowAccessor)UIBuffProfileManagerAvailableSpells.InsertRow(i);
+                        var spell = Spells.GetExampleSpellByClass((Spells.SpellClass)familyId);
+                        var friendlyName = FriendlyName((Spells.SpellClass)familyId);
 
-                RedrawAvailableList();
+                        ((HudPictureBox)newRow[0]).Image = spell.IconId;
+                        ((HudStaticText)newRow[1]).Text = friendlyName;
+                        ((HudStaticText)newRow[2]).Text = ((int)familyId).ToString();
+
+                        selectedAvailableRow = i;
+                        break;
+                    }
+                }
+
                 FixListDisplay();
             }
             else {
@@ -80,8 +97,6 @@ namespace DoThingsBot.Views {
                 var newRow = (HudList.HudListRowAccessor)UIBuffProfileManagerProfileSpells.AddRow();
                 var spell = Spells.GetExampleSpellByClass((Spells.SpellClass)familyId);
                 var friendlyName = FriendlyName((Spells.SpellClass)familyId);
-                var index = 
-
 
                 ((HudPictureBox)newRow[0]).Image = spell.IconId;
                 ((HudStaticText)newRow[1]).Text = friendlyName;
@@ -94,16 +109,27 @@ namespace DoThingsBot.Views {
                 selectedAvailableRow = -1;
                 selectedProfileRow = UIBuffProfileManagerProfileSpells.RowCount - 1;
 
+                UIBuffProfileManagerProfileSpells.ScrollPosition = UIBuffProfileManagerProfileSpells.MaxScroll;
+
                 //RedrawAvailableList();
                 FixListDisplay();
             }
         }
 
         private void RedrawAvailableList() {
-            var values = Enum.GetValues(typeof(Spells.SpellClass));
+            var values = new List<Spells.SpellClass>();
             var index = 0;
 
+            var vs = Enum.GetValues(typeof(Spells.SpellClass));
+            foreach (var v in vs) {
+                values.Add((Spells.SpellClass)v);
+            }
+
             UIBuffProfileManagerAvailableSpells.ClearRows();
+
+            values.Sort(delegate (Spells.SpellClass spell1, Spells.SpellClass spell2) {
+                return FriendlyName(spell1).CompareTo(FriendlyName(spell2));
+            });
 
             foreach (Spells.SpellClass family in values) {
                 if (family != Spells.SpellClass.UNKNOWN && !profileFamilyIds.Contains(family)) {
