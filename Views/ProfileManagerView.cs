@@ -260,7 +260,17 @@ namespace DoThingsBot.Views {
 
             for (var i = 0; i < UIBuffProfileManagerProfileSpells.RowCount; i++) {
                 var r = (HudList.HudListRowAccessor)UIBuffProfileManagerProfileSpells[i];
-                alreadyListed.Add(((HudStaticText)r[1]).Text.Replace("> ", ""));
+                var rowName = ((HudStaticText)r[1]).Text.Replace("> ", "");
+                alreadyListed.Add(rowName);
+
+                if (((HudStaticText)r[4]).Text == "-1") {
+                    var profile = Buffs.Buffs.GetProfile(rowName);
+                    if (profile != null) {
+                        foreach (var fam in profile.familyIds) {
+                            alreadyListed.Add(FriendlyName(fam));
+                        }
+                    }
+                }
             }
 
             foreach (string key in keys) {
