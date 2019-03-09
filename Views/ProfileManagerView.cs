@@ -17,6 +17,11 @@ namespace DoThingsBot.Views {
         private readonly HudCombo UIBuffProfileManagerEdit;
         private readonly HudButton UIBuffProfileManagerMoveSpell;
         private readonly HudTextBox UIBuffProfileManagerAliases;
+        private readonly HudCheckBox UIBuffProfileManagerShowProfiles;
+        private readonly HudCheckBox UIBuffProfileManagerShowItem;
+        private readonly HudCheckBox UIBuffProfileManagerShowCreature;
+        private readonly HudCheckBox UIBuffProfileManagerShowLife;
+        private readonly HudButton UIBuffProfileManagerSaveProfile;
 
         private int selectedProfileRow = -1;
         private int selectedAvailableRow = 0;
@@ -38,6 +43,21 @@ namespace DoThingsBot.Views {
                 UIBuffProfileManagerProfileSpells = (HudList)view["BuffProfileManagerProfileSpells"];
                 UIBuffProfileManagerMoveSpell = (HudButton)view["BuffProfileManagerMoveSpell"];
                 UIBuffProfileManagerAliases = (HudTextBox)view["BuffProfileManagerAliases"];
+                UIBuffProfileManagerShowProfiles = (HudCheckBox)view["BuffProfileManagerShowProfiles"];
+                UIBuffProfileManagerShowItem = (HudCheckBox)view["BuffProfileManagerShowItem"];
+                UIBuffProfileManagerShowCreature = (HudCheckBox)view["BuffProfileManagerShowCreature"];
+                UIBuffProfileManagerShowLife = (HudCheckBox)view["BuffProfileManagerShowLife"];
+                UIBuffProfileManagerSaveProfile = (HudButton)view["BuffProfileManagerSaveProfile"];
+
+                UIBuffProfileManagerShowProfiles.Checked = true;
+                UIBuffProfileManagerShowItem.Checked = true;
+                UIBuffProfileManagerShowCreature.Checked = true;
+                UIBuffProfileManagerShowLife.Checked = true;
+
+                UIBuffProfileManagerShowProfiles.Change += FiltersChanged;
+                UIBuffProfileManagerShowItem.Change += FiltersChanged;
+                UIBuffProfileManagerShowCreature.Change += FiltersChanged;
+                UIBuffProfileManagerShowLife.Change += FiltersChanged;
 
                 view.VisibleChanged += View_VisibleChanged;
                 view.Visible = true;
@@ -47,10 +67,41 @@ namespace DoThingsBot.Views {
                 UIBuffProfileManagerAvailableSpells.Click += UIBuffProfileManagerAvailableSpells_Click;
 
                 UIBuffProfileManagerMoveSpell.Hit += UIBuffProfileManagerMoveSpell_Hit;
+                UIBuffProfileManagerSaveProfile.Hit += UIBuffProfileManagerSaveProfile_Hit;
 
                 FixListDisplay();
             }
             catch (Exception ex) { Util.LogException(ex); }
+        }
+
+        private void UIBuffProfileManagerSaveProfile_Hit(object sender, EventArgs e) {
+            var alreadyListed = new List<string>();
+
+            for (var i = 0; i < UIBuffProfileManagerProfileSpells.RowCount; i++) {
+                var r = (HudList.HudListRowAccessor)UIBuffProfileManagerProfileSpells[i];
+                var name = ((HudStaticText)r[1]).Text.Replace("> ", "");
+                if (((HudStaticText)r[4]).Text == "-1") {
+                    var profile = Buffs.Buffs.profiles[name];
+
+                    foreach (var family in profile.familyIds) {
+                        var fName = FriendlyName(family);
+                        if (!alreadyListed.Contains(fName)) {
+                            alreadyListed.Add(fName);
+                            Util.WriteToChat(fName);
+                        }
+                    }
+                }
+                else {
+                    if (!alreadyListed.Contains(name)) {
+                        alreadyListed.Add(name);
+                        Util.WriteToChat(name);
+                    }
+                }
+            }
+        }
+
+        private void FiltersChanged(object sender, EventArgs e) {
+            RedrawAvailableList();
         }
 
         private void UIBuffProfileManagerMoveSpell_Hit(object sender, EventArgs e) {
@@ -278,6 +329,7 @@ namespace DoThingsBot.Views {
                 int icon = 0x060016CB;
 
                 if (items[key] == -1) {
+                    if (UIBuffProfileManagerShowProfiles.Checked == false) continue;
                     name = key;
                 }
                 else {
@@ -285,6 +337,11 @@ namespace DoThingsBot.Views {
                     if (spell == null) {
                         continue;
                     }
+
+                    if (spell.School.ToString() == "Creature Enchantment" && !UIBuffProfileManagerShowCreature.Checked) continue;
+                    if (spell.School.ToString() == "Item Enchantment" && !UIBuffProfileManagerShowItem.Checked) continue;
+                    if (spell.School.ToString() == "Life Magic" && !UIBuffProfileManagerShowLife.Checked) continue;
+
                     name = FriendlyName((Spells.SpellClass)items[key]);
                     icon = spell.IconId;
                 }

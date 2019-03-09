@@ -36,7 +36,7 @@ namespace DoThingsBot.Buffs {
             foreach (var profile in profiles.Keys) {
                 profiles[profile].LoadIncluded();
                 
-                if (verbose) Util.WriteToChat("  " + profiles[profile].name + "(" + string.Join(",", profiles[profile].aliases.ToArray()) + ") (" + profiles[profile].familyIds.Count + " buffs)");
+                Util.WriteToChat("Load: " + profiles[profile].name + "(" + string.Join(",", profiles[profile].aliases.ToArray()) + ") (" + profiles[profile].familyIds.Count + " buffs)");
             }
 
             if (Config.BuffBot.EnableSingleBuffs.Value) {
