@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using Decal.Adapter;
+﻿using Decal.Adapter;
 using Decal.Adapter.Wrappers;
 using Decal.Filters;
+using System;
+using System.Collections.Generic;
 
 namespace DoThingsBot {
     public static class Spells {
@@ -40,7 +38,6 @@ namespace DoThingsBot {
             COORDINATION = 7,
             FOCUS = 9,
             WILLPOWER = 11,
-            CONCENTRATION = 13,
             LIGHT_WEAPON_MASTERY = 17,
             MISSILE_WEAPON_MASTERY = 19,
             FINESSE_WEAPON_MASTERY = 23,
@@ -102,13 +99,12 @@ namespace DoThingsBot {
             DIRTY_FIGHTING_MASTERY = 665,
             DUAL_WIELD_MASTERY = 668,
             RECKLESSNESS_MASTERY = 671,
-            SHIELD_INEPTITUDE = 673,
             SHIELD_MASTERY = 674,
             SNEAK_ATTACK_MASTERY = 677,
             AURA_OF_SPIRIT_DRINKER = 695,
             SUMMONING_MASTERY = 696,
         }
-        
+
         public static int GetNextSpellIdToRefresh(List<string> spellNames) {
             foreach (var name in spellNames) {
                 if (DoesSpellNeedRefresh(name)) {
@@ -242,6 +238,7 @@ namespace DoThingsBot {
             if (spell.Name.EndsWith(" VII")) return 7;
             if (spell.Name.EndsWith(" VIII")) return 8;
             if (spell.Name.StartsWith("Incantation ")) return 8;
+            if (spell.Name.StartsWith("Aura of Incantation ")) return 8;
 
             return 7;
         }
@@ -345,6 +342,36 @@ namespace DoThingsBot {
             }
 
             return bestSpell;
+        }
+
+        private static Dictionary<SpellClass, Spell> exampleSpellClassCache = new Dictionary<SpellClass, Spell>();
+
+        internal static Spell GetExampleSpellByClass(SpellClass family) {
+            Spell exampleSpell = null;
+            try {
+                if (exampleSpellClassCache.ContainsKey(family)) {
+                    return exampleSpellClassCache[family];
+                }
+
+                FileService fs = CoreManager.Current.Filter<FileService>();
+
+                for (var i=0; i < fs.SpellTable.Length; i++) {
+                    var spell = fs.SpellTable[i];
+
+                    if (spell.Family != (int)family) continue;
+
+                    if ((exampleSpell == null || (spell.Difficulty < exampleSpell.Difficulty))) {
+                        exampleSpell = spell;
+                    }
+                }
+            }
+            catch (Exception ex) { Util.LogException(ex); }
+
+            if (exampleSpell != null && !exampleSpellClassCache.ContainsKey(family)) {
+                exampleSpellClassCache[family] = exampleSpell;
+            }
+
+            return exampleSpell;
         }
 
         public static string GetNameFromId(int id) {

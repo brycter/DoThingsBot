@@ -125,6 +125,7 @@
     <Compile Include="Views\Pages\Main.cs" />
     <Compile Include="Views\MainView.cs" />
     <Compile Include="Views\Pages\Portals.cs" />
+    <Compile Include="Views\ProfileManagerView.cs" />
     <Compile Include="VirindiViews\ViewSystemSelector.cs" />
     <Compile Include="VirindiViews\Wrapper.cs" />
     <Compile Include="VirindiViews\Wrapper_Decal.cs" />
@@ -192,6 +193,7 @@
     <Content Include="Resources\BuffProfiles\tink.xml" />
     <Content Include="Resources\BuffProfiles\trades.xml" />
     <Content Include="Resources\BuffProfiles\_generic.xml" />
+    <EmbeddedResource Include="Views\profileManagerView.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

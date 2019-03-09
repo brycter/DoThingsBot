@@ -100,6 +100,9 @@ namespace DoThingsBot {
                 if (Config.Bot.Enabled.Value == true) {
                     bot.Start();
                 }
+
+                Globals.ProfileManagerView = new ProfileManagerView();
+                Globals.ProfileManagerView.ReloadProfiles();
             }
             catch (Exception ex) { Util.LogException(ex); }
 		}

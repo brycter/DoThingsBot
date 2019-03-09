@@ -2,6 +2,7 @@
 
 using Decal.Adapter;
 using Decal.Adapter.Wrappers;
+using DoThingsBot.Views;
 
 namespace DoThingsBot
 {
@@ -21,5 +22,7 @@ namespace DoThingsBot
 		public static PluginHost Host { get; private set; }
 
 		public static CoreManager Core { get; private set; }
-	}
+
+        public static ProfileManagerView ProfileManagerView { get; set; }
+    }
 }
