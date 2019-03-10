@@ -46,6 +46,10 @@ namespace DoThingsBot {
         }
 
         public void Start() {
+            if (!CheckSettings()) {
+                Config.Bot.Enabled.Value = false;
+                return;
+            }
             Util.WriteToChat("DoThingsBot Started");
 
             CoreManager.Current.Actions.FaceHeading(Config.Bot.DefaultHeading.Value, true);
@@ -63,6 +67,15 @@ namespace DoThingsBot {
 
             ChatManager.ResetAnnouncementTimer();
             ChatManager.RaiseChatCommandEvent += new EventHandler<ChatCommandEventArgs>(ChatManager_ChatCommand);
+        }
+
+        private bool CheckSettings() {
+            if (Config.Tinkering.Enabled.Value && (Globals.Core.CharacterFilter.CharacterOptions & 0x80000000) == 0) {
+                Util.WriteToChat("Error: You must enable the UseCraftSuccessDialog setting!");
+                return false;
+            }
+
+            return true;
         }
 
         public void Stop() {
@@ -237,6 +250,10 @@ namespace DoThingsBot {
                     break;
 
                 case "tinker":
+                    if (_machine.IsRunning && !Config.Tinkering.Enabled.Value) {
+                        ChatManager.Tell(e.PlayerName, "My tinker bot functionality is currently disabled, sorry!");
+                        return;
+                    }
                     if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
                         var itemBundle = new ItemBundle(e.PlayerName);
                         itemBundle.SetCraftMode(CraftMode.WeaponTinkering);
@@ -250,6 +267,10 @@ namespace DoThingsBot {
                     break;
 
                 case "lostitems":
+                    if (_machine.IsRunning && !Config.Tinkering.Enabled.Value) {
+                        ChatManager.Tell(e.PlayerName, "My tinker bot functionality is currently disabled, sorry!");
+                        return;
+                    }
                     if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
                         ItemBundle itemBundle = new ItemBundle(e.PlayerName);
                         currentItemBundle = itemBundle;

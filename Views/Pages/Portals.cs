@@ -5,7 +5,6 @@ using VirindiViewService.Controls;
 
 namespace DoThingsBot.Views.Pages {
     class PortalsPage : IDisposable {
-        HudCheckBox UIBotPortalsEnabled { get; set; }
         HudTextBox UIPrimaryPortalLocation { get; set; }
         HudTextBox UIPrimaryPortalHeading { get; set; }
         HudTextBox UISecondaryPortalLocation { get; set; }
@@ -13,30 +12,20 @@ namespace DoThingsBot.Views.Pages {
 
         public PortalsPage(MainView mainView) {
             try {
-                UIBotPortalsEnabled = mainView.view != null ? (HudCheckBox)mainView.view["UIBotPortalsEnabled"] : new HudCheckBox();
                 UIPrimaryPortalLocation = mainView.view != null ? (HudTextBox)mainView.view["UIPrimaryPortalLocation"] : new HudTextBox();
                 UIPrimaryPortalHeading = mainView.view != null ? (HudTextBox)mainView.view["UIPrimaryPortalHeading"] : new HudTextBox();
                 UISecondaryPortalLocation = mainView.view != null ? (HudTextBox)mainView.view["UISecondaryPortalLocation"] : new HudTextBox();
                 UISecondaryPortalHeading = mainView.view != null ? (HudTextBox)mainView.view["UISecondaryPortalHeading"] : new HudTextBox();
 
-                UIBotPortalsEnabled.Checked = Config.Portals.Enabled.Value;
                 UIPrimaryPortalLocation.Text = Config.Portals.PrimaryPortalTieLocation.Value;
                 UIPrimaryPortalHeading.Text = Config.Portals.PrimaryPortalHeading.Value.ToString();
                 UISecondaryPortalLocation.Text = Config.Portals.SecondaryPortalTieLocation.Value;
                 UISecondaryPortalHeading.Text = Config.Portals.SecondaryPortalHeading.Value.ToString();
 
-                Config.Portals.Enabled.Changed += obj => { UIBotPortalsEnabled.Checked = obj.Value; };
                 Config.Portals.PrimaryPortalTieLocation.Changed += obj => { UIPrimaryPortalLocation.Text = obj.Value; };
                 Config.Portals.PrimaryPortalHeading.Changed += obj => { UIPrimaryPortalHeading.Text = obj.Value.ToString(); };
                 Config.Portals.SecondaryPortalTieLocation.Changed += obj => { UISecondaryPortalLocation.Text = obj.Value; };
                 Config.Portals.SecondaryPortalHeading.Changed += obj => { UISecondaryPortalHeading.Text = obj.Value.ToString(); };
-
-                UIBotPortalsEnabled.Change += (s, e) => {
-                    try {
-                        Config.Portals.Enabled.Value = ((HudCheckBox)s).Checked;
-                    }
-                    catch (Exception ex) { Util.LogException(ex); }
-                };
 
                 UIPrimaryPortalLocation.LostFocus += (s, e) => {
                     try {

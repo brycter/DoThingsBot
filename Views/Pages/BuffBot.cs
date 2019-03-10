@@ -4,7 +4,6 @@ using VirindiViewService.Controls;
 
 namespace DoThingsBot.Views.Pages {
     class BuffBotPage : IDisposable {
-        HudCheckBox UIBuffBotEnabled { get; set; }
         HudCheckBox UIBotBuffBotEnableTreeStatsBuffs { get; set; }
         HudCheckBox UIBotBuffBotEnableSingleBuffs { get; set; }
         HudCheckBox UIBotBuffBotAlwaysEnableBanes { get; set; }
@@ -16,11 +15,6 @@ namespace DoThingsBot.Views.Pages {
             try {
                 UIBotBuffBotReloadBuffProfiles = (HudButton)mainView.view["UIBotBuffBotReloadBuffProfiles"];
                 UIBotBuffBotManageBuffProfiles = (HudButton)mainView.view["UIBotBuffBotManageBuffProfiles"];
-
-                UIBuffBotEnabled = (HudCheckBox)mainView.view["UIBotBuffBotEnabled"];
-                UIBuffBotEnabled.Checked = Config.BuffBot.Enabled.Value;
-                Config.BuffBot.Enabled.Changed += obj => { UIBuffBotEnabled.Checked = obj.Value; };
-                UIBuffBotEnabled.Change += (s, e) => { try { Config.BuffBot.Enabled.Value = ((HudCheckBox)s).Checked; } catch (Exception ex) { Util.LogException(ex); } };
 
                 UIBotBuffBotEnableTreeStatsBuffs = (HudCheckBox)mainView.view["UIBotBuffBotEnableTreeStatsBuffs"];
                 UIBotBuffBotEnableTreeStatsBuffs.Checked = Config.BuffBot.EnableTreeStatsBuffs.Value;

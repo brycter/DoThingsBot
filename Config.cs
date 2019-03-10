@@ -181,14 +181,15 @@ namespace DoThingsBot {
         }
 
         public static class Tinkering {
+            public static Setting<bool> Enabled;
             public static  Setting<int> KeepEquipmentOnDelay;
 
             static Tinkering() {
             }
 
             public static void Init() {
+                Enabled = new Setting<bool>("Config/Tinkering/Enabled", "Enable tinker bot functionality", true);
                 KeepEquipmentOnDelay = new Setting<int>("Config/Tinkering/KeepEquipmentOnDelay", "How long to keep tinkering equipment equipped after a job is finished (in seconds)", 30);
-
             }
         }
 

@@ -4,16 +4,15 @@
     <page label="Main">
       <control progid="DecalControls.FixedLayout" clipped="">
         <control progid="DecalControls.Checkbox" name="UIBotEnabled" left="8" top="8" width="140" height="20" text="Bot Enabled"/>
+        <control progid="DecalControls.Checkbox" name="UIBotTinkerBotEnabled" left="16" top="28" width="140" height="20" text="Enable Tinker Bot"/>
+        <control progid="DecalControls.Checkbox" name="UIBotBuffBotEnabled" left="16" top="48" width="140" height="20" text="Enable Buff Bot"/>
+        <control progid="DecalControls.Checkbox" name="UIBotPortalsEnabled" left="16" top="68" width="140" height="20" text="Enable Portal Bot"/>
         
-        <control progid="DecalControls.StaticText" name="UIImportantHeading" left="95" top="30" width="345" height="40" text="!!! IMPORTANT PLEASE READ !!!" fontstyle="bold"/>
+        <control progid="DecalControls.StaticText" name="UIImportantHeading" left="95" top="100" width="345" height="20" text="!!! IMPORTANT PLEASE READ !!!" fontstyle="bold"/>
+        <control progid="DecalControls.StaticText" name="UIImportantTextACWindow" left="30" top="120" width="295" height="40" text="The AC window CANNOT be minimized, but window focus is not required."/>
 
-        <control progid="DecalControls.StaticText" name="UIImportantTextUseCraftSuccess" left="30" top="50" width="345" height="40" text="'/config UseCraftSuccessDialog' MUST BE SET TO ON"/>
-        <control progid="DecalControls.StaticText" name="UIImportantTextACWindow" left="30" top="65" width="295" height="40" text="The AC window CANNOT be minimized, but window focus is not required."/>
-
-        <control progid="DecalControls.StaticText" name="UIImportantTextIssues" left="20" top="110" width="345" height="20" text="If you encounter an issue please report it on the gitlab page."/>
-        <control progid="DecalControls.StaticText" name="UIImportantTextIssues" left="90" top="135" width="345" height="20" text="https://gitlab.com/trevis/dothingsbot"/>
-
-        <control progid="DecalControls.StaticText" name="UIImportantTextCreatedBy" left="100" top="190" width="345" height="40" text="Created by Sunnuj of Reefcull"/>
+        <control progid="DecalControls.StaticText" name="UIImportantTextIssues" left="20" top="160" width="345" height="20" text="If you encounter an issue please report it on the gitlab page."/>
+        <control progid="DecalControls.StaticText" name="UIGitlabLink" left="90" top="180" width="345" height="20" text="https://gitlab.com/trevis/dothingsbot"/>
       </control>
     </page>
     <page label="Equipment">
@@ -58,36 +57,33 @@
     </page>
     <page label="BuffBot">
       <control progid="DecalControls.FixedLayout" clipped="">
-        <control progid="DecalControls.Checkbox" name="UIBotBuffBotEnabled" left="8" top="8" width="300" height="20" text="Enable Buff Bot"/>
-        <control progid="DecalControls.Checkbox" name="UIBotBuffBotEnableTreeStatsBuffs" left="8" top="28" width="300" height="20" text="Enable TreeStats automatic buffs ('buff' command)"/>
-        <control progid="DecalControls.Checkbox" name="UIBotBuffBotEnableSingleBuffs" left="8" top="48" width="330" height="20" text="Enable single buffs (strength, coordination, warmagic, etc)"/>
-        <control progid="DecalControls.Checkbox" name="UIBotBuffBotAlwaysEnableBanes" left="8" top="68" width="330" height="20" text="Bane when no shield present on target (keep off on GDLE)"/>
+        <control progid="DecalControls.Checkbox" name="UIBotBuffBotEnableTreeStatsBuffs" left="8" top="8" width="300" height="20" text="Enable TreeStats automatic buffs ('buff' command)"/>
+        <control progid="DecalControls.Checkbox" name="UIBotBuffBotEnableSingleBuffs" left="8" top="28" width="330" height="20" text="Enable single buffs (strength, coordination, warmagic, etc)"/>
+        <control progid="DecalControls.Checkbox" name="UIBotBuffBotAlwaysEnableBanes" left="8" top="48" width="330" height="20" text="Bane when no shield present on target (keep off on GDLE)"/>
         
-        <control progid="DecalControls.StaticText" name="UIBotBuffBotLimitBuffLevelLabel" left="8" top="88" width="110" height="40" text="Limit buffs to level:"/>
-        <control progid="DecalControls.Edit" name="UIBotBuffBotLimitBuffLevel" left="120" top="88" width="20" height="20" text="7"/>
+        <control progid="DecalControls.StaticText" name="UIBotBuffBotLimitBuffLevelLabel" left="8" top="68" width="110" height="40" text="Limit buffs to level:"/>
+        <control progid="DecalControls.Edit" name="UIBotBuffBotLimitBuffLevel" left="120" top="68" width="20" height="20" text="7"/>
 
-        <control progid="DecalControls.PushButton" name="UIBotBuffBotReloadBuffProfiles" left="45" top="178" width="120" height="22" text="Reload Buff Profiles" fontstyle="bold"/>
-        <control progid="DecalControls.PushButton" name="UIBotBuffBotManageBuffProfiles" left="185" top="178" width="120" height="22" text="Manage Buff Profiles" fontstyle="bold"/>
+        <control progid="DecalControls.PushButton" name="UIBotBuffBotReloadBuffProfiles" left="45" top="158" width="120" height="22" text="Reload Buff Profiles" fontstyle="bold"/>
+        <control progid="DecalControls.PushButton" name="UIBotBuffBotManageBuffProfiles" left="185" top="158" width="120" height="22" text="Manage Buff Profiles" fontstyle="bold"/>
 
       </control>
     </page>
     <page label="Portals">
       <control progid="DecalControls.FixedLayout" clipped="">
-        <control progid="DecalControls.Checkbox" name="UIBotPortalsEnabled" left="8" top="8" width="220" height="20" text="Enable Portal Bot"/>
+        <control progid="DecalControls.StaticText" name="UIBotPortalsPortalHeader" left="1" top="8" width="60" height="20" text="Portal" fontstyle="bold"/>
+        <control progid="DecalControls.StaticText" name="UIBotPortalsPortalHeader" left="70" top="8" width="60" height="20" text="Location" fontstyle="bold"/>
+        <control progid="DecalControls.StaticText" name="UIBotPortalsPortalHeader" left="290" top="8" width="60" height="20" text="Heading" fontstyle="bold"/>
 
-        <control progid="DecalControls.StaticText" name="UIBotPortalsPortalHeader" left="1" top="40" width="60" height="20" text="Portal" fontstyle="bold"/>
-        <control progid="DecalControls.StaticText" name="UIBotPortalsPortalHeader" left="70" top="40" width="60" height="20" text="Location" fontstyle="bold"/>
-        <control progid="DecalControls.StaticText" name="UIBotPortalsPortalHeader" left="290" top="40" width="60" height="20" text="Heading" fontstyle="bold"/>
+        <control progid="DecalControls.StaticText" name="UIPrimaryPortalLocationLabel" left="1" top="28" width="60" height="20" text="Primary:"/>
+        <control progid="DecalControls.Edit" name="UIPrimaryPortalLocation" left="70" top="28" width="210" height="20" text=""/>
+        <control progid="DecalControls.Edit" name="UIPrimaryPortalHeading" left="290" top="28" width="50" height="20" text=""/>
 
-        <control progid="DecalControls.StaticText" name="UIPrimaryPortalLocationLabel" left="1" top="60" width="60" height="20" text="Primary:"/>
-        <control progid="DecalControls.Edit" name="UIPrimaryPortalLocation" left="70" top="60" width="210" height="20" text=""/>
-        <control progid="DecalControls.Edit" name="UIPrimaryPortalHeading" left="290" top="60" width="50" height="20" text=""/>
+        <control progid="DecalControls.StaticText" name="UISecondaryPortalLocationLabel" left="1" top="53" width="60" height="20" text="Secondary:"/>
+        <control progid="DecalControls.Edit" name="UISecondaryPortalLocation" left="70" top="53" width="210" height="20" text=""/>
+        <control progid="DecalControls.Edit" name="UISecondaryPortalHeading" left="290" top="53" width="50" height="20" text=""/>
 
-        <control progid="DecalControls.StaticText" name="UISecondaryPortalLocationLabel" left="1" top="85" width="60" height="20" text="Secondary:"/>
-        <control progid="DecalControls.Edit" name="UISecondaryPortalLocation" left="70" top="85" width="210" height="20" text=""/>
-        <control progid="DecalControls.Edit" name="UISecondaryPortalHeading" left="290" top="85" width="50" height="20" text=""/>
-
-        <control progid="DecalControls.StaticText" name="UIPortalHeadingHelpLabel" left="32" top="105" width="315" height="20" text="(Heading 0 = North, 90 = East, 180 = South, 270 = West)"/>
+        <control progid="DecalControls.StaticText" name="UIPortalHeadingHelpLabel" left="32" top="73" width="315" height="20" text="(Heading 0 = North, 90 = East, 180 = South, 270 = West)"/>
       </control>
     </page>
     <page label="Announcements">
@@ -155,10 +151,10 @@
         <control progid="DecalControls.StaticText" name="UIRespondToUnknownCommandsLabel" left="1" top="30" width="320" height="20" text="Respond to unknown commands:"/>
         <control progid="DecalControls.Checkbox" name="UIRespondToUnknownCommands" left="290" top="32" width="50" height="20" text=""/>
 
-        <control progid="DecalControls.StaticText" name="UIKeepTinkerEquipmentWhileIdleDelayLabel" left="1" top="55" width="320" height="20" text="Keep equipment on after tink delay (seconds, 0=disable):"/>
+        <control progid="DecalControls.StaticText" name="UIKeepTinkerEquipmentWhileIdleDelayLabel" left="1" top="55" width="320" height="20" text="Keep equipment on after job delay (seconds, 0=disable):"/>
         <control progid="DecalControls.Edit" name="UIKeepTinkerEquipmentWhileIdleDelay" left="290" top="55" width="50" height="20" text="0" />
 
-        <control progid="DecalControls.PushButton" name="UIManageBotSpellProfiles" left="125" top="80" width="100" height="17" text="Manage Bot Spell Profiles" fontstyle="bold"/>
+        <control progid="DecalControls.PushButton" name="UIManageBotSpellProfiles" left="100" top="100" width="150" height="22" text="Manage Bot Spell Profiles" fontstyle="bold"/>
 
       </control>
     </page>

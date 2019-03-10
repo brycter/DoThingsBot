@@ -69,7 +69,7 @@ namespace DoThingsBot.FSM.States {
                     ChatManager.Tell(itemBundle.GetOwner(), string.Format("The following profiles were invalid: {0}", string.Join(", ", invalidProfiles.ToArray())));
                 }
 
-                ChatManager.Tell(itemBundle.GetOwner(), string.Format("Starting to cast {0} buffs on you ({1})", buffIds.Count, string.Join(", ", validProfiles.ToArray())));
+                ChatManager.Tell(itemBundle.GetOwner(), string.Format("Casting {0} buffs on you ({1})", buffIds.Count, string.Join(", ", validProfiles.ToArray())));
             }
 
             CoreManager.Current.ChatBoxMessage += new EventHandler<ChatTextInterceptEventArgs>(Current_ChatBoxMessage);
@@ -270,7 +270,7 @@ namespace DoThingsBot.FSM.States {
                         ChatManager.Tell(itemBundle.GetOwner(), response);
                     }
 
-                    machine.ChangeState(new BotEquipItemsState(machine.CurrentState.GetItemBundle()));
+                    machine.ChangeState(new BotFinishState(machine.CurrentState.GetItemBundle()));
                 }
             }
         }
