@@ -20,22 +20,6 @@ namespace DoThingsBot {
             public static  Setting<bool> RespondToUnknownCommands;
             public static  Setting<int> DontResendDuplicateMessagesWindow;
             public static  Setting<int> BuffRefreshTime;
-            
-            public static List<Spells.SpellClass> WantedIdleEnchantments = new List<Spells.SpellClass> {
-            };
-            public static List<Spells.SpellClass> WantedTinkerEnchantments = new List<Spells.SpellClass> {
-                Spells.SpellClass.CREATURE_ENCHANTMENT_MASTERY,
-                Spells.SpellClass.FOCUS,
-                Spells.SpellClass.WILLPOWER,
-                Spells.SpellClass.COORDINATION,
-                Spells.SpellClass.ENDURANCE,
-                Spells.SpellClass.STRENGTH,
-                Spells.SpellClass.ARMOR_TINKERING_EXPERTISE,
-                Spells.SpellClass.ITEM_TINKERING_EXPERTISE,
-                Spells.SpellClass.MAGIC_ITEM_TINKERING_EXPERTISE,
-                Spells.SpellClass.WEAPON_TINKERING_EXPERTISE,
-                Spells.SpellClass.ARCANE_ENLIGHTENMENT
-            };
 
             static Bot() {
             }
@@ -53,13 +37,33 @@ namespace DoThingsBot {
             public static List<string> GetWantedIdleEnchantments() {
                 List<string> wantedEnchantments = new List<string>();
 
-                foreach (var spellClass in WantedIdleEnchantments) {
-                    var spell = Spells.GetBestKnownSpellByClass(spellClass, true);
+                try {
+                    foreach (var spellClass in Buffs.Buffs.GetBotProfile("idle").familyIds) {
+                        var spell = Spells.GetBestKnownSpellByClass(spellClass, true);
 
-                    if (spell != null) {
-                        wantedEnchantments.Add(spell.Name);
+                        if (spell != null) {
+                            wantedEnchantments.Add(spell.Name);
+                        }
                     }
                 }
+                catch (Exception ex) { Util.LogException(ex); }
+
+                return wantedEnchantments;
+            }
+
+            public static List<string> GetWantedBuffEnchantments() {
+                List<string> wantedEnchantments = new List<string>();
+
+                try {
+                    foreach (var spellClass in Buffs.Buffs.GetBotProfile("buff").familyIds) {
+                        var spell = Spells.GetBestKnownSpellByClass(spellClass, true);
+
+                        if (spell != null) {
+                            wantedEnchantments.Add(spell.Name);
+                        }
+                    }
+                }
+                catch (Exception ex) { Util.LogException(ex); }
 
                 return wantedEnchantments;
             }
@@ -67,13 +71,16 @@ namespace DoThingsBot {
             public static List<string> GetWantedTinkerEnchantments() {
                 List<string> wantedEnchantments = new List<string>();
 
-                foreach (var spellClass in WantedTinkerEnchantments) {
-                    var spell = Spells.GetBestKnownSpellByClass(spellClass, true);
+                try {
+                    foreach (var spellClass in Buffs.Buffs.GetBotProfile("tinker").familyIds) {
+                        var spell = Spells.GetBestKnownSpellByClass(spellClass, true);
 
-                    if (spell != null) {
-                        wantedEnchantments.Add(spell.Name);
+                        if (spell != null) {
+                            wantedEnchantments.Add(spell.Name);
+                        }
                     }
                 }
+                catch (Exception ex) { Util.LogException(ex); }
 
                 return wantedEnchantments;
             }

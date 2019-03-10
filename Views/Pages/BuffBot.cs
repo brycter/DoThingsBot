@@ -49,6 +49,7 @@ namespace DoThingsBot.Views.Pages {
 
                 UIBotBuffBotManageBuffProfiles.Hit += (a, b) => {
                     try {
+                        Globals.ProfileManagerView.EditBuffProfiles();
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };

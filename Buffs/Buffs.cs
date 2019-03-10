@@ -13,10 +13,10 @@ namespace DoThingsBot.Buffs {
         public static void LoadProfiles(bool verbose=false) {
             profiles = new Dictionary<string, BuffProfile>();
 
-            DirectoryInfo d = new DirectoryInfo(Path.Combine(Util.GetDataDirectory(), "profiles"));
+            DirectoryInfo d = new DirectoryInfo(Path.Combine(Util.GetDataDirectory(), "buffprofiles"));
             FileInfo[] files = d.GetFiles("*.xml");
 
-            //if (verbose) Util.WriteToChat("Loading buff profiles:");
+            Util.WriteToChat("Loading buff profiles:");
 
             foreach (FileInfo file in files) {
                 var profile = new BuffProfile(file.Name.Replace(".xml", ""));
@@ -36,7 +36,7 @@ namespace DoThingsBot.Buffs {
             foreach (var profile in profiles.Keys) {
                 profiles[profile].LoadIncluded();
                 
-                //Util.WriteToChat("Load: " + profiles[profile].name + "(" + string.Join(",", profiles[profile].aliases.ToArray()) + ") (" + profiles[profile].familyIds.Count + " buffs)");
+                Util.WriteToChat("Load: " + profiles[profile].name + "(" + string.Join(",", profiles[profile].aliases.ToArray()) + ") (" + profiles[profile].familyIds.Count + " buffs)");
             }
 
             if (Config.BuffBot.EnableSingleBuffs.Value) {
@@ -79,12 +79,21 @@ namespace DoThingsBot.Buffs {
             return null;
         }
 
+        internal static BuffProfile GetBotProfile(string profile) {
+            return new BuffProfile(profile, BuffProfileType.BOT);
+        }
+
         public static bool IsValidProfile(string profile) {
             return aliases.ContainsKey(profile);
         }
 
         public static string GetProfilePath(string profile) {
-            string file = Path.Combine(Util.GetDataDirectory(), "profiles");
+            string file = Path.Combine(Util.GetDataDirectory(), "buffprofiles");
+            return Path.Combine(file, profile + ".xml");
+        }
+
+        public static string GetBotProfilePath(string profile) {
+            string file = Path.Combine(Util.GetDataDirectory(), "botprofiles");
             return Path.Combine(file, profile + ".xml");
         }
 

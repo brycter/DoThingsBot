@@ -40,6 +40,9 @@ namespace DoThingsBot.FSM.States {
                     itemBundle.SetEquipMode(EquipMode.Tinker);
                     machine.ChangeState(new BotEquipItemsState(_machine.CurrentState.GetItemBundle()));
                 }
+                else if (itemBundle.GetCraftMode() == CraftMode.Buff) {
+                    machine.ChangeState(new BotBuffState(_machine.CurrentState.GetItemBundle()));
+                }
                 else {
                     machine.ChangeState(new BotTradingState(_machine.CurrentState.GetItemBundle()));
                 }

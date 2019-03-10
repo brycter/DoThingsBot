@@ -7,6 +7,11 @@ using DoThingsBot.Views.Pages;
 using VirindiViewService.Controls;
 
 namespace DoThingsBot.Views {
+    public enum ProfileEditMode {
+        BUFF_PROFILES,
+        BOT_PROFILES
+    };
+
     public class ProfileManagerView : IDisposable {
         public readonly VirindiViewService.ViewProperties properties;
         public readonly VirindiViewService.ControlGroup controls;
@@ -22,12 +27,17 @@ namespace DoThingsBot.Views {
         private readonly HudCheckBox UIBuffProfileManagerShowCreature;
         private readonly HudCheckBox UIBuffProfileManagerShowLife;
         private readonly HudButton UIBuffProfileManagerSaveProfile;
+        private readonly HudStaticText UIBuffProfileManagerAliasesLabel;
+        private readonly HudButton UIBuffProfileManagerAddNew;
+        private readonly HudStaticText UIBuffProfileManagerAddLabel;
+        private readonly HudTextBox UIBuffProfileManagerNewName;
 
         private int selectedProfileRow = -1;
         private int selectedAvailableRow = 0;
         private List<Spells.SpellClass> profileFamilyIds = new List<Spells.SpellClass>();
         private List<string> profileIncludes = new List<string>();
         private Buffs.BuffProfile profile;
+        private ProfileEditMode editMode = ProfileEditMode.BUFF_PROFILES; 
 
         public ProfileManagerView() {
             try {
@@ -48,6 +58,10 @@ namespace DoThingsBot.Views {
                 UIBuffProfileManagerShowCreature = (HudCheckBox)view["BuffProfileManagerShowCreature"];
                 UIBuffProfileManagerShowLife = (HudCheckBox)view["BuffProfileManagerShowLife"];
                 UIBuffProfileManagerSaveProfile = (HudButton)view["BuffProfileManagerSaveProfile"];
+                UIBuffProfileManagerAliasesLabel = (HudStaticText)view["BuffProfileManagerAliasesLabel"];
+                UIBuffProfileManagerAddNew = (HudButton)view["BuffProfileManagerAddNew"];
+                UIBuffProfileManagerAddLabel = (HudStaticText)view["BuffProfileManagerAddLabel"];
+                UIBuffProfileManagerNewName = (HudTextBox)view["BuffProfileManagerNewName"];
 
                 UIBuffProfileManagerShowProfiles.Checked = true;
                 UIBuffProfileManagerShowItem.Checked = true;
@@ -60,7 +74,7 @@ namespace DoThingsBot.Views {
                 UIBuffProfileManagerShowLife.Change += FiltersChanged;
 
                 view.VisibleChanged += View_VisibleChanged;
-                view.Visible = true;
+                //view.Visible = true;
 
                 UIBuffProfileManagerEdit.Change += UIBuffProfileManagerEdit_Change;
                 UIBuffProfileManagerProfileSpells.Click += UIBuffProfileManagerProfileSpells_Click;
@@ -68,10 +82,34 @@ namespace DoThingsBot.Views {
 
                 UIBuffProfileManagerMoveSpell.Hit += UIBuffProfileManagerMoveSpell_Hit;
                 UIBuffProfileManagerSaveProfile.Hit += UIBuffProfileManagerSaveProfile_Hit;
-
-                FixListDisplay();
             }
             catch (Exception ex) { Util.LogException(ex); }
+        }
+
+        public void EditBuffProfiles() {
+            view.Visible = true;
+            editMode = ProfileEditMode.BUFF_PROFILES;
+            ReloadProfiles();
+
+            UIBuffProfileManagerShowProfiles.Visible = true;
+            UIBuffProfileManagerAliases.Visible = true;
+            UIBuffProfileManagerAliasesLabel.Visible = true;
+            UIBuffProfileManagerAddNew.Visible = true;
+            UIBuffProfileManagerAddLabel.Visible = true;
+            UIBuffProfileManagerNewName.Visible = true;
+        }
+
+        public void EditBotProfiles() {
+            view.Visible = true;
+            editMode = ProfileEditMode.BOT_PROFILES;
+            ReloadProfiles();
+
+            UIBuffProfileManagerShowProfiles.Visible = false;
+            UIBuffProfileManagerAliases.Visible = false;
+            UIBuffProfileManagerAliasesLabel.Visible = false;
+            UIBuffProfileManagerAddNew.Visible = false;
+            UIBuffProfileManagerAddLabel.Visible = false;
+            UIBuffProfileManagerNewName.Visible = false;
         }
 
         private void UIBuffProfileManagerSaveProfile_Hit(object sender, EventArgs e) {
@@ -101,9 +139,14 @@ namespace DoThingsBot.Views {
 
             fileContents += "</profile>";
 
-            var path = Buffs.Buffs.GetProfilePath(profileName);
-
-            File.WriteAllText(path, fileContents);
+            if (editMode == ProfileEditMode.BUFF_PROFILES) {
+                var path = Buffs.Buffs.GetProfilePath(profileName);
+                File.WriteAllText(path, fileContents);
+            }
+            else if (editMode == ProfileEditMode.BOT_PROFILES) {
+                var path = Buffs.Buffs.GetBotProfilePath(profileName);
+                File.WriteAllText(path, fileContents);
+            }
 
             Util.WriteToChat("Saved profile: " + profileName);
 
@@ -305,14 +348,18 @@ namespace DoThingsBot.Views {
             var alreadyListed = new List<string>();
             var index = 0;
 
+            // add spells
             var vs = Enum.GetValues(typeof(Spells.SpellClass));
             foreach (var v in vs) {
                 items.Add(((Spells.SpellClass)v).ToString(), (int)v);
             }
 
-            foreach (var v in Buffs.Buffs.profiles.Keys) {
-                if (Buffs.Buffs.profiles[v].IsAutoGenerated()) continue;
-                items.Add(v, -1);
+            // add profiles
+            if (editMode == ProfileEditMode.BUFF_PROFILES) {
+                foreach (var v in Buffs.Buffs.profiles.Keys) {
+                    if (Buffs.Buffs.profiles[v].IsAutoGenerated()) continue;
+                    items.Add(v, -1);
+                }
             }
 
             UIBuffProfileManagerAvailableSpells.ClearRows();
@@ -506,7 +553,12 @@ namespace DoThingsBot.Views {
                 if (selectedAvailableRow != -1) selectedAvailableRow = 0;
                 if (selectedProfileRow != -1) selectedProfileRow = 0;
 
-                profile = Buffs.Buffs.GetProfile(name);
+                if (editMode == ProfileEditMode.BUFF_PROFILES) {
+                    profile = Buffs.Buffs.GetProfile(name);
+                }
+                else if (editMode == ProfileEditMode.BOT_PROFILES) {
+                    profile = Buffs.Buffs.GetBotProfile(name);
+                }
 
                 var index = 0;
 
@@ -573,12 +625,22 @@ namespace DoThingsBot.Views {
         }
 
         private void LoadProfileList() {
-            UIBuffProfileManagerEdit.AddItem("", "");
-
-            foreach (var profileName in Buffs.Buffs.profiles.Keys) {
-                if (Buffs.Buffs.profiles[profileName].IsAutoGenerated()) continue;
-                UIBuffProfileManagerEdit.AddItem(profileName, profileName);
+            var first = "";
+            if (editMode == ProfileEditMode.BUFF_PROFILES) {
+                foreach (var profileName in Buffs.Buffs.profiles.Keys) {
+                    if (Buffs.Buffs.profiles[profileName].IsAutoGenerated()) continue;
+                    UIBuffProfileManagerEdit.AddItem(profileName, profileName);
+                    if (string.IsNullOrEmpty(first)) first = profileName;
+                }
             }
+            else {
+                UIBuffProfileManagerEdit.AddItem("buff", "buff");
+                UIBuffProfileManagerEdit.AddItem("idle", "idle");
+                UIBuffProfileManagerEdit.AddItem("tinker", "tinker");
+                first = "buff";
+            }
+
+            LoadProfile(first);
         }
 
         private bool disposed;

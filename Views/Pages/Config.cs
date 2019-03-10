@@ -7,9 +7,11 @@ namespace DoThingsBot.Views.Pages {
         HudTextBox UIDefaultHeading { get; set; }
         HudCheckBox UIRespondToUnknownCommands { get; set; }
         HudTextBox UIKeepTinkerEquipmentWhileIdleDelay { get; set; }
+        HudButton UIManageBotSpellProfiles { get; set; }
 
         public ConfigPage(MainView mainView) {
             try {
+                UIManageBotSpellProfiles = (HudButton)mainView.view["UIManageBotSpellProfiles"];
                 UIDefaultHeading = mainView.view != null ? (HudTextBox)mainView.view["UIDefaultHeading"] : new HudTextBox();
                 UIRespondToUnknownCommands = mainView.view != null ? (HudCheckBox)mainView.view["UIRespondToUnknownCommands"] : new HudCheckBox();
                 UIKeepTinkerEquipmentWhileIdleDelay = mainView.view != null ? (HudTextBox)mainView.view["UIKeepTinkerEquipmentWhileIdleDelay"] : new HudTextBox();
@@ -41,6 +43,15 @@ namespace DoThingsBot.Views.Pages {
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
+
+                UIManageBotSpellProfiles.Hit += UIManageBotSpellProfiles_Hit;
+            }
+            catch (Exception ex) { Util.LogException(ex); }
+        }
+
+        private void UIManageBotSpellProfiles_Hit(object sender, EventArgs e) {
+            try {
+                Globals.ProfileManagerView.EditBotProfiles();
             }
             catch (Exception ex) { Util.LogException(ex); }
         }

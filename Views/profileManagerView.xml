@@ -24,7 +24,7 @@
 			<control progid="DecalControls.PushButton" name="BuffProfileManagerMoveSpell" left="240" top="148" width="32" height="32" text="&lt;&lt;&lt;"/>
 			<control progid="DecalControls.StaticText" name="BuffProfileManagerAliasesLabel" left="8" top="32" width="168" height="16" text="Aliases (separated by spaces):"/>
 			<control progid="DecalControls.Edit" name="BuffProfileManagerAliases" left="176" top="32" width="368" height="16" imageportalsrc="4726" text=""/>
-			<control progid="DecalControls.StaticText" name="Label" left="8" top="282" width="200" height="16" text="Filter Available By:"/>
+			<control progid="DecalControls.StaticText" name="BuffProfileManagerFilterAvailableLabel" left="8" top="282" width="200" height="16" text="Filter Available By:"/>
 			<control progid="DecalControls.Checkbox" name="BuffProfileManagerShowProfiles" left="8" top="300" width="64" height="16" text="Profiles"/>
 			<control progid="DecalControls.Checkbox" name="BuffProfileManagerShowCreature" left="72" top="300" width="64" height="16" text="Creature"/>
 			<control progid="DecalControls.Checkbox" name="BuffProfileManagerShowItem" left="136" top="300" width="56" height="16" text="Item"/>

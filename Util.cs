@@ -37,6 +37,8 @@ namespace DoThingsBot
             System.IO.Directory.CreateDirectory(GetCharacterDataDirectory());
             System.IO.Directory.CreateDirectory(GetLogDirectory());
             System.IO.Directory.CreateDirectory(GetPlayerDataDirectory());
+            Directory.CreateDirectory(Path.Combine(DataDirectory, "buffprofiles"));
+            Directory.CreateDirectory(Path.Combine(DataDirectory, "botprofiles"));
         }
 
         public static string GetVersion() {

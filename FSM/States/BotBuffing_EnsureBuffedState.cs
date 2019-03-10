@@ -13,6 +13,7 @@ namespace DoThingsBot.FSM.States {
         private ItemBundle itemBundle;
         private bool doneCasting = false;
         private List<string> spellsCasted = new List<string>();
+        private bool needsBuffs = false;
 
         public BotBuffing_EnsureBuffedState(ItemBundle items) {
             try {
@@ -24,6 +25,20 @@ namespace DoThingsBot.FSM.States {
         public void Enter(Machine machine) {
             try {
                 CoreManager.Current.ChatBoxMessage += new EventHandler<ChatTextInterceptEventArgs>(Current_ChatBoxMessage);
+
+                if (!itemBundle.GetForceBuffMode()) {
+                    RefreshWantedEnchantments();
+
+                    foreach (var enchantment in WantedEnchantments) {
+                        if (Spells.DoesSpellNeedRefresh(enchantment)) {
+                            needsBuffs = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    needsBuffs = true;
+                }
             }
             catch (Exception e) { Util.LogException(e); }
         }
@@ -56,8 +71,15 @@ namespace DoThingsBot.FSM.States {
 
         public void Think(Machine machine) {
             try {
-                if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(500)) {
+                if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(800)) {
                     lastThought = DateTime.UtcNow;
+
+                    if (!needsBuffs) {
+                        if (!Util.EnsureCombatState(CombatState.Peace)) return;
+
+                        machine.ChangeState(new BotBuffing_FinishedState(itemBundle));
+                        return;
+                    }
 
                     // enter magic combat state before casting buffs
                     if (!Util.EnsureCombatState(CombatState.Magic)) return;
@@ -69,17 +91,7 @@ namespace DoThingsBot.FSM.States {
                     if (!Spells.EnsureEnoughMana()) return;
 
                     // refresh wanted enchantments in case of skill change
-                    WantedEnchantments.Clear();
-                    if (itemBundle.GetForceBuffMode() == true) {
-                        WantedEnchantments.AddRange(Config.Bot.GetWantedIdleEnchantments());
-                        WantedEnchantments.AddRange(Config.Bot.GetWantedTinkerEnchantments());
-                    }
-                    else if (itemBundle.HasOwner()) {
-                        WantedEnchantments.AddRange(Config.Bot.GetWantedTinkerEnchantments());
-                    }
-                    else {
-                        WantedEnchantments.AddRange(Config.Bot.GetWantedIdleEnchantments());
-                    }
+                    RefreshWantedEnchantments();
 
                     // cast next needed buff
                     foreach (var enchantment in WantedEnchantments) {
@@ -110,7 +122,27 @@ namespace DoThingsBot.FSM.States {
             catch (Exception e) { Util.LogException(e); }
         }
 
-    public ItemBundle GetItemBundle() {
+        private void RefreshWantedEnchantments() {
+            WantedEnchantments.Clear();
+            if (itemBundle.GetForceBuffMode() == true) {
+                WantedEnchantments.AddRange(Config.Bot.GetWantedIdleEnchantments());
+                WantedEnchantments.AddRange(Config.Bot.GetWantedTinkerEnchantments());
+                WantedEnchantments.AddRange(Config.Bot.GetWantedBuffEnchantments());
+            }
+            else if (itemBundle.HasOwner()) {
+                if (itemBundle.craftMode == CraftMode.Buff) {
+                    WantedEnchantments.AddRange(Config.Bot.GetWantedBuffEnchantments());
+                }
+                else {
+                    WantedEnchantments.AddRange(Config.Bot.GetWantedTinkerEnchantments());
+                }
+            }
+            else {
+                WantedEnchantments.AddRange(Config.Bot.GetWantedIdleEnchantments());
+            }
+        }
+
+        public ItemBundle GetItemBundle() {
             try {
                 return itemBundle;
             }

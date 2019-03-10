@@ -116,6 +116,7 @@ namespace DoThingsBot.FSM.States {
                     castingSpellName = "";
                     castCount = 0;
                     readyToCast = true;
+                    lastCasted = DateTime.UtcNow - TimeSpan.FromMinutes(1);
                 }
                 else if (e.Text.StartsWith("Your spell fizzled.")) {
                     readyToCast = true;
@@ -140,7 +141,7 @@ namespace DoThingsBot.FSM.States {
         }
 
         public void Think(Machine machine) {
-            if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(1000)) {
+            if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(500)) {
                 lastThought = DateTime.UtcNow;
 
                 if (waitingForTreeStatsData && treeStatsProfile != null) {
@@ -223,9 +224,8 @@ namespace DoThingsBot.FSM.States {
                             }
                         }
 
-                        if (DateTime.UtcNow - lastCasted > TimeSpan.FromMilliseconds(1500)) {
+                        if (DateTime.UtcNow - lastCasted > TimeSpan.FromMilliseconds(1000)) {
                             lastCasted = DateTime.UtcNow;
-                            Util.WriteToChat("Cast: " + castingSpellName);
                             CoreManager.Current.Actions.CastSpell(spellId, targetId);
                         }
                         castCount++;
