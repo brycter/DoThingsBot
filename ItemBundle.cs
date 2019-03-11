@@ -58,10 +58,11 @@ namespace DoThingsBot {
         private int UseItemId;
         private int UseItemOnId;
 
-        private PlayerData playerData;
+        public PlayerData playerData;
         private EquipMode equipMode;
 
         private bool forceBuff = false;
+        public bool IsImbue = false;
 
         public ItemBundle() {
         }
@@ -79,6 +80,10 @@ namespace DoThingsBot {
                 return owner;
             }
             catch (Exception e) { Util.LogException(e); return "UnknownOwner"; }
+        }
+
+        internal void SetOwner(string name) {
+            owner = name;
         }
 
         public bool HasOwner() {
@@ -150,9 +155,16 @@ namespace DoThingsBot {
         private void LoadPlayerData() {
             try {
                 if (File.Exists(GetJsonDataPathForOwner())) {
-                    string json = File.ReadAllText(GetJsonDataPathForOwner());
+                    try {
+                        string json = File.ReadAllText(GetJsonDataPathForOwner());
 
-                    playerData = JsonConvert.DeserializeObject<PlayerData>(json);
+                        playerData = JsonConvert.DeserializeObject<PlayerData>(json);
+                    }
+                    catch (Exception ex) {
+                        Util.LogException(ex);
+
+                        playerData = new PlayerData(GetOwner());
+                    }
                 }
                 else {
                     playerData = new PlayerData(GetOwner());
@@ -338,6 +350,8 @@ namespace DoThingsBot {
         }
 
         public int GetUseItemTarget() {
+            IsImbue = GetImbueSalvages().Count > 0;
+
             return UseItemId;
         }
 

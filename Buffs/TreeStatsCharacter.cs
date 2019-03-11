@@ -5,6 +5,7 @@ using System.Text;
 namespace DoThingsBot.Buffs {
     public class TreeStatsCharacter {
         public string PlayerName = "unknown";
+        public string updated_at = "unkown";
         public Dictionary<string, Dictionary<string,string>> skills = new Dictionary<string, Dictionary<string, string>>();
 
         public TreeStatsCharacter(string owner) {

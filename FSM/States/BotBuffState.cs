@@ -31,6 +31,7 @@ namespace DoThingsBot.FSM.States {
         private ItemBundle itemBundle;
         private int castCount = 0;
         private bool readyToCast = true;
+        private int profileCount = 0;
 
         public BotBuffState(ItemBundle items) {
             itemBundle = items;
@@ -43,9 +44,18 @@ namespace DoThingsBot.FSM.States {
                 }
             }
 
+            var player = CoreManager.Current.WorldFilter[targetId];
+
+            if (player == null) {
+                machine.ChangeState(new BotFinishState(machine.CurrentState.GetItemBundle()));
+                return;
+            }
+
+            itemBundle.SetOwner(player.Name);
+
             if (itemBundle.GetBuffProfiles() == "treestats") {
                 waitingForTreeStatsData = true;
-                treeStatsProfile = new BuffProfile(itemBundle.GetOwner(), true);
+                treeStatsProfile = new BuffProfile(player.Name, true);
             }
             else {
                 var profiles = itemBundle.GetBuffProfiles().Split(' ');
@@ -76,6 +86,8 @@ namespace DoThingsBot.FSM.States {
         }
 
         private void AddProfile(BuffProfile buffProfile) {
+            bool hasSpells = false;
+
             foreach (var family in buffProfile.familyIds) {
                 var spell = Spells.GetBestKnownSpellByClass(family, false, Config.BuffBot.LimitBuffLevel.Value);
 
@@ -86,8 +98,11 @@ namespace DoThingsBot.FSM.States {
 
                 if (!buffIds.Contains(spell.Id)) {
                     buffIds.Add(spell.Id);
+                    hasSpells = true;
                 }
             }
+
+            if (hasSpells) profileCount++;
         }
 
         private void AddProfile(string profile) {
@@ -112,6 +127,7 @@ namespace DoThingsBot.FSM.States {
                 }
 
                 if (e.Text.StartsWith(String.Format("You cast {0}", castingSpellName))) {
+                    Globals.Stats.AddPlayerBuffsCasted(itemBundle.GetOwner(), 1);
                     CastedEnchantments.Add(castingSpellName);
                     castingSpellName = "";
                     castCount = 0;
@@ -127,6 +143,8 @@ namespace DoThingsBot.FSM.States {
 
                     foreach (var component in components.Split(',')) {
                         var name = component.Trim();
+                        
+                        Globals.Stats.AddPlayerBurnedComponent(itemBundle.GetOwner(), name, 1);
 
                         if (burnedComponents.ContainsKey(name)) {
                             burnedComponents[name]++;
@@ -150,12 +168,16 @@ namespace DoThingsBot.FSM.States {
 
                         if (!treeStatsProfile.IsValid()) {
                             doneCasting = true;
-                            ChatManager.Tell(itemBundle.GetOwner(), "I was unable to load your profile from treestats :(");
+                            ChatManager.Tell(itemBundle.GetOwner(), "I was unable to load your profile from treestats. Try telling me 'profiles' to see what I can buff you with.");
                             return;
                         }
 
                         AddProfile(treeStatsProfile);
-                        ChatManager.Tell(itemBundle.GetOwner(), string.Format("Starting to cast {0} buffs on you, based on your treestats character sheet.", buffIds.Count));
+                        var lastUpdated = "unknown";
+                        if (treeStatsProfile.treeStatsProfile != null) {
+                            lastUpdated = treeStatsProfile.treeStatsProfile.updated_at;
+                        }
+                        ChatManager.Tell(itemBundle.GetOwner(), string.Format("Casting {0} buffs on you, based on your treestats character profile (last updated {1}).", buffIds.Count, lastUpdated));
                     }
                     else {
                         return;
@@ -246,14 +268,25 @@ namespace DoThingsBot.FSM.States {
 
                     itemBundle.SetEquipMode(EquipMode.Idle);
 
-                    var response = string.Format("It took {0} seconds to cast {1} buffs.", Math.Round((DateTime.UtcNow - startedBuffing).TotalSeconds), CastedEnchantments.Count);
+                    var secondsTaken = (int)Math.Round((DateTime.UtcNow - startedBuffing).TotalSeconds);
+                    var response = string.Format("This session took {0}s to cast {1} buff{2}", secondsTaken, CastedEnchantments.Count, CastedEnchantments.Count==1?"":"s");
+
+                    Globals.Stats.AddPlayerTimeSpentBuffing(itemBundle.GetOwner(), secondsTaken);
+                    Globals.Stats.AddPlayerProfilesCasted(itemBundle.GetOwner(), profileCount);
+
+                    if (fizzleCounter > 0 || burnedComponents.Keys.Count > 0) {
+                        response += ",";
+                    }
+                    else {
+                        response += ".";
+                    }
 
                     if (fizzleCounter > 0) {
                         var end = ".";
                         if (burnedComponents.Keys.Count > 0) {
                             end = " and ";
                         }
-                        response += string.Format(" I fizzled {0} times{1}", fizzleCounter, end);
+                        response += string.Format(" I fizzled {0} time{1}{2}", fizzleCounter, fizzleCounter== 1?"":"s", end);
                     }
 
                     if (burnedComponents.Keys.Count > 0) {
@@ -263,8 +296,13 @@ namespace DoThingsBot.FSM.States {
                             components.Add(ckey + " x" + burnedComponents[ckey]);
                         }
 
-                        response += string.Format("{1}burned: {0}.", string.Join(", ", components.ToArray()), fizzleCounter > 0 ? "" : " I ");
+                        response += string.Format("{1}burned: {0}.", string.Join(", ", components.ToArray()), fizzleCounter > 0 ? " and " : " I ");
                     }
+
+                    var timeSpent = string.Format("{0}m", Math.Round((double)(itemBundle.playerData.totalTimeSpentBuffing/60), 2));
+
+                    // if (config.ShowPersonalBuffStatsAfterJob)
+                    response += string.Format(" Your overall stats: Buffs: {0}, Time: {1}, Balance: {2:n0}p", itemBundle.playerData.totalBuffsCast, timeSpent, itemBundle.playerData.balance);
 
                     if (CastedEnchantments.Count > 0) {
                         ChatManager.Tell(itemBundle.GetOwner(), response);

@@ -49,7 +49,7 @@ namespace DoThingsBot.Chat {
         }
     }
 
-    class ChatManager : IDisposable {
+    public class ChatManager : IDisposable {
         public const int ChatCommandDelay = 500;
         
         private static Queue<string> commandQueue;

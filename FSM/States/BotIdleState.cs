@@ -17,6 +17,8 @@ namespace DoThingsBot.FSM.States {
             if (Config.Tinkering.KeepEquipmentOnDelay.Value > 0) {
                 needsToEquip = true;
             }
+
+            Globals.Core.Actions.FaceHeading(Config.Bot.DefaultHeading.Value, true);
         }
 
         public void Exit(Machine machine) {

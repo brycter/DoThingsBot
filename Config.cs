@@ -20,6 +20,7 @@ namespace DoThingsBot {
             public static  Setting<bool> RespondToUnknownCommands;
             public static  Setting<int> DontResendDuplicateMessagesWindow;
             public static  Setting<int> BuffRefreshTime;
+            public static Setting<double> RecompVendorSellRate;
 
             static Bot() {
             }
@@ -31,6 +32,9 @@ namespace DoThingsBot {
                 RespondToUnknownCommands = new Setting<bool>("Config/Bot/RespondToUnknownCommands", "Respond to unknown commands", true);
                 DontResendDuplicateMessagesWindow = new Setting<int>("Config/Bot/DontResendDuplicateMessagesWindow", "Don't send repeat messages if they fall within this time window (in seconds)", 2);
                 BuffRefreshTime = new Setting<int>("Config/Bot/BuffRefreshTime", "Refresh buffs if time left falls below this amount before a job request. (in minutes)", 5);
+                RecompVendorSellRate = new Setting<double>("Config/Bot/RecompVendorSellRate", "The sell rate of the vendor you buy components from (eg treetop is 140% so this should be set to '1.4')", 1.4);
+
+                RecompVendorSellRate.Validate += ValidateVendorRate;
                 DefaultHeading.Validate += ValidateHeading;
             }
 
@@ -213,6 +217,11 @@ namespace DoThingsBot {
         private static void ValidateSpellLevel(object sender, ValidateSettingEventArgs<int> e) {
             if (e.Value < 1) e.Invalidate("Should not be less than 1");
             if (e.Value > 8) e.Invalidate("Should not be greater than 8");
+        }
+
+        private static void ValidateVendorRate(object sender, ValidateSettingEventArgs<double> e) {
+            if (e.Value < 1) e.Invalidate("Should not be less than 1");
+            if (e.Value > 2) e.Invalidate("Should not be greater than 2");
         }
     }
 }

@@ -90,10 +90,12 @@ namespace DoThingsBot {
                 Config.Init();
 
                 Mag.Shared.Settings.SettingsFile.SaveXmlDocument();
+                Globals.Stats = new Stats.Stats();
                 Buffs.Buffs.LoadProfiles();
                 
                 mainView = new MainView();
                 bot = new DoThingsBot();
+                Globals.DoThingsBot = bot;
 
                 bot.IsLoggedIn = true;
 
@@ -144,6 +146,55 @@ namespace DoThingsBot {
                     }
                     else {
                         Util.WriteToChat("Bot is not running, won't forcebuff.");
+                    }
+                }
+
+                if (e.Text.StartsWith("/dtb buff")) {
+                    if (!bot.isRunning) {
+                        e.Eat = true;
+                        Util.WriteToChat("Bot is not running, won't add buffs to queue.");
+                        return;
+                    }
+
+                    if (e.Text == "/dtb buff") {
+                        var current = CoreManager.Current.Actions.CurrentSelection;
+
+                        if (CoreManager.Current.Actions.IsValidObject(current)) {
+                            var selected = CoreManager.Current.WorldFilter[current];
+                            if (selected.ObjectClass == Decal.Adapter.Wrappers.ObjectClass.Player) {
+                                Util.WriteToChat(string.Format("Adding {0} to the buff queue using treestats profile buffs", selected.Name));
+                                Globals.DoThingsBot.queue.Add(new DoThingsBot.PlayerCommand(selected.Name, "buff"));
+                                e.Eat = true;
+                                return;
+                            }
+                        }
+
+                        Util.WriteToChat("You must have a player selected to use this command.");
+                        return;
+                    }
+
+                    if (e.Text.Contains(" with ")) {
+                        var parts = e.Text.Replace("/dtb buff ", "").Replace(" with ", "|").Split('|');
+                        if (parts.Length == 2) {
+                            Util.WriteToChat(string.Format("Adding {0} to the buff queue with profiles: ", parts[0], parts[1]));
+                            Globals.DoThingsBot.queue.Add(new DoThingsBot.PlayerCommand(parts[0], parts[1]));
+                            e.Eat = true;
+                        }
+                    }
+                    else {
+                        var playerName = e.Text.Replace("/dtb buff ", "");
+
+                        if (!Config.BuffBot.EnableTreeStatsBuffs.Value) {
+                            e.Eat = true;
+                            Util.WriteToChat("My TreeStats buffing profile functionality is currently disabled!");
+                            return;
+                        }
+
+                        if (!string.IsNullOrEmpty(playerName)) {
+                            Util.WriteToChat(string.Format("Adding {0} to the buff queue using treestats profile buffs", playerName));
+                            Globals.DoThingsBot.queue.Add(new DoThingsBot.PlayerCommand(playerName, "buff"));
+                            e.Eat = true;
+                        }
                     }
                 }
             }

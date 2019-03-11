@@ -115,7 +115,10 @@ namespace DoThingsBot.FSM.States {
                 if (doneCasting) {
                     // peace mode before we are done
                     if (!Util.EnsureCombatState(CombatState.Peace)) return;
-                    
+
+                    Globals.Stats.AddSelfBuffsCasted(CastedEnchantments.Count);
+                    Globals.Stats.AddTimeSpentSelfBuffing((int)(DateTime.UtcNow - firstThought).TotalSeconds);
+
                     machine.ChangeState(new BotBuffing_FinishedState(itemBundle));
                 }
             }

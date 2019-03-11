@@ -21,6 +21,11 @@ namespace DoThingsBot.Views.Pages {
         HudButton UICancel { get; set; }
         HudButton UIConfirm { get; set; }
 
+        private string lastCreateName = "";
+        private int lastCreateAmount = 0;
+        private int lastCreateValue = 0;
+        private DateTime lastCreateTime = DateTime.MinValue;
+
         public LogsGiftsPage(MainView mainView) {
             try {
                 UILogsGiftsList = mainView.view != null ? (HudList)mainView.view["UILogsGiftsList"] : new HudList();
@@ -28,6 +33,7 @@ namespace DoThingsBot.Views.Pages {
                 UILogsGiftsClearLogFile = mainView.view != null ? (HudButton)mainView.view["UILogsGiftsClearLogFile"] : new HudButton();
 
                 CoreManager.Current.ChatBoxMessage += new EventHandler<ChatTextInterceptEventArgs>(Current_ChatBoxMessage);
+                CoreManager.Current.WorldFilter.CreateObject += WorldFilter_CreateObject;
 
                 UILogsGiftsOpenLogFile.Hit += (s, e) => {
                     try {
@@ -95,6 +101,18 @@ namespace DoThingsBot.Views.Pages {
             catch (Exception ex) { Util.LogException(ex); }
         }
 
+        private void WorldFilter_CreateObject(object sender, CreateObjectEventArgs e) {
+            try {
+                lastCreateTime = DateTime.UtcNow;
+                lastCreateName = e.New.Name;
+                lastCreateValue = e.New.Values(LongValueKey.Value);
+                lastCreateAmount = e.New.Values(LongValueKey.StackCount, 1);
+            }
+            catch (Exception ex) {
+                Util.LogException(ex);
+            }
+        }
+
         private static readonly Regex GivesYouRegex = new Regex("^(?<player>[^\"]+) gives you (?<item>[^\"]+)\\.$");
 
 
@@ -108,7 +126,9 @@ namespace DoThingsBot.Views.Pages {
                     string player = match.Groups["player"].Value;
                     string item = match.Groups["item"].Value;
 
-                    ChatManager.Tell(player, String.Format("Thank you for the {0}!", item));
+                    Globals.Stats.AddPlayerDonation(player, lastCreateName, lastCreateAmount);
+                    var newBalance = Globals.Stats.GetPlayerBalance(player);
+                    ChatManager.Tell(player, String.Format("Thank you for the {0} x{1}! Your new balance is: {2:n0}", lastCreateName, lastCreateAmount, newBalance));
 
                     Util.WriteGiftToLog(player, item);
 
@@ -174,6 +194,7 @@ namespace DoThingsBot.Views.Pages {
             try {
                 if (!disposed) {
                     if (disposing) {
+                        CoreManager.Current.WorldFilter.CreateObject -= WorldFilter_CreateObject;
                         CoreManager.Current.ChatBoxMessage -= new EventHandler<ChatTextInterceptEventArgs>(Current_ChatBoxMessage);
                     }
 

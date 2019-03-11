@@ -101,7 +101,6 @@ namespace DoThingsBot.Buffs {
             aliases.Clear();
             profiles.Clear();
             LoadProfiles(true);
-
         }
     }
 }

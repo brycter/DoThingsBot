@@ -14,6 +14,8 @@ namespace DoThingsBot.FSM.States {
                 itemBundle.SavePlayerData();
             }
 
+            Globals.DoThingsBot.currentItemBundle = null;
+
             try {
                 PostMessageTools.ClickNo();
             }

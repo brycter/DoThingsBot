@@ -26,22 +26,25 @@ namespace DoThingsBot.FSM.States {
             }
 
             if (itemBundle.HasOwner()) {
-                if (Spells.DoesAnySpellNeedRefresh(Config.Bot.GetWantedTinkerEnchantments())) {
+                if (itemBundle.GetCraftMode() == CraftMode.WeaponTinkering && Spells.DoesAnySpellNeedRefresh(Config.Bot.GetWantedTinkerEnchantments())) {
                     ChatManager.Tell(itemBundle.GetOwner(), "One moment please, I need to buff.");
 
-
-                    if (itemBundle.GetCraftMode() == CraftMode.CheckSkills) {
-                        itemBundle.SetEquipMode(EquipMode.Buff);
-                        machine.ChangeState(new BotEquipItemsState(itemBundle));
-                    }
-                    else {
-                        itemBundle.SetEquipMode(EquipMode.Buff);
-                        machine.ChangeState(new BotEquipItemsState(itemBundle));
-                    }
+                    itemBundle.SetEquipMode(EquipMode.Buff);
+                    machine.ChangeState(new BotEquipItemsState(itemBundle));
+                }
+                else if (itemBundle.GetCraftMode() == CraftMode.Buff && Spells.DoesAnySpellNeedRefresh(Config.Bot.GetWantedBuffEnchantments())) {
+                    ChatManager.Tell(itemBundle.GetOwner(), "One moment please, I need to buff.");
+                    
+                    itemBundle.SetEquipMode(EquipMode.Buff);
+                    machine.ChangeState(new BotEquipItemsState(itemBundle));
                 }
                 else {
                     if (itemBundle.GetCraftMode() == CraftMode.CheckSkills) {
                         itemBundle.SetEquipMode(EquipMode.Tinker);
+                        machine.ChangeState(new BotEquipItemsState(itemBundle));
+                    }
+                    else if (itemBundle.GetCraftMode() == CraftMode.Buff) {
+                        itemBundle.SetEquipMode(EquipMode.Buff);
                         machine.ChangeState(new BotEquipItemsState(itemBundle));
                     }
                     else {

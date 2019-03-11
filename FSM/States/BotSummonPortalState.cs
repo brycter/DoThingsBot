@@ -71,6 +71,9 @@ namespace DoThingsBot.FSM.States {
                     // make sure we are in peace mode
                     if (!Util.EnsureCombatState(CombatState.Peace)) return;
 
+                    var portalLocation = itemBundle.GetCraftMode() == CraftMode.PrimaryPortal ? Config.Portals.PrimaryPortalTieLocation.Value : Config.Portals.SecondaryPortalTieLocation.Value;
+                    Globals.Stats.AddPlayerPortalSummoned(itemBundle.GetOwner(), portalLocation);
+
                     itemBundle.SetEquipMode(EquipMode.Idle);
                     machine.ChangeState(new BotEquipItemsState(machine.CurrentState.GetItemBundle()));
                 }
