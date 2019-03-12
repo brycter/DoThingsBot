@@ -15,7 +15,6 @@ namespace DoThingsBot
 			Host = host;
 
 			Core = core;
-
         }
 
 		public static string PluginName { get; private set; }
@@ -26,6 +25,7 @@ namespace DoThingsBot
 
         public static Stats.Stats Stats { get; set; }
         public static ProfileManagerView ProfileManagerView { get; set; }
+        public static StatsView StatsView { get; set; }
         public static DoThingsBot DoThingsBot { get; set; }
     }
 }

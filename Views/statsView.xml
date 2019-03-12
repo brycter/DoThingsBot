@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<view icon="0" title="Decal Plugin" width="480" height="390">
+		<control progid="DecalControls.Notebook" name="UIStatsMainTabs">
+		<page label="Session Stats">
+			<control progid="DecalControls.FixedLayout" clipped="">
+        <control progid="DecalControls.PushButton" name="UIStatsEchoSessionStats" left="320" top="4" width="120" height="19" text="Echo to Chat Window"/>
+        <control progid="DecalControls.FixedLayout" clipped="" left="0" top="0" width="1200" height="310" name="UIStatsSessionStatsLayout">
+        </control>
+			</control>
+
+		</page>
+		<page label="Global Stats">
+			<control progid="DecalControls.FixedLayout" clipped="">
+        <control progid="DecalControls.PushButton" name="UIStatsEchoGlobalStats" left="330" top="320" width="120" height="19" text="Echo to Chat Window"/>
+        <control progid="DecalControls.FixedLayout" clipped="" left="0" top="0" width="1200" height="310" name="UIStatsGlobalStatsLayoutWrapper">
+
+          <control progid="DecalControls.FixedLayout" clipped="" left="0" top="0" width="1200" height="500" name="UIStatsGlobalStatsLayout"></control>
+        </control>
+			</control>
+
+		</page>
+		<page label="Character Stats">
+			<control progid="DecalControls.FixedLayout" clipped="">
+				<control progid="DecalControls.StaticText" name="Label" left="0" top="4" width="88" height="16" text="Select Character:"/>
+				<control progid="DecalControls.Choice" name="UIStatsSelectCharacter" left="88" top="4" width="216" height="19"/>
+        <control progid="DecalControls.PushButton" name="UIStatsEchoCharacterStats" left="320" top="4" width="120" height="19" text="Echo to Chat Window"/>
+
+          <control progid="DecalControls.FixedLayout" clipped="" left="0" top="0" width="1200" height="310" name="UIStatsCharacterStatsLayout">
+				</control>
+
+			</control>
+
+		</page>
+		</control>
+
+</view>

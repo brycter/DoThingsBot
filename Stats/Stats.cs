@@ -5,28 +5,28 @@ using System.Text;
 
 namespace DoThingsBot.Stats {
     public class Stats {
-        private Dictionary<string, Dictionary<string, int>> playerSalvageBagsApplied = new Dictionary<string, Dictionary<string, int>>();
-        private Dictionary<string, Dictionary<string, int>> playerImbuesLanded = new Dictionary<string, Dictionary<string, int>>();
-        private Dictionary<string, Dictionary<string, int>> playerImbuesFailed = new Dictionary<string, Dictionary<string, int>>();
-        private Dictionary<string, int> playerNonImbueFails = new Dictionary<string, int>();
-        private Dictionary<string, Dictionary<string, int>> playerPortalsSummoned = new Dictionary<string, Dictionary<string, int>>();
+        public Dictionary<string, Dictionary<string, int>> playerSalvageBagsApplied = new Dictionary<string, Dictionary<string, int>>();
+        public Dictionary<string, Dictionary<string, int>> playerImbuesLanded = new Dictionary<string, Dictionary<string, int>>();
+        public Dictionary<string, Dictionary<string, int>> playerImbuesFailed = new Dictionary<string, Dictionary<string, int>>();
+        public Dictionary<string, int> playerNonImbueFails = new Dictionary<string, int>();
+        public Dictionary<string, Dictionary<string, int>> playerPortalsSummoned = new Dictionary<string, Dictionary<string, int>>();
         public double lowestSuccessfulTinkerChance = 100;
         public string lowestSuccessfulTinkerChanceDescription = ""; // Steel(wk1) to the Iron Celdon Leggings for Sunnuj
         public double highestFailedTinkerChance = 0;
         public string highestFailedTinkerChanceDescription = ""; // Steel(wk10) to the Iron Celdon Leggings for Sunnuj
 
-        private Dictionary<string, int> playerProfilesCasted = new Dictionary<string, int>();
-        private Dictionary<string, int> playerBuffsCasted = new Dictionary<string, int>();
-        private Dictionary<string, int> playerTimeSpentBuffing = new Dictionary<string, int>();
-        private Dictionary<string, Dictionary<string, int>> playerBurnedComponents = new Dictionary<string, Dictionary<string, int>>();
-        private Dictionary<string, Dictionary<string, int>> playerDonations = new Dictionary<string, Dictionary<string, int>>();
+        public Dictionary<string, int> playerProfilesCasted = new Dictionary<string, int>();
+        public Dictionary<string, int> playerBuffsCasted = new Dictionary<string, int>();
+        public Dictionary<string, int> playerTimeSpentBuffing = new Dictionary<string, int>();
+        public Dictionary<string, Dictionary<string, int>> playerBurnedComponents = new Dictionary<string, Dictionary<string, int>>();
+        public Dictionary<string, Dictionary<string, int>> playerDonations = new Dictionary<string, Dictionary<string, int>>();
 
-        private Dictionary<string, int> burnedComponents = new Dictionary<string, int>();
-        private ulong operatingCost = 0;
-        private ulong operatingRevenue = 0;
-        private string mostRecentDonation = "";
-        private int selfBuffsCasted = 0;
-        private ulong timeSpentSelfBuffing = 0;
+        public Dictionary<string, int> burnedComponents = new Dictionary<string, int>();
+        public ulong operatingCost = 0;
+        public ulong operatingRevenue = 0;
+        public string mostRecentDonation = "";
+        public int selfBuffsCasted = 0;
+        public ulong timeSpentSelfBuffing = 0;
 
         internal GlobalStats globalStats;
 
@@ -186,6 +186,46 @@ namespace DoThingsBot.Stats {
             bundle.playerData.balance -= (long)cost;
 
             AddBurnedComponent(component, amount);
+        }
+
+        internal List<string> GetImbueTypes() {
+            var types = new List<string>();
+            
+            foreach (var k in playerImbuesLanded.Keys) {
+                foreach (var type in playerImbuesLanded[k].Keys) {
+                    if (!types.Contains(type)) types.Add(type);
+                }
+            }
+
+            foreach (var k in playerImbuesFailed.Keys) {
+                foreach (var type in playerImbuesFailed[k].Keys) {
+                    if (!types.Contains(type)) types.Add(type);
+                }
+            }
+
+            return types;
+        }
+
+        internal string GetImbueTypeStats(string type) {
+            var failed = 0;
+            var landed = 0;
+
+            foreach (var k in playerImbuesLanded.Keys) {
+                if (!playerImbuesLanded[k].ContainsKey(type)) continue;
+
+                landed += playerImbuesLanded[k][type];
+            }
+
+            foreach (var k in playerImbuesFailed.Keys) {
+                if (!playerImbuesFailed[k].ContainsKey(type)) continue;
+
+                failed += playerImbuesFailed[k][type];
+            }
+
+            var total = landed + failed;
+            var percent = (Math.Round((double)landed / total, 4) * 100) + "%";
+
+            return string.Format("{0} ({1})", percent, total);
         }
 
         public void AddBurnedComponent(string component, int amount) {

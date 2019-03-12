@@ -91,6 +91,7 @@ namespace DoThingsBot {
 
                 Mag.Shared.Settings.SettingsFile.SaveXmlDocument();
                 Globals.Stats = new Stats.Stats();
+                Globals.StatsView = new StatsView();
                 Buffs.Buffs.LoadProfiles();
                 
                 mainView = new MainView();

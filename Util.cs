@@ -76,17 +76,21 @@ namespace DoThingsBot
 			catch
 			{
 			}
-		}
+        }
 
-		public static void WriteToChat(string message)
-		{
-			try
-			{
-                DecalProxy.Decal_DispatchOnChatCommand("[" + Globals.PluginName + "] " + message);
-                Globals.Host.Actions.AddChatText("[" + Globals.PluginName + "] " + message, 5);
+        public static void WriteToChat(string message, bool skipPluginName=false) {
+            try {
+                if (skipPluginName) {
+                    DecalProxy.Decal_DispatchOnChatCommand(message);
+                    Globals.Host.Actions.AddChatText(message, 5);
+                }
+                else {
+                    DecalProxy.Decal_DispatchOnChatCommand("[" + Globals.PluginName + "] " + message);
+                    Globals.Host.Actions.AddChatText("[" + Globals.PluginName + "] " + message, 5);
+                }
                 WriteToDebugLog(message);
             }
-			catch (Exception ex) { LogException(ex); }
+            catch (Exception ex) { LogException(ex); }
         }
 
         public static void WriteToDebugLog(string message) {
@@ -570,5 +574,21 @@ namespace DoThingsBot
 
             return count;
         }
+        
+        public static string GetFriendlyTimeDifference(TimeSpan difference, bool skipSeconds=false) {
+            string output = "";
+
+            if (difference.TotalDays > 0) output += difference.Days.ToString() + "d ";
+            if (difference.TotalHours > 0) output += difference.Hours.ToString() + "h ";
+            if (difference.TotalMinutes > 0) output += difference.Minutes.ToString() + "m ";
+            if (difference.TotalSeconds > 0 && !skipSeconds) output += difference.Seconds.ToString() + "s ";
+
+            return output.Trim();
+        }
+
+        public static string GetFriendlyTimeDifference(ulong difference, bool skipSeconds = false) {
+            return GetFriendlyTimeDifference(TimeSpan.FromSeconds(difference), skipSeconds);
+        }
+
     }
 }

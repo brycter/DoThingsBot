@@ -26,9 +26,24 @@ namespace DoThingsBot.Stats {
         public ulong operatingRevenue = 0;
         public ulong timeSpentBuffing = 0;
         public ulong timeSpentSelfBuffing = 0;
+        public ulong uptime = 0;
 
         public GlobalStats() {
 
+        }
+
+        internal List<string> GetImbueTypes() {
+            var types = new List<string>();
+
+            foreach (var k in imbuesLandedBySalvageType.Keys) {
+                if (!types.Contains(k)) types.Add(k);
+            }
+
+            foreach (var k in imbuesFailedBySalvageType.Keys) {
+                if (!types.Contains(k)) types.Add(k);
+            }
+
+            return types;
         }
 
         public void AddBurnedComponent(string component, int amount) {
@@ -106,6 +121,58 @@ namespace DoThingsBot.Stats {
                 File.WriteAllText(GetGlobalsStatsFilePath(), json);
             }
             catch (Exception ex) { Util.LogException(ex); }
+        }
+
+        internal int GetTotalSalvageBagsApplied() {
+            var total = 0;
+
+            foreach (var key in salvageBagsApplied.Keys) {
+                total += salvageBagsApplied[key];
+            }
+
+            return total;
+        }
+
+        internal int GetFailedImbueCount() {
+            var total = 0;
+
+            foreach (var key in imbuesFailedBySalvageType.Keys) {
+                total += imbuesFailedBySalvageType[key];
+            }
+
+            return total;
+        }
+
+        internal int GetSucceededImbueCount() {
+            var total = 0;
+
+            foreach (var key in imbuesFailedBySalvageType.Keys) {
+                total += imbuesFailedBySalvageType[key];
+            }
+
+            return total;
+        }
+
+        internal double GetOverallImbuePercentage() {
+            var failed = GetFailedImbueCount();
+            var succeeded = GetSucceededImbueCount();
+            return Math.Round((double)succeeded / (double)(failed + succeeded), 4) * 100;
+        }
+
+        internal object GetTotalImbueAttempts() {
+            var failed = GetFailedImbueCount();
+            var succeeded = GetSucceededImbueCount();
+
+            return failed + succeeded;
+        }
+
+        internal string GetImbueTypeStats(string type) {
+            var failed = imbuesFailedBySalvageType.ContainsKey(type) ? imbuesFailedBySalvageType[type] : 0;
+            var landed = imbuesLandedBySalvageType.ContainsKey(type) ? imbuesLandedBySalvageType[type] : 0;
+            var total = landed + failed;
+            var percent = (Math.Round((double)landed/total, 4) * 100) + "%";
+
+            return string.Format("{0} ({1})", percent, total);
         }
     }
 }

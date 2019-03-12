@@ -128,6 +128,7 @@
     <Compile Include="Views\MainView.cs" />
     <Compile Include="Views\Pages\Portals.cs" />
     <Compile Include="Views\ProfileManagerView.cs" />
+    <Compile Include="Views\StatsView.cs" />
     <Compile Include="VirindiViews\ViewSystemSelector.cs" />
     <Compile Include="VirindiViews\Wrapper.cs" />
     <Compile Include="VirindiViews\Wrapper_Decal.cs" />
@@ -222,6 +223,7 @@
     <Content Include="Resources\BuffProfiles\tink.xml" />
     <Content Include="Resources\BuffProfiles\trades.xml" />
     <Content Include="Resources\BuffProfiles\_generic.xml" />
+    <EmbeddedResource Include="Views\statsView.xml" />
     <EmbeddedResource Include="Views\profileManagerView.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

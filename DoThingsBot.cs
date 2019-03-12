@@ -15,6 +15,7 @@ using System.Diagnostics;
 namespace DoThingsBot {
     public class DoThingsBot {
         public bool isRunning = false;
+        public DateTime botStartedAt = DateTime.MinValue;
         
         public Chat.ChatManager _chatManager;
 
@@ -55,6 +56,7 @@ namespace DoThingsBot {
             CoreManager.Current.Actions.FaceHeading(Config.Bot.DefaultHeading.Value, true);
 
             isRunning = true;
+            botStartedAt = DateTime.UtcNow;
             _machine.Start();
 
             _machine.ChangeState(new BotIdleState());
@@ -67,6 +69,7 @@ namespace DoThingsBot {
 
             ChatManager.ResetAnnouncementTimer();
             ChatManager.RaiseChatCommandEvent += new EventHandler<ChatCommandEventArgs>(ChatManager_ChatCommand);
+            
         }
 
         private bool CheckSettings() {
@@ -472,6 +475,8 @@ namespace DoThingsBot {
             queue.Add(new PlayerCommand(playerName, command));
         }
 
+        DateTime lastUpdatedUptime = DateTime.UtcNow;
+
         void Think() {
             try {
                 if (!IsLoggedIn) return;
@@ -496,6 +501,8 @@ namespace DoThingsBot {
                     ChatManager.Think();
 
                     _machine.Think();
+
+                    Globals.StatsView.Think();
                 }
             }
             catch (Exception ex) { Util.LogException(ex); }
