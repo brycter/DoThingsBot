@@ -54,8 +54,12 @@ namespace DoThingsBot.FSM.States {
             try {
                 if (e.Text.StartsWith(String.Format("You cast {0}", currentlyCasting))) {
                     CastedEnchantments.Add(currentlyCasting);
+                    Globals.Stats.AddSelfBuffsCasted(1);
                     currentlyCasting = "";
                     lastCasted = DateTime.UtcNow;
+                }
+                else if (e.Text.StartsWith("Your spell fizzled.")) {
+                    Globals.Stats.AddFizzle();
                 }
             }
             catch (Exception ex) { Util.LogException(ex); }
@@ -116,7 +120,6 @@ namespace DoThingsBot.FSM.States {
                     // peace mode before we are done
                     if (!Util.EnsureCombatState(CombatState.Peace)) return;
 
-                    Globals.Stats.AddSelfBuffsCasted(CastedEnchantments.Count);
                     Globals.Stats.AddTimeSpentSelfBuffing((int)(DateTime.UtcNow - firstThought).TotalSeconds);
 
                     machine.ChangeState(new BotBuffing_FinishedState(itemBundle));

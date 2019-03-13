@@ -6,30 +6,54 @@ using System.Text;
 
 namespace DoThingsBot.Stats {
     class GlobalStats {
-        public Dictionary<string, int> salvageBagsApplied = new Dictionary<string, int>();
-        public Dictionary<string, int> itemsBlownUpBySalvageType = new Dictionary<string, int>();
+        public Dictionary<string, int> salvageBagsUsed = new Dictionary<string, int>();
+        public Dictionary<string, int> nonImbuesFailed = new Dictionary<string, int>();
         public Dictionary<string, int> imbuesLandedBySalvageType = new Dictionary<string, int>();
         public Dictionary<string, int> imbuesFailedBySalvageType = new Dictionary<string, int>();
-        public int totalNonImbueFails = 0;
+
+        public Dictionary<string, int> commandsIssued = new Dictionary<string, int>();
+        public Dictionary<string, int> donations = new Dictionary<string, int>();
+        public string mostRecentDonation = "";
+
         public double lowestSuccessfulTinkerChance = 100;
         public string lowestSuccessfulTinkerChanceDescription = ""; // Steel(wk1) to the Iron Celdon Leggings(wk10, 9 tinks)
         public double highestFailedTinkerChance = 0;
         public string highestFailedTinkerChanceDescription = ""; // Steel(wk10) to the Iron Celdon Leggings(wk2, 0 tinks) for Sunnuj
 
-        public Dictionary<string, int> totalPortalsSummoned = new Dictionary<string, int>();
+        public int highestPlayerImbueLandedStreak = 0;
+        public string highestPlayerImbueLandedStreakName = "";
+        public int highestPlayerImbueFailedStreak = 0;
+        public string highestPlayerImbueFailedStreakName = "";
+
+        public int currentImbueLandedStreak = 0;
+        public int highestImbueLandedStreak = 0;
+        public int currentImbueFailedStreak = 0;
+        public int highestImbueFailedStreak = 0;
+
+        public Dictionary<string, int> portalsSummoned = new Dictionary<string, int>();
 
         public int selfBuffsCasted = 0;
-        public int totalBuffsCasted = 0;
-        public int totalBuffProfilesCasted = 0;
-        public Dictionary<string, int> totalBurnedComponents = new Dictionary<string, int>();
+        public int playerBuffsCasted = 0;
+        public int buffProfilesCasted = 0;
+        public int fizzles = 0;
+        public Dictionary<string, int> burnedComponents = new Dictionary<string, int>();
         public ulong operatingCost = 0;
         public ulong operatingRevenue = 0;
         public ulong timeSpentBuffing = 0;
         public ulong timeSpentSelfBuffing = 0;
         public ulong uptime = 0;
+        public ulong startingUptime = 0;
 
         public GlobalStats() {
 
+        }
+
+        public string GetFriendlyUptime() {
+            return Util.GetFriendlyTimeDifference(uptime);
+        }
+
+        public ulong GetUptime() {
+            return uptime;
         }
 
         internal List<string> GetImbueTypes() {
@@ -47,27 +71,27 @@ namespace DoThingsBot.Stats {
         }
 
         public void AddBurnedComponent(string component, int amount) {
-            if (!totalBurnedComponents.ContainsKey(component)) {
-                totalBurnedComponents.Add(component, 0);
+            if (!burnedComponents.ContainsKey(component)) {
+                burnedComponents.Add(component, 0);
             }
 
-            totalBurnedComponents[component] += amount;
+            burnedComponents[component] += amount;
         }
 
         public void AddSalvageBagApplied(string salvageType, int amount) {
-            if (!salvageBagsApplied.ContainsKey(salvageType)) {
-                salvageBagsApplied.Add(salvageType, 0);
+            if (!salvageBagsUsed.ContainsKey(salvageType)) {
+                salvageBagsUsed.Add(salvageType, 0);
             }
 
-            salvageBagsApplied[salvageType] += amount;
+            salvageBagsUsed[salvageType] += amount;
         }
 
         public void AddItemBlownUpBySalvageType(string salvageType, int amount) {
-            if (!itemsBlownUpBySalvageType.ContainsKey(salvageType)) {
-                itemsBlownUpBySalvageType.Add(salvageType, 0);
+            if (!nonImbuesFailed.ContainsKey(salvageType)) {
+                nonImbuesFailed.Add(salvageType, 0);
             }
 
-            itemsBlownUpBySalvageType[salvageType] += amount;
+            nonImbuesFailed[salvageType] += amount;
         }
 
         public void AddImbueLandedBySalvageType(string salvageType, int amount) {
@@ -119,6 +143,8 @@ namespace DoThingsBot.Stats {
             try {
                 string json = JsonConvert.SerializeObject(this, Formatting.Indented);
                 File.WriteAllText(GetGlobalsStatsFilePath(), json);
+
+                Globals.Stats.lastGlobalStatsSave = DateTime.UtcNow;
             }
             catch (Exception ex) { Util.LogException(ex); }
         }
@@ -126,8 +152,8 @@ namespace DoThingsBot.Stats {
         internal int GetTotalSalvageBagsApplied() {
             var total = 0;
 
-            foreach (var key in salvageBagsApplied.Keys) {
-                total += salvageBagsApplied[key];
+            foreach (var key in salvageBagsUsed.Keys) {
+                total += salvageBagsUsed[key];
             }
 
             return total;
@@ -183,6 +209,50 @@ namespace DoThingsBot.Stats {
             }
 
             return stats;
+        }
+
+        internal int GetTotalCommandsIssued() {
+            int total = 0;
+
+            foreach (var key in commandsIssued.Keys) {
+                total += commandsIssued[key];
+            }
+
+            return total;
+        }
+
+        internal int GetTotalDonations() {
+            int total = 0;
+
+            foreach (var key in donations.Keys) {
+                total += donations[key];
+            }
+
+            return total;
+        }
+
+        internal int GetTotalBurnedComponents() {
+            int total = 0;
+
+            foreach (var key in burnedComponents.Keys) {
+                total += burnedComponents[key];
+            }
+
+            return total;
+        }
+
+        internal int GetTotalPortalsSummoned() {
+            int total = 0;
+
+            foreach (var key in portalsSummoned.Keys) {
+                total += portalsSummoned[key];
+            }
+
+            return total;
+        }
+
+        internal int GetTotalPlayersServed() {
+            return Directory.GetFiles(Util.GetPlayerDataDirectory(), "*.json", SearchOption.TopDirectoryOnly).Length;
         }
     }
 }

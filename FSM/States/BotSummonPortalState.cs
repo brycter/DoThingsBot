@@ -75,7 +75,7 @@ namespace DoThingsBot.FSM.States {
                     Globals.Stats.AddPlayerPortalSummoned(itemBundle.GetOwner(), portalLocation);
 
                     itemBundle.SetEquipMode(EquipMode.Idle);
-                    machine.ChangeState(new BotEquipItemsState(machine.CurrentState.GetItemBundle()));
+                    machine.ChangeState(new BotFinishState(machine.CurrentState.GetItemBundle()));
                 }
             }
         }

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<view icon="0" title="Decal Plugin" width="500" height="375">
+<view icon="0" title="Decal Plugin" width="500" height="415">
 		<control progid="DecalControls.Notebook" name="UIStatsMainTabs">
 		<page label="Session Stats">
 			<control progid="DecalControls.FixedLayout" clipped="">
@@ -11,8 +11,8 @@
 		</page>
 		<page label="Global Stats">
 			<control progid="DecalControls.FixedLayout" clipped="">
-        <control progid="DecalControls.PushButton" name="UIStatsEchoGlobalStats" left="372" top="310" width="120" height="20" text="Echo to Chat Window"/>
-        <control progid="DecalControls.FixedLayout" clipped="" left="0" top="0" width="1200" height="320" name="UIStatsGlobalStatsLayoutWrapper">
+        <control progid="DecalControls.PushButton" name="UIStatsEchoGlobalStats" left="372" top="350" width="120" height="20" text="Echo to Chat Window"/>
+        <control progid="DecalControls.FixedLayout" clipped="" left="0" top="0" width="1200" height="360" name="UIStatsGlobalStatsLayoutWrapper">
 
           <control progid="DecalControls.FixedLayout" clipped="" left="0" top="0" width="1200" height="500" name="UIStatsGlobalStatsLayout"></control>
         </control>

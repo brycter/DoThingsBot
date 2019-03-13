@@ -14,6 +14,8 @@ namespace DoThingsBot.FSM.States {
                 itemBundle.SavePlayerData();
             }
 
+            Globals.Stats.globalStats.Save();
+
             Globals.DoThingsBot.currentItemBundle = null;
 
             try {

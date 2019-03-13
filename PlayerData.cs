@@ -16,16 +16,18 @@ namespace DoThingsBot {
         public int highestImbueLandedStreak = 0;
         public int currentImbueFailedStreak = 0;
         public int highestImbuedFailedStreak = 0;
-        public Dictionary<string, int> salvageBagsApplied = new Dictionary<string, int>();
+        public Dictionary<string, int> salvageBagsUsed = new Dictionary<string, int>();
         public Dictionary<string, int> itemsBlownUpBySalvageType = new Dictionary<string, int>();
         public Dictionary<string, int> imbuesLandedBySalvageType = new Dictionary<string, int>();
         public Dictionary<string, int> imbuesFailedBySalvageType = new Dictionary<string, int>();
 
         public Dictionary<string, int> portalsSummoned = new Dictionary<string, int>();
 
+        public Dictionary<string, int> commandsIssued = new Dictionary<string, int>();
+
         public int totalBuffsCast = 0;
         public int totalBuffProfilesCast = 0;
-        public int totalFizzles = 0;
+        public int fizzles = 0;
         public ulong totalTimeSpentBuffing = 0;
 
         public List<int> itemIds = new List<int>();

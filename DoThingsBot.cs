@@ -51,6 +51,9 @@ namespace DoThingsBot {
                 Config.Bot.Enabled.Value = false;
                 return;
             }
+            
+            Globals.Stats = new Stats.Stats();
+
             Util.WriteToChat("DoThingsBot Started");
 
             CoreManager.Current.Actions.FaceHeading(Config.Bot.DefaultHeading.Value, true);
@@ -84,6 +87,8 @@ namespace DoThingsBot {
         public void Stop() {
             if (!isRunning)
                 return;
+
+            Globals.Stats.globalStats.Save();
 
             Util.WriteToChat("DoThingsBot stopped");
 
@@ -171,35 +176,41 @@ namespace DoThingsBot {
 
             switch (e.Command) {
                 case "help":
+                    Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
                     PrintHelpMessage(e.PlayerName, e.Arguments);
                     break;
 
                 case "about":
+                    Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
                     PrintAboutMessage(e.PlayerName, e.Arguments);
                     break;
 
                 case "version":
+                    Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
                     PrintAboutMessage(e.PlayerName, e.Arguments);
                     break;
 
                 case "message":
+                    Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
                     break;
 
                 case "forcebuff":
-                    if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) && e.PlayerName == CoreManager.Current.CharacterFilter.Name) {
+                    if ((_machine.IsOrWillBeInState("BotIdleState") || skipQueue) && e.PlayerName == CoreManager.Current.CharacterFilter.Name) {
                         var itemBundle = new ItemBundle();
                         itemBundle.SetForceBuffMode(true);
+                        Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
                         _machine.ChangeState(new BotStartState(itemBundle));
                     }
                     break;
 
                 case "skills":
-                    if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
+                    if (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) {
                         var itemBundle = new ItemBundle(e.PlayerName);
                         currentItemBundle = itemBundle;
 
                         itemBundle.SetEquipMode(EquipMode.Tinker);
                         itemBundle.SetCraftMode(CraftMode.CheckSkills);
+                        Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
                         _machine.ChangeState(new BotStartState(itemBundle));
                     }
                     else {
@@ -208,10 +219,12 @@ namespace DoThingsBot {
                     break;
 
                 case "whereto":
-                    if (_machine.IsRunning && !Config.Portals.Enabled.Value) {
+                    if (!Config.Portals.Enabled.Value) {
                         ChatManager.Tell(e.PlayerName, "My portal bot functionality is currently disabled, sorry!");
                         return;
                     }
+
+                    Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
 
                     ChatManager.Tell(e.PlayerName, String.Format("I am currently tied to {0} and {1}. '/t {2}, primary' for {0}. '/t {2}, secondary' for {1}",
                         Config.Portals.PrimaryPortalTieLocation.Value,
@@ -220,22 +233,24 @@ namespace DoThingsBot {
                     break;
 
                 case "remove":
+                    Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
                     RemoveFromQueue(e.PlayerName);
                     break;
 
                 case "primary":
-                    if (_machine.IsRunning && !Config.Portals.Enabled.Value) {
+                    if (!Config.Portals.Enabled.Value) {
                         ChatManager.Tell(e.PlayerName, "My portal bot functionality is currently disabled, sorry!");
                         return;
                     }
 
-                    if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
+                    if (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) {
                         var itemBundle = new ItemBundle(e.PlayerName);
                         currentItemBundle = itemBundle;
+                        Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
 
                         itemBundle.SetEquipMode(EquipMode.SummonPortal);
                         itemBundle.SetCraftMode(CraftMode.PrimaryPortal);
-                        _machine.ChangeState(new BotEquipItemsState(itemBundle));
+                        _machine.ChangeState(new BotStartState(itemBundle));
                     }
                     else {
                         AddToQueue(e.PlayerName, "primary");
@@ -243,18 +258,19 @@ namespace DoThingsBot {
                     break;
 
                 case "secondary":
-                    if (_machine.IsRunning && !Config.Portals.Enabled.Value) {
+                    if (!Config.Portals.Enabled.Value) {
                         ChatManager.Tell(e.PlayerName, "My portal bot functionality is currently disabled, sorry!");
                         return;
                     }
 
-                    if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
+                    if (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) {
                         var itemBundle = new ItemBundle(e.PlayerName);
                         currentItemBundle = itemBundle;
+                        Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
 
                         itemBundle.SetEquipMode(EquipMode.SummonPortal);
                         itemBundle.SetCraftMode(CraftMode.SecondaryPortal);
-                        _machine.ChangeState(new BotEquipItemsState(itemBundle));
+                        _machine.ChangeState(new BotStartState(itemBundle));
                     }
                     else {
                         AddToQueue(e.PlayerName, "secondary");
@@ -262,14 +278,15 @@ namespace DoThingsBot {
                     break;
 
                 case "tinker":
-                    if (_machine.IsRunning && !Config.Tinkering.Enabled.Value) {
+                    if (!Config.Tinkering.Enabled.Value) {
                         ChatManager.Tell(e.PlayerName, "My tinker bot functionality is currently disabled, sorry!");
                         return;
                     }
-                    if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
+                    if (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) {
                         var itemBundle = new ItemBundle(e.PlayerName);
                         itemBundle.SetCraftMode(CraftMode.WeaponTinkering);
                         currentItemBundle = itemBundle;
+                        Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
 
                         _machine.ChangeState(new BotStartState(itemBundle));
                     }
@@ -279,13 +296,10 @@ namespace DoThingsBot {
                     break;
 
                 case "lostitems":
-                    if (_machine.IsRunning && !Config.Tinkering.Enabled.Value) {
-                        ChatManager.Tell(e.PlayerName, "My tinker bot functionality is currently disabled, sorry!");
-                        return;
-                    }
-                    if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
+                    if (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) {
                         ItemBundle itemBundle = new ItemBundle(e.PlayerName);
                         currentItemBundle = itemBundle;
+                        Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
 
                         if (itemBundle.GetStolenItems().Count <= 0) {
                             ChatManager.Tell(itemBundle.GetOwner(), "I don't think I have any of your items.  If you think this is an error, leave me a message.");
@@ -307,10 +321,12 @@ namespace DoThingsBot {
                     break;
 
                 case "profiles":
-                    if (_machine.IsRunning && !Config.Portals.Enabled.Value) {
+                    if (!Config.Portals.Enabled.Value) {
                         ChatManager.Tell(e.PlayerName, "My buff bot functionality is currently disabled, sorry!");
                         return;
                     }
+
+                    Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
 
                     var profiles = new List<string>(Buffs.Buffs.profiles.Keys);
 
@@ -333,16 +349,18 @@ namespace DoThingsBot {
                     break;
 
                 case "buff":
-                    if (_machine.IsRunning && !Config.BuffBot.EnableTreeStatsBuffs.Value) {
+                    if (!Config.BuffBot.EnableTreeStatsBuffs.Value) {
                         ChatManager.Tell(e.PlayerName, "My TreeStats buffing profile functionality is currently disabled, sorry!");
                         return;
                     }
-                    if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
+                    if (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) {
                         ItemBundle itemBundle = new ItemBundle(e.PlayerName);
                         currentItemBundle = itemBundle;
                         itemBundle.SetCraftMode(CraftMode.Buff);
                         itemBundle.SetEquipMode(EquipMode.Buff);
                         itemBundle.SetBuffProfiles("treestats");
+
+                        Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
 
                         _machine.ChangeState(new BotStartState(itemBundle));
                     }
@@ -354,8 +372,9 @@ namespace DoThingsBot {
                 default:
                     // check for buff command
                     // todo: handle single buff commands
-                    if (Buffs.Buffs.GetAllProfileCommands().Contains(e.Command)) {
-                        if (_machine.IsRunning && !Config.BuffBot.Enabled.Value) {
+                    var allBuffProfiles = Buffs.Buffs.GetAllProfileCommands();
+                    if (allBuffProfiles.Contains(e.Command)) {
+                        if (!Config.BuffBot.Enabled.Value) {
                             ChatManager.Tell(e.PlayerName, "My Buff Bot functionality is currently disabled, sorry!");
                             return;
                         }
@@ -365,7 +384,13 @@ namespace DoThingsBot {
                             commands += " " + e.Arguments;
                         }
 
-                        if (_machine.IsRunning && (_machine.IsOrWillBeInState("BotIdleState") || skipQueue)) {
+                        foreach (var command in commands.Split(' ')) {
+                            if (allBuffProfiles.Contains(command)) {
+                                Globals.Stats.AddPlayerCommandIssued(e.PlayerName, command);
+                            }
+                        }
+
+                        if (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) {
                             ItemBundle itemBundle = new ItemBundle(e.PlayerName);
                             currentItemBundle = itemBundle;
                             itemBundle.SetCraftMode(CraftMode.Buff);
@@ -502,6 +527,7 @@ namespace DoThingsBot {
 
                     _machine.Think();
 
+                    Globals.Stats.Think();
                     Globals.StatsView.Think();
                 }
             }

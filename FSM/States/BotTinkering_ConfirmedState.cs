@@ -69,7 +69,7 @@ namespace DoThingsBot.FSM.States {
                     }
 
                     Globals.Stats.AddPlayerSalvageBagApplied(itemBundle.GetOwner(), match.Groups["salvage"].Value, 1);
-                    
+
                     Util.WriteToDebugLog(e.Text);
                     
                     itemBundle.SetItemDestroyed(itemBundle.GetUseItemTarget());
@@ -102,6 +102,8 @@ namespace DoThingsBot.FSM.States {
                     else if (itemBundle.GetImbueSalvages().Count == 0) {
                         Globals.Stats.RecordTinkerFailure(itemBundle.GetOwner(), match.Groups["salvage"].Value + "(wk" + match.Groups["workmanship"].Value + ")", itemBundle.successChance, match.Groups["item"].Value);
                     }
+
+                    Globals.Stats.AddPlayerSalvageBagApplied(itemBundle.GetOwner(), match.Groups["salvage"].Value, 1);
 
                     ChatManager.Tell(itemBundle.GetOwner(), "Ouch!  Maybe next time we'll have better luck.");
 

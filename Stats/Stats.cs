@@ -5,23 +5,40 @@ using System.Text;
 
 namespace DoThingsBot.Stats {
     public class Stats {
-        public Dictionary<string, Dictionary<string, int>> playerSalvageBagsApplied = new Dictionary<string, Dictionary<string, int>>();
+        public Dictionary<string, Dictionary<string, int>> playerSalvageBagsUsed = new Dictionary<string, Dictionary<string, int>>();
         public Dictionary<string, Dictionary<string, int>> playerImbuesLanded = new Dictionary<string, Dictionary<string, int>>();
         public Dictionary<string, Dictionary<string, int>> playerImbuesFailed = new Dictionary<string, Dictionary<string, int>>();
-        public Dictionary<string, int> playerNonImbueFails = new Dictionary<string, int>();
+        public Dictionary<string, Dictionary<string, int>> playerNonImbuesFailed = new Dictionary<string, Dictionary<string, int>>();
+
         public Dictionary<string, Dictionary<string, int>> playerPortalsSummoned = new Dictionary<string, Dictionary<string, int>>();
+
         public double lowestSuccessfulTinkerChance = 100;
         public string lowestSuccessfulTinkerChanceDescription = ""; // Steel(wk1) to the Iron Celdon Leggings for Sunnuj
         public double highestFailedTinkerChance = 0;
         public string highestFailedTinkerChanceDescription = ""; // Steel(wk10) to the Iron Celdon Leggings for Sunnuj
 
+        public int highestPlayerImbueLandedStreak = 0;
+        public string highestPlayerImbueLandedStreakName = "";
+        public int highestPlayerImbueFailedStreak = 0;
+        public string highestPlayerImbueFailedStreakName = "";
+
+        public int currentImbueLandedStreak = 0;
+        public int highestImbueLandedStreak = 0;
+        public int currentImbueFailedStreak = 0;
+        public int highestImbueFailedStreak = 0;
+
         public Dictionary<string, int> playerProfilesCasted = new Dictionary<string, int>();
         public Dictionary<string, int> playerBuffsCasted = new Dictionary<string, int>();
         public Dictionary<string, int> playerTimeSpentBuffing = new Dictionary<string, int>();
+        public Dictionary<string, int> playerFizzles = new Dictionary<string, int>();
+        public int fizzles = 0;
         public Dictionary<string, Dictionary<string, int>> playerBurnedComponents = new Dictionary<string, Dictionary<string, int>>();
         public Dictionary<string, Dictionary<string, int>> playerDonations = new Dictionary<string, Dictionary<string, int>>();
 
+        public Dictionary<string, Dictionary<string, int>> playerCommandsIssued = new Dictionary<string, Dictionary<string, int>>();
+
         public Dictionary<string, int> burnedComponents = new Dictionary<string, int>();
+
         public ulong operatingCost = 0;
         public ulong operatingRevenue = 0;
         public string mostRecentDonation = "";
@@ -30,8 +47,12 @@ namespace DoThingsBot.Stats {
 
         internal GlobalStats globalStats;
 
+        private DateTime lastThought = DateTime.UtcNow;
+        public DateTime lastGlobalStatsSave = DateTime.UtcNow;
+
         public Stats() {
             globalStats = GlobalStats.Load();
+            globalStats.startingUptime = globalStats.uptime;
         }
 
         private ItemBundle GetItemBundle(string playerName) {
@@ -63,6 +84,18 @@ namespace DoThingsBot.Stats {
             dict[key] += amount;
         }
 
+        public void AddPlayerCommandIssued(string playerName, string command) {
+            if (!playerCommandsIssued.ContainsKey(playerName)) {
+                playerCommandsIssued.Add(playerName, new Dictionary<string, int>());
+            }
+            IncDictionaryKey(playerCommandsIssued[playerName], command, 1);
+
+            var bundle = GetItemBundle(playerName);
+            IncDictionaryKey(bundle.playerData.commandsIssued, command, 1);
+
+            IncDictionaryKey(globalStats.commandsIssued, command, 1);
+        }
+
         public void AddPlayerPortalSummoned(string playerName, string portalName) {
             if (!playerPortalsSummoned.ContainsKey(playerName)) {
                 playerPortalsSummoned.Add(playerName, new Dictionary<string, int>());
@@ -72,23 +105,35 @@ namespace DoThingsBot.Stats {
             var bundle = GetItemBundle(playerName);
             IncDictionaryKey(bundle.playerData.portalsSummoned, portalName, 1);
             bundle.SavePlayerData();
-            
-            IncDictionaryKey(globalStats.totalPortalsSummoned, portalName, 1);
-            globalStats.Save();
+
+            IncDictionaryKey(globalStats.portalsSummoned, portalName, 1);
+        }
+
+        public void AddPlayerFizzle(string playerName) {
+            IncDictionaryKey(playerFizzles, playerName, 1);
+
+            var bundle = GetItemBundle(playerName);
+            bundle.playerData.fizzles += 1;
+
+            AddFizzle();
+        }
+
+        public void AddFizzle() {
+            fizzles += 1;
+            globalStats.fizzles += 1;
         }
 
         public void AddPlayerSalvageBagApplied(string playerName, string salvageType, int amount) {
-            if (!playerSalvageBagsApplied.ContainsKey(playerName)) {
-                playerSalvageBagsApplied.Add(playerName, new Dictionary<string, int>());
+            if (!playerSalvageBagsUsed.ContainsKey(playerName)) {
+                playerSalvageBagsUsed.Add(playerName, new Dictionary<string, int>());
             }
 
-            IncDictionaryKey(playerSalvageBagsApplied[playerName], salvageType, amount);
+            IncDictionaryKey(playerSalvageBagsUsed[playerName], salvageType, amount);
 
             var bundle = GetItemBundle(playerName);
-            IncDictionaryKey(bundle.playerData.salvageBagsApplied, salvageType, amount);
+            IncDictionaryKey(bundle.playerData.salvageBagsUsed, salvageType, amount);
 
             globalStats.AddSalvageBagApplied(salvageType, amount);
-            globalStats.Save();
         }
 
         public void AddPlayerImbuesLanded(string playerName, string salvageType, int amount) {
@@ -102,7 +147,33 @@ namespace DoThingsBot.Stats {
             IncDictionaryKey(bundle.playerData.imbuesLandedBySalvageType, salvageType, amount);
 
             IncDictionaryKey(globalStats.imbuesLandedBySalvageType, salvageType, amount);
-            globalStats.Save();
+
+            // increment bot imbue landed streak counts
+            bundle.playerData.currentImbueLandedStreak += 1;
+            bundle.playerData.currentImbueFailedStreak = 0;
+            currentImbueLandedStreak += 1;
+            currentImbueFailedStreak = 0;
+            globalStats.currentImbueLandedStreak += 1;
+            globalStats.currentImbueFailedStreak = 0;
+
+            if (currentImbueLandedStreak > highestImbueLandedStreak) {
+                highestImbueLandedStreak = currentImbueLandedStreak;
+            }
+            if (globalStats.currentImbueFailedStreak > globalStats.highestImbueFailedStreak) {
+                globalStats.highestImbueFailedStreak = globalStats.currentImbueFailedStreak;
+            }
+
+            // session highest landed imbue streak by player
+            if (bundle.playerData.currentImbueLandedStreak >= highestPlayerImbueLandedStreak) {
+                highestPlayerImbueLandedStreak = bundle.playerData.currentImbueLandedStreak;
+                highestPlayerImbueLandedStreakName = playerName;
+            }
+
+            // global highest landed imbue streak by player
+            if (bundle.playerData.currentImbueLandedStreak >= globalStats.highestPlayerImbueLandedStreak) {
+                globalStats.highestPlayerImbueLandedStreak = bundle.playerData.currentImbueLandedStreak;
+                globalStats.highestPlayerImbueLandedStreakName = playerName;
+            }
         }
 
         public void AddPlayerImbuesFailed(string playerName, string salvageType, int amount) {
@@ -116,7 +187,33 @@ namespace DoThingsBot.Stats {
             IncDictionaryKey(bundle.playerData.imbuesFailedBySalvageType, salvageType, amount);
 
             IncDictionaryKey(globalStats.imbuesFailedBySalvageType, salvageType, amount);
-            globalStats.Save();
+
+            // increment bot imbue failed streak counts
+            bundle.playerData.currentImbueFailedStreak += 1;
+            bundle.playerData.currentImbueLandedStreak = 0;
+            currentImbueFailedStreak += 1;
+            currentImbueLandedStreak = 0;
+            globalStats.currentImbueFailedStreak += 1;
+            globalStats.currentImbueLandedStreak = 0;
+
+            if (currentImbueFailedStreak > highestImbueFailedStreak) {
+                highestImbueFailedStreak = currentImbueFailedStreak;
+            }
+            if (globalStats.currentImbueFailedStreak > globalStats.highestImbueFailedStreak) {
+                globalStats.highestImbueFailedStreak = globalStats.currentImbueFailedStreak;
+            }
+
+            // session highest failed imbue streak by player
+            if (bundle.playerData.currentImbueFailedStreak >= highestPlayerImbueFailedStreak) {
+                highestPlayerImbueFailedStreak = bundle.playerData.currentImbueFailedStreak;
+                highestPlayerImbueFailedStreakName = playerName;
+            }
+
+            // global highest failed imbue streak  by player
+            if (bundle.playerData.currentImbueFailedStreak >= globalStats.highestPlayerImbueFailedStreak) {
+                globalStats.highestPlayerImbueFailedStreak = bundle.playerData.currentImbueFailedStreak;
+                globalStats.highestPlayerImbueFailedStreakName = playerName;
+            }
         }
 
         public void RecordTinkerSuccess(string playerName, string salvageType, double percentChance, string itemName) {
@@ -131,7 +228,6 @@ namespace DoThingsBot.Stats {
             if (percentChance <= globalStats.lowestSuccessfulTinkerChance) {
                 globalStats.lowestSuccessfulTinkerChance = percentChance;
                 globalStats.lowestSuccessfulTinkerChanceDescription = string.Format("{0} for {1}", description, playerName);
-                globalStats.Save();
             }
         }
 
@@ -139,9 +235,13 @@ namespace DoThingsBot.Stats {
             var bundle = GetItemBundle(playerName);
             var description = string.Format("{0} on {1}", salvageType, itemName);
 
-            IncDictionaryKey(playerNonImbueFails, playerName, 1);
+            if (!playerNonImbuesFailed.ContainsKey(playerName)) {
+                playerNonImbuesFailed.Add(playerName, new Dictionary<string, int>());
+            }
 
-            globalStats.totalNonImbueFails += 1;
+            IncDictionaryKey(playerNonImbuesFailed[playerName], salvageType, 1);
+
+            globalStats.AddItemBlownUpBySalvageType(salvageType, 1);
 
             if (percentChance >= bundle.playerData.highestFailedTinkerChance) {
                 bundle.playerData.highestFailedTinkerChance = percentChance;
@@ -152,8 +252,6 @@ namespace DoThingsBot.Stats {
                 globalStats.highestFailedTinkerChance = percentChance;
                 globalStats.highestFailedTinkerChanceDescription = string.Format("{0} for {1}", description, playerName);
             }
-
-            globalStats.Save();
         }
 
         public void AddPlayerTimeSpentBuffing(string playerName, int seconds) {
@@ -163,13 +261,11 @@ namespace DoThingsBot.Stats {
             bundle.playerData.totalTimeSpentBuffing += (ulong)seconds;
 
             globalStats.timeSpentBuffing += (ulong)seconds;
-            globalStats.Save();
         }
 
         public void AddTimeSpentSelfBuffing(int seconds) {
             timeSpentSelfBuffing += (ulong)seconds;
             globalStats.timeSpentSelfBuffing += (ulong)seconds;
-            globalStats.Save();
         }
 
         public void AddPlayerBurnedComponent(string playerName, string component, int amount) {
@@ -177,7 +273,7 @@ namespace DoThingsBot.Stats {
                 playerBurnedComponents.Add(playerName, new Dictionary<string, int>());
             }
 
-            var cost = GetBurnedComponentValueByName(component) * (ulong)amount;
+            var cost = GetComponentCost(component) * (ulong)amount;
 
             IncDictionaryKey(playerBurnedComponents[playerName], component, amount);
 
@@ -231,13 +327,12 @@ namespace DoThingsBot.Stats {
         public void AddBurnedComponent(string component, int amount) {
             IncDictionaryKey(burnedComponents, component, amount);
 
-            var cost = GetBurnedComponentValueByName(component) * (ulong)amount;
+            var cost = GetComponentCost(component) * (ulong)amount;
 
             operatingCost += cost;
             
             globalStats.AddBurnedComponent(component, amount);
             globalStats.operatingCost += cost;
-            globalStats.Save();
         }
 
         public void AddPlayerProfilesCasted(string playerName, int amount) {
@@ -246,8 +341,7 @@ namespace DoThingsBot.Stats {
             var bundle = GetItemBundle(playerName);
             bundle.playerData.totalBuffProfilesCast += amount;
 
-            globalStats.totalBuffProfilesCasted += amount;
-            globalStats.Save();
+            globalStats.buffProfilesCasted += amount;
         }
 
         public void AddPlayerBuffsCasted(string playerName, int amount) {
@@ -255,15 +349,13 @@ namespace DoThingsBot.Stats {
             var bundle = GetItemBundle(playerName);
             bundle.playerData.totalBuffsCast += amount;
 
-            globalStats.totalBuffsCasted += amount;
-            globalStats.Save();
+            globalStats.playerBuffsCasted += amount;
         }
 
         public void AddSelfBuffsCasted(int amount) {
             selfBuffsCasted += amount;
 
             globalStats.selfBuffsCasted += amount;
-            globalStats.Save();
         }
 
         public void AddPlayerDonation(string playerName, string item, int amount) {
@@ -289,6 +381,9 @@ namespace DoThingsBot.Stats {
             bundle.playerData.balance += (long)donatedValue;
             bundle.SavePlayerData();
 
+            IncDictionaryKey(globalStats.donations, item, amount);
+
+            globalStats.mostRecentDonation = mostRecentDonation;
             globalStats.operatingRevenue += donatedValue;
             globalStats.Save();
         }
@@ -313,6 +408,10 @@ namespace DoThingsBot.Stats {
         private ulong GetDonatedItemValueByName(string itemName) {
             if (!IsValuedDonation(itemName)) return 0;
 
+            if (IsNeededComponent(itemName)) {
+                return GetComponentCost(itemName);
+            }
+
             foreach (var wo in Globals.Core.WorldFilter.GetInventory()) {
                 if (wo.Name == itemName) {
                     return (ulong)Math.Round((double)wo.Values(LongValueKey.Value, 1) / wo.Values(LongValueKey.StackCount, 1));
@@ -322,7 +421,7 @@ namespace DoThingsBot.Stats {
             return 0;
         }
 
-        private ulong GetBurnedComponentValueByName(string itemName) {
+        private ulong GetComponentCost(string itemName) {
             foreach (var wo in Globals.Core.WorldFilter.GetInventory()) {
                 if (wo.Name == itemName) {
                     var value = (ulong)Math.Round((double)wo.Values(LongValueKey.Value, 1) / wo.Values(LongValueKey.StackCount, 1));
@@ -332,6 +431,36 @@ namespace DoThingsBot.Stats {
             }
 
             return 0;
+        }
+
+        public string GetFriendlyUptime() {
+            return (Globals.DoThingsBot.isRunning ? Util.GetFriendlyTimeDifference(DateTime.UtcNow - Globals.DoThingsBot.botStartedAt) : "not running");
+        }
+
+        public ulong GetUptime() {
+            return (ulong)((DateTime.UtcNow - Globals.DoThingsBot.botStartedAt).TotalSeconds);
+        }
+
+        public void Think() {
+            if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(1000)) {
+                globalStats.uptime = globalStats.startingUptime + GetUptime();
+            }
+
+            if (DateTime.UtcNow - lastGlobalStatsSave > TimeSpan.FromSeconds(60)) {
+                globalStats.Save();
+            }
+        }
+
+        internal int GetTotalCommandsIssued() {
+            int total = 0;
+
+            foreach (var playerName in playerCommandsIssued.Keys) {
+                foreach (var command in playerCommandsIssued[playerName].Keys) {
+                    total += playerCommandsIssued[playerName][command];
+                }
+            }
+
+            return total;
         }
     }
 }

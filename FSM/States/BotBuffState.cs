@@ -137,6 +137,7 @@ namespace DoThingsBot.FSM.States {
                 else if (e.Text.StartsWith("Your spell fizzled.")) {
                     readyToCast = true;
                     fizzleCounter++;
+                    Globals.Stats.AddPlayerFizzle(itemBundle.GetOwner());
                 }
                 else if (e.Text.StartsWith("The spell consumed the following components: ")) {
                     var components = e.Text.Replace("The spell consumed the following components: ", "").Trim();
