@@ -172,7 +172,17 @@ namespace DoThingsBot.Stats {
             var total = landed + failed;
             var percent = (Math.Round((double)landed/total, 4) * 100) + "%";
 
-            return string.Format("{0} ({1})", percent, total);
+            return string.Format("{0}", percent);
+        }
+
+        internal Dictionary<string, string> GetImbueTypeStatsList() {
+            Dictionary<string, string> stats = new Dictionary<string, string>();
+
+            foreach (var type in Globals.Stats.globalStats.GetImbueTypes()) {
+                stats.Add(type, Globals.Stats.globalStats.GetImbueTypeStats(type));
+            }
+
+            return stats;
         }
     }
 }

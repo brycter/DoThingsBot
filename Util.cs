@@ -578,10 +578,10 @@ namespace DoThingsBot
         public static string GetFriendlyTimeDifference(TimeSpan difference, bool skipSeconds=false) {
             string output = "";
 
-            if (difference.TotalDays > 0) output += difference.Days.ToString() + "d ";
-            if (difference.TotalHours > 0) output += difference.Hours.ToString() + "h ";
-            if (difference.TotalMinutes > 0) output += difference.Minutes.ToString() + "m ";
-            if (difference.TotalSeconds > 0 && !skipSeconds) output += difference.Seconds.ToString() + "s ";
+            if (difference.Days > 0) output += difference.Days.ToString() + "d ";
+            if (difference.Days > 0 || difference.Hours > 0) output += difference.Hours.ToString() + "h ";
+            if (difference.Days > 0 || difference.Hours > 0 || difference.Minutes > 0) output += difference.Minutes.ToString() + "m ";
+            if (difference.Days == 0 && (difference.Days > 0 || difference.Hours > 0 || difference.Minutes > 0 || difference.Seconds > 0) && !skipSeconds) output += difference.Seconds.ToString() + "s ";
 
             return output.Trim();
         }
