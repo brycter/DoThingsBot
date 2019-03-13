@@ -303,25 +303,14 @@ namespace DoThingsBot.Stats {
         }
 
         internal string GetImbueTypeStats(string type) {
-            var failed = 0;
-            var landed = 0;
-
-            foreach (var k in playerImbuesLanded.Keys) {
-                if (!playerImbuesLanded[k].ContainsKey(type)) continue;
-
-                landed += playerImbuesLanded[k][type];
-            }
-
-            foreach (var k in playerImbuesFailed.Keys) {
-                if (!playerImbuesFailed[k].ContainsKey(type)) continue;
-
-                failed += playerImbuesFailed[k][type];
-            }
-
+            var imbuesFailedBySalvageType = GetImbuesFailedBySalvageType();
+            var imbuesLandedBySalvageType = GetImbuesLandedBySalvageType();
+            var failed = imbuesFailedBySalvageType.ContainsKey(type) ? imbuesFailedBySalvageType[type] : 0;
+            var landed = imbuesLandedBySalvageType.ContainsKey(type) ? imbuesLandedBySalvageType[type] : 0;
             var total = landed + failed;
             var percent = (Math.Round((double)landed / total, 4) * 100) + "%";
 
-            return string.Format("{0} ({1})", percent, total);
+            return string.Format("{0}", percent);
         }
 
         public void AddBurnedComponent(string component, int amount) {
@@ -388,12 +377,221 @@ namespace DoThingsBot.Stats {
             globalStats.Save();
         }
 
+        internal int GetTotalPlayerBuffProfilesCast() {
+            int total = 0;
+
+            foreach (var player in playerProfilesCasted.Keys) {
+                total += playerProfilesCasted[player];
+            }
+
+            return total;
+        }
+
+        internal object GetTotalPlayersServed() {
+            int total = 0;
+
+            foreach (var player in playerCommandsIssued.Keys) {
+                total += 1;
+            }
+
+            return total;
+        }
+
+        internal int GetTotalPlayerBuffsCast() {
+            int total = 0;
+
+            foreach (var player in playerBuffsCasted.Keys) {
+                total += playerBuffsCasted[player];
+            }
+
+            return total;
+        }
+
+        internal ulong GetTotalTimeSpentBuffing() {
+            ulong total = 0;
+
+            foreach (var player in playerTimeSpentBuffing.Keys) {
+                total += (ulong)playerTimeSpentBuffing[player];
+            }
+
+            return total;
+        }
+
         // TODO: make this look at actual required scarabs
         private bool IsNeededComponent(string itemName) {
             if (itemName == "Prismatic Taper") return true;
             if (itemName.EndsWith(" Scarab")) return true;
 
             return false;
+        }
+
+        internal Dictionary<string, int> GetCommandsIssued() {
+            Dictionary<string, int> commandCounts = new Dictionary<string, int>();
+
+            foreach (var player in playerCommandsIssued.Keys) {
+                foreach (var command in playerCommandsIssued[player].Keys) {
+                    if (!commandCounts.ContainsKey(command)) commandCounts[command] = 0;
+
+                    commandCounts[command] += playerCommandsIssued[player][command];
+                }
+            }
+
+            return commandCounts;
+        }
+
+        internal Dictionary<string, string> GetImbueTypeStatsList() {
+            Dictionary<string, string> stats = new Dictionary<string, string>();
+
+            foreach (var type in GetImbueTypes()) {
+                stats.Add(type, GetImbueTypeStats(type));
+            }
+
+            return stats;
+        }
+
+        internal int GetTotalPortalsSummoned() {
+            var portalsSummoned = 0;
+
+            foreach (var player in playerPortalsSummoned.Keys) {
+                foreach (var portal in playerPortalsSummoned[player].Keys) {
+                    portalsSummoned += playerPortalsSummoned[player][portal];
+                }
+            }
+
+            return portalsSummoned;
+        }
+
+        internal object GetTotalBurnedComponents() {
+            var count = 0;
+
+            foreach (var component in burnedComponents.Keys) {
+                count += burnedComponents[component];
+            }
+
+            return count;
+        }
+
+        internal Dictionary<string, int> GetPortalsSummoned() {
+            Dictionary<string, int> portalsSummoned = new Dictionary<string, int>();
+
+            foreach (var player in playerPortalsSummoned.Keys) {
+                foreach (var portal in playerPortalsSummoned[player].Keys) {
+                    if (!portalsSummoned.ContainsKey(portal)) portalsSummoned[portal] = 0;
+
+                    portalsSummoned[portal] += playerPortalsSummoned[player][portal];
+                }
+            }
+
+            return portalsSummoned;
+        }
+
+        internal object GetTotalDonations() {
+            var donations = 0;
+
+            foreach (var player in playerDonations.Keys) {
+                foreach (var item in playerDonations[player].Keys) {
+                    donations += playerDonations[player][item];
+                }
+            }
+
+            return donations;
+        }
+
+        internal Dictionary<string, int> GetDonations() {
+            Dictionary<string, int> donations = new Dictionary<string, int>();
+
+            foreach (var player in playerDonations.Keys) {
+                foreach (var item in playerDonations[player].Keys) {
+                    if (!donations.ContainsKey(item)) donations[item] = 0;
+
+                    donations[item] += playerDonations[player][item];
+                }
+            }
+
+            return donations;
+        }
+
+        internal Dictionary<string, int> GetSalvageBagsUsed() {
+            Dictionary<string, int> bags = new Dictionary<string, int>();
+            foreach (var player in playerSalvageBagsUsed.Keys) {
+                foreach (var salvage in playerSalvageBagsUsed[player].Keys) {
+                    if (!bags.ContainsKey(salvage)) bags.Add(salvage, 0);
+                    bags[salvage] += playerSalvageBagsUsed[player][salvage];
+                }
+            }
+
+            return bags;
+        }
+
+        internal Dictionary<string, int> GetImbuesFailedBySalvageType() {
+            Dictionary<string, int> types = new Dictionary<string, int>();
+            foreach (var player in playerImbuesFailed.Keys) {
+                foreach (var salvage in playerImbuesFailed[player].Keys) {
+                    if (!types.ContainsKey(salvage)) types.Add(salvage, 0);
+                    types[salvage] += playerImbuesFailed[player][salvage];
+                }
+            }
+
+            return types;
+        }
+
+        internal Dictionary<string, int> GetImbuesLandedBySalvageType() {
+            Dictionary<string, int> types = new Dictionary<string, int>();
+            foreach (var player in playerImbuesLanded.Keys) {
+                foreach (var salvage in playerImbuesLanded[player].Keys) {
+                    if (!types.ContainsKey(salvage)) types.Add(salvage, 0);
+                    types[salvage] += playerImbuesLanded[player][salvage];
+                }
+            }
+
+            return types;
+        }
+
+        internal int GetTotalSalvageBagsUsed() {
+            var total = 0;
+
+            var salvageBagsUsed = GetSalvageBagsUsed();
+
+            foreach (var key in salvageBagsUsed.Keys) {
+                total += salvageBagsUsed[key];
+            }
+
+            return total;
+        }
+
+        internal int GetFailedImbueCount() {
+            var total = 0;
+            var imbuesFailedBySalvageType = GetImbuesFailedBySalvageType();
+
+            foreach (var key in imbuesFailedBySalvageType.Keys) {
+                total += imbuesFailedBySalvageType[key];
+            }
+
+            return total;
+        }
+
+        internal int GetSucceededImbueCount() {
+            var total = 0;
+            var imbuesLandedBySalvageType = GetImbuesLandedBySalvageType();
+
+            foreach (var key in imbuesLandedBySalvageType.Keys) {
+                total += imbuesLandedBySalvageType[key];
+            }
+
+            return total;
+        }
+
+        internal double GetOverallImbuePercentage() {
+            var failed = GetFailedImbueCount();
+            var succeeded = GetSucceededImbueCount();
+            return Math.Round((double)succeeded / (double)(failed + succeeded), 4) * 100;
+        }
+
+        internal object GetTotalImbueAttempts() {
+            var failed = GetFailedImbueCount();
+            var succeeded = GetSucceededImbueCount();
+
+            return failed + succeeded;
         }
 
         // TODO: expose this in ui
@@ -434,10 +632,13 @@ namespace DoThingsBot.Stats {
         }
 
         public string GetFriendlyUptime() {
+            if (Globals.DoThingsBot == null) return "not running";
+
             return (Globals.DoThingsBot.isRunning ? Util.GetFriendlyTimeDifference(DateTime.UtcNow - Globals.DoThingsBot.botStartedAt) : "not running");
         }
 
         public ulong GetUptime() {
+            if (Globals.DoThingsBot == null) return 0;
             return (ulong)((DateTime.UtcNow - Globals.DoThingsBot.botStartedAt).TotalSeconds);
         }
 

@@ -330,6 +330,7 @@ namespace DoThingsBot {
                 var spell = fs.SpellTable.GetById(spellId);
 
                 if (isSelf != spell.IsUntargetted) continue;
+                if (spell.IsFellowship) continue;
 
                 if (spell.Family == (int)spellClass && CanCast(spell) && GetSpellLevel(spell) <= levelLimit) {
                     if (bestSpell == null) {

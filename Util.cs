@@ -583,6 +583,10 @@ namespace DoThingsBot
             if (difference.Days > 0 || difference.Hours > 0 || difference.Minutes > 0) output += difference.Minutes.ToString() + "m ";
             if (difference.Days == 0 && (difference.Days > 0 || difference.Hours > 0 || difference.Minutes > 0 || difference.Seconds > 0) && !skipSeconds) output += difference.Seconds.ToString() + "s ";
 
+            if (output.Length == 0 && skipSeconds && difference.Seconds > 0) output = string.Format("{0}s", difference.Seconds);
+
+            if (output.Length == 0) output = skipSeconds ? "0m" : "0s";
+
             return output.Trim();
         }
 

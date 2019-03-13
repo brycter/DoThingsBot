@@ -3,8 +3,10 @@
 		<control progid="DecalControls.Notebook" name="UIStatsMainTabs">
 		<page label="Session Stats">
 			<control progid="DecalControls.FixedLayout" clipped="">
-        <control progid="DecalControls.PushButton" name="UIStatsEchoSessionStats" left="320" top="4" width="120" height="19" text="Echo to Chat Window"/>
-        <control progid="DecalControls.FixedLayout" clipped="" left="0" top="0" width="1200" height="310" name="UIStatsSessionStatsLayout">
+        <control progid="DecalControls.PushButton" name="UIStatsEchoSessionStats" left="372" top="350" width="120" height="20" text="Echo to Chat Window"/>
+        <control progid="DecalControls.FixedLayout" clipped="" left="0" top="0" width="1200" height="360" name="UIStatsSessionStatsLayoutWrapper">
+
+          <control progid="DecalControls.FixedLayout" clipped="" left="0" top="0" width="1200" height="500" name="UIStatsSessionStatsLayout"></control>
         </control>
 			</control>
 

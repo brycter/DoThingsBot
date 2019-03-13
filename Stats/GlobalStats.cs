@@ -149,7 +149,7 @@ namespace DoThingsBot.Stats {
             catch (Exception ex) { Util.LogException(ex); }
         }
 
-        internal int GetTotalSalvageBagsApplied() {
+        internal int GetTotalSalvageBagsUsed() {
             var total = 0;
 
             foreach (var key in salvageBagsUsed.Keys) {
@@ -172,8 +172,8 @@ namespace DoThingsBot.Stats {
         internal int GetSucceededImbueCount() {
             var total = 0;
 
-            foreach (var key in imbuesFailedBySalvageType.Keys) {
-                total += imbuesFailedBySalvageType[key];
+            foreach (var key in imbuesLandedBySalvageType.Keys) {
+                total += imbuesLandedBySalvageType[key];
             }
 
             return total;
