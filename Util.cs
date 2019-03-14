@@ -11,8 +11,12 @@ using Newtonsoft.Json;
 
 namespace DoThingsBot
 {
-	public static class Util
-	{
+	public static class Util {
+        static int MAX_LOG_SIZE = 1024 * 1024 * 20; // 20mb
+        static int MAX_LOG_AGE = 14; // in days
+        static int MAX_LOG_EXCEPTION = 50;
+        static uint exceptionCount = 0;
+
         public static string DataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + @"\Decal Plugins\" + Globals.PluginName + @"\";
 
         public static string GetCharacterDataDirectory() {
@@ -54,9 +58,13 @@ namespace DoThingsBot
 
         public static void LogException(Exception ex)
 		{
-			try
-			{
-				using (StreamWriter writer = new StreamWriter(Path.Combine(Util.GetCharacterDataDirectory(), "exceptions.txt"), true))
+			try {
+
+                if (exceptionCount > MAX_LOG_EXCEPTION) return;
+
+                exceptionCount++;
+
+                using (StreamWriter writer = new StreamWriter(Path.Combine(Util.GetCharacterDataDirectory(), "exceptions.txt"), true))
 				{
 					writer.WriteLine("============================================================================");
 					writer.WriteLine(DateTime.Now.ToString());
@@ -592,6 +600,50 @@ namespace DoThingsBot
 
         public static string GetFriendlyTimeDifference(ulong difference, bool skipSeconds = false) {
             return GetFriendlyTimeDifference(TimeSpan.FromSeconds(difference), skipSeconds);
+        }
+
+        public static void PruneOldLogs() {
+            PruneLogDirectory(Path.Combine(Util.GetCharacterDataDirectory(), "logs"));
+        }
+
+        private static void PruneLogDirectory(string logDirectory) {
+            try {
+                string[] files = Directory.GetFiles(logDirectory, "*.txt", SearchOption.TopDirectoryOnly);
+
+                var logFileRe = new Regex(@"^\w+\.(?<date>\d+\-\d+\-\d+)\.txt$");
+
+                foreach (var file in files) {
+                    var parts = file.Split('\\');
+                    var fName = parts[parts.Length - 1];
+                    var match = logFileRe.Match(fName);
+                    if (match.Success) {
+                        DateTime logDate;
+                        DateTime.TryParse(match.Groups["date"].ToString(), out logDate);
+
+                        if (logDate != null && (DateTime.Now - logDate).TotalDays > MAX_LOG_AGE) {
+                            File.Delete(file);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex) { Util.LogException(ex); }
+        }
+
+        public static void TruncateLogFiles() {
+            TruncateLogFile(Path.Combine(Util.GetCharacterDataDirectory(), "exceptions.txt"));
+        }
+
+        private static void TruncateLogFile(string logFile) {
+            try {
+                if (!File.Exists(logFile)) return;
+
+                long length = new System.IO.FileInfo(logFile).Length;
+
+                if (length > MAX_LOG_SIZE) {
+                    File.Delete(logFile);
+                }
+            }
+            catch (Exception ex) { Util.LogException(ex); }
         }
 
     }

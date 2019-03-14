@@ -82,6 +82,9 @@ namespace DoThingsBot {
 
                 Util.CreateDataDirectories();
 
+                Util.TruncateLogFiles();
+                Util.PruneOldLogs();
+
                 Util.WriteToDebugLog("LoginComplete");
                 Util.WriteToChat(String.Format("Config file: {0}", configFilePath));
 
