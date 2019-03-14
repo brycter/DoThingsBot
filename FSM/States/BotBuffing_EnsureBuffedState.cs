@@ -4,16 +4,19 @@ using DoThingsBot.Chat;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static DoThingsBot.Spells;
 
 namespace DoThingsBot.FSM.States {
     class BotBuffing_EnsureBuffedState : IBotState {
         public string Name { get => "BotBuffing_EnsureBuffedState"; }
-        public List<string> WantedEnchantments = new List<string>();
+        public List<SpellClass> WantedSpells = new List<SpellClass>();
         public Dictionary<int, DateTime> EnchantmentExpireTimes = new Dictionary<int, DateTime>();
         private ItemBundle itemBundle;
         private bool doneCasting = false;
         private List<string> spellsCasted = new List<string>();
         private bool needsBuffs = false;
+        private bool readyToCast = true;
+        private int currentSkillLevel = 0;
 
         public BotBuffing_EnsureBuffedState(ItemBundle items) {
             try {
@@ -25,12 +28,16 @@ namespace DoThingsBot.FSM.States {
         public void Enter(Machine machine) {
             try {
                 CoreManager.Current.ChatBoxMessage += new EventHandler<ChatTextInterceptEventArgs>(Current_ChatBoxMessage);
+                CoreManager.Current.EchoFilter.ServerDispatch += EchoFilter_ServerDispatch;
+                RefreshWantedSpells();
+
+                currentSkillLevel = GetSkillLevel();
 
                 if (!itemBundle.GetForceBuffMode()) {
-                    RefreshWantedEnchantments();
 
-                    foreach (var enchantment in WantedEnchantments) {
-                        if (Spells.DoesSpellNeedRefresh(enchantment)) {
+                    foreach (var spell in WantedSpells) {
+                        var spellName = GetBestAvailableSpell(spell);
+                        if (Spells.DoesSpellNeedRefresh(spellName)) {
                             needsBuffs = true;
                             break;
                         }
@@ -43,9 +50,21 @@ namespace DoThingsBot.FSM.States {
             catch (Exception e) { Util.LogException(e); }
         }
 
+        private void EchoFilter_ServerDispatch(object sender, NetworkMessageEventArgs e) {
+            try {
+                if (e.Message.Type == 0xF7B0) { // Game Event
+                    if ((int)e.Message["event"] == 0x01C7) {
+                        readyToCast = true;
+                    }
+                }
+            }
+            catch (Exception ex) { Util.LogException(ex);  }
+        }
+
         public void Exit(Machine machine) {
             try {
                 CoreManager.Current.ChatBoxMessage -= new EventHandler<ChatTextInterceptEventArgs>(Current_ChatBoxMessage);
+                CoreManager.Current.EchoFilter.ServerDispatch -= EchoFilter_ServerDispatch;
             }
             catch (Exception e) { Util.LogException(e); }
         }
@@ -53,7 +72,7 @@ namespace DoThingsBot.FSM.States {
         void Current_ChatBoxMessage(object sender, ChatTextInterceptEventArgs e) {
             try {
                 if (e.Text.StartsWith(String.Format("You cast {0}", currentlyCasting))) {
-                    CastedEnchantments.Add(currentlyCasting);
+                    CastedSpells.Add(currentlyCasting);
                     Globals.Stats.AddSelfBuffsCasted(1);
                     currentlyCasting = "";
                     lastCasted = DateTime.UtcNow;
@@ -68,18 +87,20 @@ namespace DoThingsBot.FSM.States {
         private DateTime lastThought = DateTime.UtcNow;
         private DateTime firstThought = DateTime.UtcNow;
 
-        private List<string> CastedEnchantments = new List<string>();
+        private List<string> CastedSpells = new List<string>();
         private string currentlyCasting = "";
         private DateTime startedCasting = DateTime.MinValue;
         private DateTime lastCasted = DateTime.MinValue;
 
         public void Think(Machine machine) {
             try {
-                if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(800)) {
+                if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(500)) {
                     lastThought = DateTime.UtcNow;
 
-                    if (!needsBuffs) {
+                    if (doneCasting) {
                         if (!Util.EnsureCombatState(CombatState.Peace)) return;
+
+                        Globals.Stats.AddTimeSpentSelfBuffing((int)(DateTime.UtcNow - firstThought).TotalSeconds);
 
                         machine.ChangeState(new BotBuffing_FinishedState(itemBundle));
                         return;
@@ -89,24 +110,33 @@ namespace DoThingsBot.FSM.States {
                     if (!Util.EnsureCombatState(CombatState.Magic)) return;
 
                     // make sure we have enough stamina
-                    if (!Spells.EnsureEnoughStamina()) return;
+                    if (!Spells.EnsureEnoughStamina(readyToCast)) return;
 
                     // make sure we have enough mana
-                    if (!Spells.EnsureEnoughMana()) return;
+                    if (!Spells.EnsureEnoughMana(readyToCast)) return;
 
                     // refresh wanted enchantments in case of skill change
-                    RefreshWantedEnchantments();
+                    RefreshWantedSpells();
+
+                    if (currentSkillLevel != GetSkillLevel()) {
+                        _spellCache.Clear();
+                        currentSkillLevel = GetSkillLevel();
+                        Util.WriteToChat("Clear Cache");
+                    }
 
                     // cast next needed buff
-                    foreach (var enchantment in WantedEnchantments) {
-                        if (CastedEnchantments.Contains(enchantment)) continue;
+                    foreach (var spell in WantedSpells) {
+                        var enchantment = GetBestAvailableSpell(spell);
+
+                        if (CastedSpells.Contains(enchantment)) continue;
 
                         if (Spells.DoesSpellNeedRefresh(enchantment) || itemBundle.GetForceBuffMode() == true) {
+                            if (!readyToCast) return;
+                            readyToCast = false;
+
                             var spellId = Spells.GetIdFromName(enchantment);
                             currentlyCasting = enchantment;
                             startedCasting = DateTime.UtcNow;
-
-                            Util.WriteToChat(String.Format("Attempting to cast {0} ({1})",  enchantment, spellId));
 
                             CoreManager.Current.Actions.CastSpell(spellId, CoreManager.Current.CharacterFilter.Id);
                             return;
@@ -115,36 +145,51 @@ namespace DoThingsBot.FSM.States {
 
                     doneCasting = true;
                 }
-
-                if (doneCasting) {
-                    // peace mode before we are done
-                    if (!Util.EnsureCombatState(CombatState.Peace)) return;
-
-                    Globals.Stats.AddTimeSpentSelfBuffing((int)(DateTime.UtcNow - firstThought).TotalSeconds);
-
-                    machine.ChangeState(new BotBuffing_FinishedState(itemBundle));
-                }
             }
             catch (Exception e) { Util.LogException(e); }
         }
 
-        private void RefreshWantedEnchantments() {
-            WantedEnchantments.Clear();
+        private Dictionary<SpellClass, string> _spellCache = new Dictionary<SpellClass, string>();
+
+        private string GetBestAvailableSpell(SpellClass spell) {
+            if (_spellCache.ContainsKey(spell)) return _spellCache[spell];
+
+            var name = Spells.GetBestKnownSpellByClass(spell, true).Name;
+
+            _spellCache.Add(spell, name);
+
+            return _spellCache[spell];
+        }
+
+        private int GetSkillLevel() {
+            int skillLevel = 0;
+
+            skillLevel += CoreManager.Current.CharacterFilter.EffectiveAttribute[CharFilterAttributeType.Focus];
+            skillLevel += CoreManager.Current.CharacterFilter.EffectiveAttribute[CharFilterAttributeType.Self];
+            skillLevel += CoreManager.Current.CharacterFilter.EffectiveSkill[CharFilterSkillType.CreatureEnchantment];
+            skillLevel += CoreManager.Current.CharacterFilter.EffectiveSkill[CharFilterSkillType.ItemEnchantment];
+            skillLevel += CoreManager.Current.CharacterFilter.EffectiveSkill[CharFilterSkillType.LifeMagic];
+
+            return skillLevel;
+        }
+
+        private void RefreshWantedSpells() {
+            WantedSpells.Clear();
             if (itemBundle.GetForceBuffMode() == true) {
-                WantedEnchantments.AddRange(Config.Bot.GetWantedIdleEnchantments());
-                WantedEnchantments.AddRange(Config.Bot.GetWantedTinkerEnchantments());
-                WantedEnchantments.AddRange(Config.Bot.GetWantedBuffEnchantments());
+                WantedSpells.AddRange(Config.Bot.GetWantedIdleEnchantments());
+                WantedSpells.AddRange(Config.Bot.GetWantedTinkerEnchantments());
+                WantedSpells.AddRange(Config.Bot.GetWantedBuffEnchantments());
             }
             else if (itemBundle.HasOwner()) {
                 if (itemBundle.craftMode == CraftMode.Buff) {
-                    WantedEnchantments.AddRange(Config.Bot.GetWantedBuffEnchantments());
+                    WantedSpells.AddRange(Config.Bot.GetWantedBuffEnchantments());
                 }
                 else {
-                    WantedEnchantments.AddRange(Config.Bot.GetWantedTinkerEnchantments());
+                    WantedSpells.AddRange(Config.Bot.GetWantedTinkerEnchantments());
                 }
             }
             else {
-                WantedEnchantments.AddRange(Config.Bot.GetWantedIdleEnchantments());
+                WantedSpells.AddRange(Config.Bot.GetWantedIdleEnchantments());
             }
         }
 

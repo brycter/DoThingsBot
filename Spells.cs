@@ -125,6 +125,20 @@ namespace DoThingsBot {
             return false;
         }
 
+        public static bool DoesAnySpellNeedRefresh(List<SpellClass> spells) {
+            foreach (var spellFamily in spells) {
+                var spell = Spells.GetBestKnownSpellByClass(spellFamily, true);
+
+                if (spell == null) continue;
+
+                if (DoesSpellNeedRefresh(spell.Name)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static bool DoesSpellNeedRefresh(string spellName) {
             try {
                 int spellId = GetIdFromName(spellName);
@@ -159,15 +173,15 @@ namespace DoThingsBot {
 
         public static bool HasComponents(Decal.Filters.Spell spell) {
             if (!HasFociFor(spell.School)) return false;
-            if (Util.GetItemCount("Prismatic Taper") < 5) return false;
+            if (Util.GetItemCount("Prismatic Taper") == 0) return false;
             if (!HasScarabsFor(spell)) return false;
 
             return true;
         }
 
-        private static bool HasScarabsFor(Spell spell) {
+        private static bool HasScarabsFor(Decal.Filters.Spell spell) {
+            string scarabNeeded = "";
             var spellLevel = GetSpellLevel(spell);
-            var scarabNeeded = "Unknown";
 
             switch (spellLevel) {
                 case 1:
@@ -196,7 +210,7 @@ namespace DoThingsBot {
                     break;
             }
 
-            return Util.GetItemCount(scarabNeeded) > 1;
+            return Util.GetItemCount(scarabNeeded) > 0;
         }
 
         private static bool HasFociFor(SpellSchool school) {
@@ -228,19 +242,26 @@ namespace DoThingsBot {
         }
 
         // this seems wrong
+        private static Dictionary<string, int> _spellLevels = new Dictionary<string, int>();
         public static int GetSpellLevel(Spell spell) {
-            if (spell.Name.EndsWith(" I")) return 1;
-            if (spell.Name.EndsWith(" II")) return 2;
-            if (spell.Name.EndsWith(" III")) return 3;
-            if (spell.Name.EndsWith(" IV")) return 4;
-            if (spell.Name.EndsWith(" V")) return 5;
-            if (spell.Name.EndsWith(" VI")) return 6;
-            if (spell.Name.EndsWith(" VII")) return 7;
-            if (spell.Name.EndsWith(" VIII")) return 8;
-            if (spell.Name.StartsWith("Incantation ")) return 8;
-            if (spell.Name.StartsWith("Aura of Incantation ")) return 8;
+            if (_spellLevels.ContainsKey(spell.Name)) return _spellLevels[spell.Name];
 
-            return 7;
+            var level = 7;
+
+            if (spell.Name.EndsWith(" I")) level = 1;
+            if (spell.Name.EndsWith(" II")) level = 2;
+            if (spell.Name.EndsWith(" III")) level = 3;
+            if (spell.Name.EndsWith(" IV")) level = 4;
+            if (spell.Name.EndsWith(" V")) level = 5;
+            if (spell.Name.EndsWith(" VI")) level = 6;
+            if (spell.Name.EndsWith(" VII")) level = 7;
+            if (spell.Name.EndsWith(" VIII")) level = 8;
+            if (spell.Name.StartsWith("Incantation ")) level = 8;
+            if (spell.Name.StartsWith("Aura of Incantation ")) level = 8;
+
+            _spellLevels[spell.Name] = level;
+
+            return _spellLevels[spell.Name];
         }
 
         public static bool CanCast(Decal.Filters.Spell spell) {
@@ -251,12 +272,9 @@ namespace DoThingsBot {
 
             // has skill?
             if (!HasSkillToCast(spell)) return false;
-
+            
             // has components?
             if (!HasComponents(spell)) return false;
-            
-            // TODO: components
-
             return true;
         }
 
@@ -332,7 +350,9 @@ namespace DoThingsBot {
                 if (isSelf != spell.IsUntargetted) continue;
                 if (spell.IsFellowship) continue;
 
-                if (spell.Family == (int)spellClass && CanCast(spell) && GetSpellLevel(spell) <= levelLimit) {
+                var spellLevel = GetSpellLevel(spell);
+
+                if (spell.Family == (int)spellClass && spellLevel <= levelLimit && CanCast(spell)) {
                     if (bestSpell == null) {
                         bestSpell = spell;
                     }
@@ -397,12 +417,16 @@ namespace DoThingsBot {
             return 0;
         }
 
-        public static bool EnsureEnoughStamina() {
+        public static bool EnsureEnoughStamina(bool readyToCast=true) {
+
             int effectiveStamina = CoreManager.Current.CharacterFilter.EffectiveVital[CharFilterVitalType.Stamina];
             int currentStamina = CoreManager.Current.CharacterFilter.Stamina;
 
             if (currentStamina < effectiveStamina / 2) {
+                if (!readyToCast) return false;
+
                 var spell = Spells.GetBestStaminaRecoverySpell(true);
+
                 //Util.WriteToChat(String.Format("Stamina is: {0}/{1}", currentStamina, effectiveStamina));
                 //Util.WriteToChat("Trying to cast: " + spell.Id + " : Revitalize Self");
                 CoreManager.Current.Actions.CastSpell(spell.Id, CoreManager.Current.CharacterFilter.Id);
@@ -412,13 +436,16 @@ namespace DoThingsBot {
             return true;
         }
 
-        public static bool EnsureEnoughMana() {
+        public static bool EnsureEnoughMana(bool readyToCast=true) {
             int effectiveMana = CoreManager.Current.CharacterFilter.EffectiveVital[CharFilterVitalType.Mana];
             int currentMana = CoreManager.Current.CharacterFilter.Mana;
 
             // stam to mana
             if (currentMana < effectiveMana / 2) {
+                if (!readyToCast) return false;
+
                 var spell = Spells.GetBestManaRecoverySpell(true);
+
                 //Util.WriteToChat(String.Format("Mana is: {0}/{1}", currentMana, effectiveMana));
                 //Util.WriteToChat("Trying to cast: " + spell.Id + " : Meditative Trance");
                 CoreManager.Current.Actions.CastSpell(spell.Id, CoreManager.Current.CharacterFilter.Id);

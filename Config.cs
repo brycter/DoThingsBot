@@ -7,6 +7,7 @@ using System.IO;
 using System.Text;
 
 using Mag.Shared.Settings;
+using static DoThingsBot.Spells;
 
 namespace DoThingsBot {
     public class BotConfigChangedEventArgs : EventArgs {
@@ -38,55 +39,16 @@ namespace DoThingsBot {
                 DefaultHeading.Validate += ValidateHeading;
             }
 
-            public static List<string> GetWantedIdleEnchantments() {
-                List<string> wantedEnchantments = new List<string>();
-
-                try {
-                    foreach (var spellClass in Buffs.Buffs.GetBotProfile("idle").familyIds) {
-                        var spell = Spells.GetBestKnownSpellByClass(spellClass, true);
-
-                        if (spell != null) {
-                            wantedEnchantments.Add(spell.Name);
-                        }
-                    }
-                }
-                catch (Exception ex) { Util.LogException(ex); }
-
-                return wantedEnchantments;
+            public static List<SpellClass> GetWantedIdleEnchantments() {
+                return Buffs.Buffs.GetBotProfile("idle").familyIds;
             }
 
-            public static List<string> GetWantedBuffEnchantments() {
-                List<string> wantedEnchantments = new List<string>();
-
-                try {
-                    foreach (var spellClass in Buffs.Buffs.GetBotProfile("buff").familyIds) {
-                        var spell = Spells.GetBestKnownSpellByClass(spellClass, true);
-
-                        if (spell != null) {
-                            wantedEnchantments.Add(spell.Name);
-                        }
-                    }
-                }
-                catch (Exception ex) { Util.LogException(ex); }
-
-                return wantedEnchantments;
+            public static List<SpellClass> GetWantedBuffEnchantments() {
+                return Buffs.Buffs.GetBotProfile("buff").familyIds;
             }
 
-            public static List<string> GetWantedTinkerEnchantments() {
-                List<string> wantedEnchantments = new List<string>();
-
-                try {
-                    foreach (var spellClass in Buffs.Buffs.GetBotProfile("tinker").familyIds) {
-                        var spell = Spells.GetBestKnownSpellByClass(spellClass, true);
-
-                        if (spell != null) {
-                            wantedEnchantments.Add(spell.Name);
-                        }
-                    }
-                }
-                catch (Exception ex) { Util.LogException(ex); }
-
-                return wantedEnchantments;
+            public static List<SpellClass> GetWantedTinkerEnchantments() {
+                return Buffs.Buffs.GetBotProfile("tinker").familyIds;
             }
 
         }

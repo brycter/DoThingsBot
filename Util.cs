@@ -564,9 +564,12 @@ namespace DoThingsBot
             return true;
         }
 
-        internal static bool HasItem(string fociName) {
-            foreach (var item in CoreManager.Current.WorldFilter.GetInventory()) {
-                if (item.Name == fociName) return true;
+        internal static bool HasItem(string itemName) {
+            foreach (var item in CoreManager.Current.WorldFilter.GetByName(itemName)) {
+                if (item.Container == CoreManager.Current.CharacterFilter.Id) return true;
+
+                var container = CoreManager.Current.WorldFilter[item.Container];
+                if (container.Container == CoreManager.Current.CharacterFilter.Id) return true;
             }
 
             return false;
