@@ -399,6 +399,12 @@ namespace DoThingsBot.Views {
                 statControls.Add(list);
                 Rectangle region = new Rectangle(columnXOffsets[column] - (padding / 2) + 1, columnYOffsets[column], thirdWidth - padding - 2, height - 1);
 
+                
+                list.Click += (s, r, c) => {
+                    HudList.HudListRowAccessor row = list[r];
+                    Util.WriteToChat(string.Format("  {0} {1}", ((HudStaticText)row[0]).Text, ((HudStaticText)row[1]).Text), true);
+                };
+
                 GetCurrentLayout().AddControl(list, region);
             }
 
