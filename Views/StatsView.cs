@@ -126,6 +126,9 @@ namespace DoThingsBot.Views {
         private void Tabs_OpenTabChange(object sender, EventArgs e) {
             try {
                 RemoveControls();
+
+                if (StatTabs.CurrentTab == 2) DrawCharacterSelect();
+
                 Redraw();
             }
             catch (Exception ex) { Util.LogException(ex); }
@@ -207,8 +210,7 @@ namespace DoThingsBot.Views {
                 }
                 index++;
             }
-
-            Util.WriteToChat("selected index: " + selected);
+            
             SelectCharacter.Current = selected;
         }
 
@@ -443,6 +445,8 @@ namespace DoThingsBot.Views {
                 Int32.TryParse(stats[a].Replace("%", "").Replace(",", "").Replace("p", ""), out av);
                 Int32.TryParse(stats[b].Replace("%", "").Replace(",", "").Replace("p", ""), out bv);
 
+                if (av == bv) return a.CompareTo(b);
+
                 return bv.CompareTo(av);
             });
 
@@ -536,7 +540,7 @@ namespace DoThingsBot.Views {
                 StopColumnBlock(2);
 
                 StartColumnBlock(2, "Donations", string.Format("({0})", Globals.Stats.GetTotalDonations()));
-                DrawList(2, Globals.Stats.GetDonations(), 91, 0.55);
+                DrawList(2, Globals.Stats.GetDonations(), 91, 0.65);
                 StopColumnBlock(2);
 
                 StartColumnBlock(2, "Components Burned", string.Format("({0})", Globals.Stats.GetTotalBurnedComponents()));
@@ -597,7 +601,7 @@ namespace DoThingsBot.Views {
                 StopColumnBlock(2);
 
                 StartColumnBlock(2, "Donations", string.Format("({0})", Globals.Stats.globalStats.GetTotalDonations()));
-                DrawList(2, Globals.Stats.globalStats.donations, 91, 0.55);
+                DrawList(2, Globals.Stats.globalStats.donations, 91, 0.65);
                 StopColumnBlock(2);
 
                 StartColumnBlock(2, "Components Burned", string.Format("({0})", Globals.Stats.globalStats.GetTotalBurnedComponents()));
@@ -653,7 +657,7 @@ namespace DoThingsBot.Views {
                 StopColumnBlock(2);
 
                 StartColumnBlock(2, "Donations", string.Format("({0})", playerData.GetTotalDonations()));
-                DrawList(2, playerData.donations, 91, 0.55);
+                DrawList(2, playerData.donations, 91, 0.65);
                 StopColumnBlock(2);
 
                 StartColumnBlock(2, "Components Burned", string.Format("({0})", playerData.GetTotalBurnedComponents()));

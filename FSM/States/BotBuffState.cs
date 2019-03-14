@@ -270,7 +270,7 @@ namespace DoThingsBot.FSM.States {
                     itemBundle.SetEquipMode(EquipMode.Idle);
 
                     var secondsTaken = (int)Math.Round((DateTime.UtcNow - startedBuffing).TotalSeconds);
-                    var response = string.Format("This session took {0}s to cast {1} buff{2}", secondsTaken, CastedEnchantments.Count, CastedEnchantments.Count==1?"":"s");
+                    var response = string.Format("This session took {0} to cast {1} buff{2}", Util.GetFriendlyTimeDifference((ulong)secondsTaken), CastedEnchantments.Count, CastedEnchantments.Count==1?"":"s");
 
                     Globals.Stats.AddPlayerTimeSpentBuffing(itemBundle.GetOwner(), secondsTaken);
                     Globals.Stats.AddPlayerProfilesCasted(itemBundle.GetOwner(), profileCount);
@@ -300,7 +300,7 @@ namespace DoThingsBot.FSM.States {
                         response += string.Format("{1}burned: {0}.", string.Join(", ", components.ToArray()), fizzleCounter > 0 ? " and " : " I ");
                     }
 
-                    var timeSpent = string.Format("{0}m", Math.Round((double)(itemBundle.playerData.totalTimeSpentBuffing/60), 2));
+                    var timeSpent = string.Format("{0}", Util.GetFriendlyTimeDifference((ulong)itemBundle.playerData.totalTimeSpentBuffing));
 
                     // if (config.ShowPersonalBuffStatsAfterJob)
                     response += string.Format(" Your overall stats: Buffs: {0}, Time: {1}, Balance: {2:n0}p", itemBundle.playerData.totalBuffsCast, timeSpent, itemBundle.playerData.balance);
