@@ -522,6 +522,8 @@ namespace DoThingsBot.Views {
                 DrawKVPair(0, "Highest Failed Streak", Globals.Stats.highestPlayerImbueFailedStreak.ToString(), "by " + Globals.Stats.highestPlayerImbueFailedStreakName);
                 StopColumnBlock(0);
 
+                // Second Col
+
                 StartColumnBlock(1, "Commands Issued", string.Format("({0})", Globals.Stats.GetTotalCommandsIssued()));
                 DrawList(1, Globals.Stats.GetCommandsIssued(), 91, 0.6);
                 StopColumnBlock(1);
