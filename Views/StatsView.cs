@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-
+using System.IO;
 using DoThingsBot.Views.Pages;
 using VirindiViewService;
 using VirindiViewService.Controls;
@@ -12,11 +12,15 @@ namespace DoThingsBot.Views {
         public readonly VirindiViewService.ViewProperties properties;
         public readonly VirindiViewService.ControlGroup controls;
         public readonly VirindiViewService.HudView view;
-        
+
         private HudFixedLayout SessionStatsLayout { get; set; }
         private HudFixedLayout GlobalStatsLayout { get; set; }
         private HudFixedLayout CharacterStatsLayout { get; set; }
         private HudButton StatsEchoGlobalStats { get; set; }
+        private HudButton StatsEchoSessionStats { get; set; }
+        private HudButton StatsEchoCharacterStats { get; set; }
+        private HudCombo SelectCharacter { get; set; }
+        public HudTabView StatTabs { get; set; }
 
         private List<HudControl> statControls = new List<HudControl>();
 
@@ -24,6 +28,7 @@ namespace DoThingsBot.Views {
         public int halfWidth = 0;
         public int thirdWidth = 0;
         public int lineHeight = 16;
+
         public int padding = 8;
         public int lineWidth = 0;
 
@@ -39,9 +44,11 @@ namespace DoThingsBot.Views {
         private Dictionary<string, HudList> statLists = new Dictionary<string, HudList>();
         private Dictionary<string, List<HudStaticText>> statBlockChildren = new Dictionary<string, List<HudStaticText>>();
 
+
         private string currentBlockName = "";
         private string currentBlockHeaderKey = "";
         private int lastTab = -1;
+        private string selectedCharacter = "";
 
         public StatsView() {
             try {
@@ -57,19 +64,50 @@ namespace DoThingsBot.Views {
                 view.ThemeChanged += View_ThemeChanged;
                 view.Resize += View_Resize;
 
-                HudTabView tabs = (HudTabView)view["UIStatsMainTabs"];
-                tabs.OpenTabChange += Tabs_OpenTabChange;
+                StatTabs = (HudTabView)view["UIStatsMainTabs"];
+                StatTabs.OpenTabChange += Tabs_OpenTabChange;
 
                 StatsEchoGlobalStats = (HudButton)view["UIStatsEchoGlobalStats"];
                 StatsEchoGlobalStats.Hit += StatsEchoGlobalStats_Hit;
+                StatsEchoSessionStats = (HudButton)view["UIStatsEchoSessionStats"];
+                StatsEchoSessionStats.Hit += StatsEchoGlobalStats_Hit;
+                StatsEchoCharacterStats = (HudButton)view["UIStatsEchoCharacterStats"];
+                StatsEchoCharacterStats.Hit += StatsEchoGlobalStats_Hit;
 
                 GlobalStatsLayout = (HudFixedLayout)view["UIStatsGlobalStatsLayout"];
                 SessionStatsLayout = (HudFixedLayout)view["UIStatsSessionStatsLayout"];
                 CharacterStatsLayout = (HudFixedLayout)view["UIStatsCharacterStatsLayout"];
 
+                SelectCharacter = (HudCombo)view["UIStatsSelectCharacter"];
+
+                SelectCharacter.Change += SelectCharacter_Change;
+
+                DrawCharacterSelect();
                 Redraw();
             }
             catch (Exception ex) { Util.LogException(ex); }
+        }
+
+        internal void ShowCharacterStats(string playerName) {
+            selectedCharacter = playerName;
+            DrawCharacterSelect();
+            StatTabs.CurrentTab = 2;
+        }
+
+        internal void ShowGlobalStats() {
+            StatTabs.CurrentTab = 1;
+        }
+
+        internal void ShowSessionStats() {
+            StatTabs.CurrentTab = 0;
+        }
+
+        private void SelectCharacter_Change(object sender, EventArgs e) {
+            HudStaticText c = (HudStaticText)(SelectCharacter[SelectCharacter.Current]);
+            selectedCharacter = c.Text;
+            RemoveControls();
+            DrawCharacterSelect();
+            Redraw();
         }
 
         private void View_Resize(object sender, EventArgs e) {
@@ -130,15 +168,15 @@ namespace DoThingsBot.Views {
             switch (tabs.CurrentTab) {
                 case 0:
                     if (echoToChat) Util.WriteToChat("Session Stats");
-                    ShowSessionStats();
+                    DrawSessionStats();
                     break;
                 case 1:
                     if (echoToChat) Util.WriteToChat("Global Stats");
-                    ShowGlobalStats();
+                    DrawGlobalStats();
                     break;
                 case 2:
-                    if (echoToChat) Util.WriteToChat("Character Stats: " + "playerName");
-                    ShowCharacterStats("playerName");
+                    if (echoToChat) Util.WriteToChat("Character Stats: " + selectedCharacter);
+                    DrawCharacterStats();
                     break;
             }
 
@@ -151,6 +189,27 @@ namespace DoThingsBot.Views {
             }
 
             view.MainControl.Invalidate();
+        }
+
+        private void DrawCharacterSelect() {
+            string[] files = Directory.GetFiles(Util.GetPlayerDataDirectory(), "*.json", SearchOption.TopDirectoryOnly);
+
+            SelectCharacter.Clear();
+            SelectCharacter.AddItem("", "");
+            var index = 1;
+            var selected = 0;
+            foreach (var file in files) {
+                var parts = file.Split('\\');
+                var name = parts[parts.Length - 1].Replace(".json", "");
+                SelectCharacter.AddItem(name, name);
+                if (name == selectedCharacter) {
+                    selected = index;
+                }
+                index++;
+            }
+
+            Util.WriteToChat("selected index: " + selected);
+            SelectCharacter.Current = selected;
         }
 
         private void RemoveControls() {
@@ -217,9 +276,9 @@ namespace DoThingsBot.Views {
             return textControl;
         }
 
-        public void DrawBlockHeader(int column, string text, string extra="") {
+        public void DrawBlockHeader(int column, string text, string extra="", string key="") {
             currentBlockName = text;
-            var viewKey = string.Format("{0}_{1}", column, text);
+            var viewKey = string.Format("{0}_{1}", column, string.IsNullOrEmpty(key) ? text : key);
             HudStaticText control = null;
             var headerText = text + (string.IsNullOrEmpty(extra) ? "" : string.Format(" {0}", extra));
 
@@ -238,7 +297,7 @@ namespace DoThingsBot.Views {
                 var textControl = DrawTextInColumn(column, headerText, lineWidth, headerHeight, 0, VirindiViewService.WriteTextFormats.Center, false, viewKey);
 
                 textControl.Hit += (s, e) => {
-                    Util.WriteToChat(text, true);
+                    Util.WriteToChat(string.Format("{0} {1}", text, extra), true);
                     var listKey = "l_" + viewKey;
 
                     if (statLists.ContainsKey(listKey)) {
@@ -403,11 +462,11 @@ namespace DoThingsBot.Views {
             }
         }
 
-        public void StartColumnBlock(int column, string headerText, string extra="") {
+        public void StartColumnBlock(int column, string headerText, string extra="", string key="") {
             columnYOffsets[column] += padding;
             columnBlockHeights[column].Add(columnYOffsets[column]);
 
-            DrawBlockHeader(column, headerText, extra);
+            DrawBlockHeader(column, headerText, extra, key);
         }
 
         public void StopColumnBlock(int column) {
@@ -420,7 +479,7 @@ namespace DoThingsBot.Views {
 
         }
 
-        public void ShowSessionStats() {
+        public void DrawSessionStats() {
             try {
                 var profit = string.Format("{0:n0}p", (long)(Globals.Stats.operatingRevenue - Globals.Stats.operatingCost));
                 var timeSpent = Util.GetFriendlyTimeDifference(Globals.Stats.GetTotalTimeSpentBuffing(), true);
@@ -481,7 +540,7 @@ namespace DoThingsBot.Views {
             catch (Exception ex) { Util.LogException(ex); }
         }
 
-        public void ShowGlobalStats() {
+        public void DrawGlobalStats() {
             try {
                 var profit = string.Format("{0:n0}p", (long)(Globals.Stats.globalStats.operatingRevenue - Globals.Stats.globalStats.operatingCost));
                 var timeSpent = Util.GetFriendlyTimeDifference(Globals.Stats.globalStats.timeSpentBuffing, true);
@@ -542,12 +601,64 @@ namespace DoThingsBot.Views {
             catch (Exception ex) { Util.LogException(ex); }
         }
 
-        public void ShowCharacterStats(string playerName) {
-            Util.WriteToChat("Show Character Stats: " + playerName);
+        public void DrawCharacterStats() {
+            try {
+                var playerData = Globals.Stats.GetItemBundle(selectedCharacter).playerData;
+
+                var timeSpent = Util.GetFriendlyTimeDifference(playerData.totalTimeSpentBuffing, true);
+
+                // First Col
+
+                StartColumnBlock(0, selectedCharacter, "", "player_name");
+                DrawKVPair(0, "Balance", string.Format("{0:n0}p", playerData.balance));
+                StopColumnBlock(0);
+
+                StartColumnBlock(0, "Buffs");
+                DrawKVPair(0, "Buffs", playerData.totalBuffsCast.ToString());
+                DrawKVPair(0, "Profiles", playerData.totalBuffProfilesCast.ToString());
+                DrawKVPair(0, "Fizzles", playerData.fizzles.ToString());
+                DrawKVPair(0, "Time Spent", timeSpent);
+                StopColumnBlock(0);
+
+                StartColumnBlock(0, "Tinkering");
+                DrawKVPair(0, "Lowest Success", playerData.lowestSuccessfulTinkerChance + "%", playerData.lowestSuccessfulTinkerChanceDescription);
+                DrawKVPair(0, "Highest Failure", playerData.highestFailedTinkerChance + "%", playerData.highestFailedTinkerChanceDescription);
+                DrawKVPair(0, "Current Imbued Streak", playerData.currentImbueLandedStreak.ToString());
+                DrawKVPair(0, "Current Failed Streak", playerData.currentImbueFailedStreak.ToString());
+                DrawKVPair(0, "Highest Imbued Streak", playerData.highestImbueLandedStreak.ToString());
+                DrawKVPair(0, "Highest Failed Streak", playerData.highestImbueFailedStreak.ToString());
+                StopColumnBlock(0);
+
+                StartColumnBlock(1, "Commands Issued", string.Format("({0})", playerData.GetTotalCommandsIssued()));
+                DrawList(1, playerData.commandsIssued, 91, 0.6);
+                StopColumnBlock(1);
+
+                StartColumnBlock(1, "Imbues", string.Format("({0}) {1}", playerData.GetTotalImbueAttempts(), playerData.GetOverallImbuePercentage().ToString() + "%"));
+                DrawList(1, playerData.GetImbueTypeStatsList(), 91, 0.6);
+                StopColumnBlock(1);
+
+                StartColumnBlock(1, "Salvage Used", string.Format("({0})", playerData.GetTotalSalvageBagsUsed()));
+                DrawList(1, playerData.salvageBagsUsed, 91, 0.6);
+                StopColumnBlock(1);
+
+                // Third Col
+                StartColumnBlock(2, "Portals Summoned", string.Format("({0})", playerData.GetTotalPortalsSummoned()));
+                DrawList(2, playerData.portalsSummoned, 91, 0.6);
+                StopColumnBlock(2);
+
+                StartColumnBlock(2, "Donations", string.Format("({0})", playerData.GetTotalDonations()));
+                DrawList(2, playerData.donations, 91, 0.55);
+                StopColumnBlock(2);
+
+                StartColumnBlock(2, "Components Burned", string.Format("({0})", playerData.GetTotalBurnedComponents()));
+                DrawList(2, playerData.burnedComponents, 91, 0.6);
+                StopColumnBlock(2);
+            }
+            catch (Exception ex) { Util.LogException(ex); }
         }
 
         private ACImage GetBackground() {
-            using (var bmp = new Bitmap(viewWidth, 360)) {
+            using (var bmp = new Bitmap(viewWidth, 350)) {
                 using (var gfx = Graphics.FromImage(bmp)) {
                     using (var pen = new Pen(view.Theme.GetColor("ButtonText"))) {
                         foreach (var column in columnBlockHeights.Keys) {

@@ -26,6 +26,12 @@ namespace DoThingsBot.FSM.States {
             }
 
             if (itemBundle.HasOwner()) {
+                itemBundle.SavePlayerData();
+
+                if (Globals.StatsView.view.Visible && Globals.StatsView.StatTabs.CurrentTab == 2) {
+                    Globals.StatsView.ShowCharacterStats(itemBundle.GetOwner());
+                }
+
                 if (itemBundle.GetCraftMode() == CraftMode.PrimaryPortal || itemBundle.GetCraftMode() == CraftMode.SecondaryPortal) {
                     machine.ChangeState(new BotEquipItemsState(itemBundle));
                 }

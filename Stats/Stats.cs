@@ -55,7 +55,7 @@ namespace DoThingsBot.Stats {
             globalStats.startingUptime = globalStats.uptime;
         }
 
-        private ItemBundle GetItemBundle(string playerName) {
+        public ItemBundle GetItemBundle(string playerName) {
             ItemBundle itemBundle = null;
 
             if (Globals.DoThingsBot.currentItemBundle != null && Globals.DoThingsBot.currentItemBundle.GetOwner() == playerName) {
@@ -155,6 +155,13 @@ namespace DoThingsBot.Stats {
             currentImbueFailedStreak = 0;
             globalStats.currentImbueLandedStreak += 1;
             globalStats.currentImbueFailedStreak = 0;
+
+            if (bundle.playerData.currentImbueLandedStreak > bundle.playerData.highestImbueLandedStreak) {
+                bundle.playerData.highestImbueLandedStreak = bundle.playerData.currentImbueLandedStreak;
+            }
+            if (bundle.playerData.currentImbueFailedStreak > bundle.playerData.highestImbueFailedStreak) {
+                bundle.playerData.highestImbueFailedStreak = bundle.playerData.currentImbueFailedStreak;
+            }
 
             if (currentImbueLandedStreak > highestImbueLandedStreak) {
                 highestImbueLandedStreak = currentImbueLandedStreak;

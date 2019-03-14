@@ -384,18 +384,18 @@ namespace DoThingsBot {
                             commands += " " + e.Arguments;
                         }
 
-                        foreach (var command in commands.Split(' ')) {
-                            if (allBuffProfiles.Contains(command)) {
-                                Globals.Stats.AddPlayerCommandIssued(e.PlayerName, command);
-                            }
-                        }
-
                         if (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) {
                             ItemBundle itemBundle = new ItemBundle(e.PlayerName);
                             currentItemBundle = itemBundle;
                             itemBundle.SetCraftMode(CraftMode.Buff);
                             itemBundle.SetEquipMode(EquipMode.Buff);
                             itemBundle.SetBuffProfiles(commands);
+
+                            foreach (var command in commands.Split(' ')) {
+                                if (allBuffProfiles.Contains(command)) {
+                                    Globals.Stats.AddPlayerCommandIssued(e.PlayerName, command);
+                                }
+                            }
 
                             _machine.ChangeState(new BotStartState(itemBundle));
                         }
