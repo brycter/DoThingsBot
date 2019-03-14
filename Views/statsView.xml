@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<view icon="0" title="Decal Plugin" width="500" height="415">
+<view icon="100672014" title="DoThingsBot: Stats" width="500" height="415">
 		<control progid="DecalControls.Notebook" name="UIStatsMainTabs">
 		<page label="Session Stats">
 			<control progid="DecalControls.FixedLayout" clipped="">

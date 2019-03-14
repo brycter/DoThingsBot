@@ -59,7 +59,7 @@ namespace DoThingsBot.Views {
                 // Display the view
                 view = new VirindiViewService.HudView(properties, controls);
                 //view.LoadUserSettings();
-                view.Visible = true;
+                //view.Visible = true;
 
                 view.ThemeChanged += View_ThemeChanged;
                 view.Resize += View_Resize;
@@ -82,8 +82,8 @@ namespace DoThingsBot.Views {
 
                 SelectCharacter.Change += SelectCharacter_Change;
 
-                DrawCharacterSelect();
-                Redraw();
+                //DrawCharacterSelect();
+                //Redraw();
             }
             catch (Exception ex) { Util.LogException(ex); }
         }

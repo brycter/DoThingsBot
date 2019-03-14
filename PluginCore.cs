@@ -90,11 +90,11 @@ namespace DoThingsBot {
                 Config.Init();
 
                 Mag.Shared.Settings.SettingsFile.SaveXmlDocument();
-                Globals.Stats = new Stats.Stats();
-                Globals.StatsView = new StatsView();
                 Buffs.Buffs.LoadProfiles();
                 
                 mainView = new MainView();
+                Globals.Stats = new Stats.Stats();
+                Globals.StatsView = new StatsView();
                 bot = new DoThingsBot();
                 Globals.DoThingsBot = bot;
 
