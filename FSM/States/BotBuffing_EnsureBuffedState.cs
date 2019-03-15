@@ -98,7 +98,7 @@ namespace DoThingsBot.FSM.States {
                     lastThought = DateTime.UtcNow;
 
                     if (doneCasting) {
-                        if (!Util.EnsureCombatState(CombatState.Peace)) return;
+                        if (itemBundle.GetCraftMode() != CraftMode.Buff && !Util.EnsureCombatState(CombatState.Peace)) return;
 
                         Globals.Stats.AddTimeSpentSelfBuffing((int)(DateTime.UtcNow - firstThought).TotalSeconds);
 

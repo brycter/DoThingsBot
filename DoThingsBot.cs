@@ -501,6 +501,7 @@ namespace DoThingsBot {
         }
 
         DateTime lastUpdatedUptime = DateTime.UtcNow;
+        internal bool needsEquipmentCheck = true;
 
         void Think() {
             try {

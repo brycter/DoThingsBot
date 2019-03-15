@@ -26,21 +26,27 @@ namespace DoThingsBot.FSM.States {
         }
 
         public void Think(Machine machine) {
-            if (needsToEquip && DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(Config.Tinkering.KeepEquipmentOnDelay.Value)) {
+            if (Globals.DoThingsBot.needsEquipmentCheck && needsToEquip && DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(Config.Tinkering.KeepEquipmentOnDelay.Value)) {
                 needsToEquip = false;
 
                 ItemBundle itemBundle = new ItemBundle();
                 itemBundle.SetCraftMode(CraftMode.None);
                 itemBundle.SetEquipMode(EquipMode.Idle);
 
+                Globals.DoThingsBot.needsEquipmentCheck = false;
+
+                Util.WriteToChat("Doing equip check");
+
                 machine.ChangeState(new BotEquipItemsState(itemBundle));
                 return;
             }
 
-            if (DateTime.UtcNow - lastThought > TimeSpan.FromSeconds(5)) {
+            if (DateTime.UtcNow - lastThought > TimeSpan.FromSeconds(15)) {
                 lastThought = DateTime.UtcNow;
-                
-                if (DateTime.UtcNow - machine.GetDateTimeValue("lastBuffCheck") > TimeSpan.FromMinutes(1)) {
+
+                Globals.Core.Actions.FaceHeading(Config.Bot.DefaultHeading.Value, true);
+
+                if (DateTime.UtcNow - machine.GetDateTimeValue("lastBuffCheck") > TimeSpan.FromSeconds(60)) {
                     machine.SetValue("lastBuffCheck", DateTime.UtcNow);
 
                     if (Spells.DoesAnySpellNeedRefresh(Config.Bot.GetWantedIdleEnchantments())) {

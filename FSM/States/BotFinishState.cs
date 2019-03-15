@@ -17,6 +17,7 @@ namespace DoThingsBot.FSM.States {
             Globals.Stats.globalStats.Save();
 
             Globals.DoThingsBot.currentItemBundle = null;
+            Globals.DoThingsBot.needsEquipmentCheck = true;
 
             try {
                 PostMessageTools.ClickNo();
