@@ -159,15 +159,12 @@ namespace DoThingsBot.Stats {
             if (bundle.playerData.currentImbueLandedStreak > bundle.playerData.highestImbueLandedStreak) {
                 bundle.playerData.highestImbueLandedStreak = bundle.playerData.currentImbueLandedStreak;
             }
-            if (bundle.playerData.currentImbueFailedStreak > bundle.playerData.highestImbueFailedStreak) {
-                bundle.playerData.highestImbueFailedStreak = bundle.playerData.currentImbueFailedStreak;
-            }
 
             if (currentImbueLandedStreak > highestImbueLandedStreak) {
                 highestImbueLandedStreak = currentImbueLandedStreak;
             }
-            if (globalStats.currentImbueFailedStreak > globalStats.highestImbueFailedStreak) {
-                globalStats.highestImbueFailedStreak = globalStats.currentImbueFailedStreak;
+            if (globalStats.currentImbueLandedStreak > globalStats.highestImbueLandedStreak) {
+                globalStats.highestImbueLandedStreak = globalStats.currentImbueLandedStreak;
             }
 
             // session highest landed imbue streak by player
