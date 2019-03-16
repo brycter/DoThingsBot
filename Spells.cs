@@ -171,6 +171,12 @@ namespace DoThingsBot {
             return false;
         }
 
+        public static Spell GetSpell(int spellId) {
+            FileService fs = CoreManager.Current.Filter<FileService>();
+
+            return fs.SpellTable.GetById(spellId);
+        }
+
         public static bool HasComponents(Decal.Filters.Spell spell) {
             if (!HasFociFor(spell.School)) return false;
             if (Util.GetItemCount("Prismatic Taper") == 0) return false;
@@ -304,7 +310,7 @@ namespace DoThingsBot {
             }
 
             // enough skill?
-            if (currentSkill < spell.Difficulty) return false;
+            if (currentSkill < spell.Difficulty - 10) return false;
 
             return true;
         }
@@ -428,7 +434,7 @@ namespace DoThingsBot {
                 var spell = Spells.GetBestStaminaRecoverySpell(true);
 
                 //Util.WriteToChat(String.Format("Stamina is: {0}/{1}", currentStamina, effectiveStamina));
-                //Util.WriteToChat("Trying to cast: " + spell.Id + " : Revitalize Self");
+                Util.WriteToChat("Trying to cast: " + spell.Id + " : " + spell.Name);
                 CoreManager.Current.Actions.CastSpell(spell.Id, CoreManager.Current.CharacterFilter.Id);
                 return false;
             }
@@ -447,7 +453,7 @@ namespace DoThingsBot {
                 var spell = Spells.GetBestManaRecoverySpell(true);
 
                 //Util.WriteToChat(String.Format("Mana is: {0}/{1}", currentMana, effectiveMana));
-                //Util.WriteToChat("Trying to cast: " + spell.Id + " : Meditative Trance");
+                Util.WriteToChat("Trying to cast: " + spell.Id + " : " + spell.Name);
                 CoreManager.Current.Actions.CastSpell(spell.Id, CoreManager.Current.CharacterFilter.Id);
                 return false;
             }

@@ -30,6 +30,7 @@ namespace DoThingsBot.FSM.States {
             try {
                 CoreManager.Current.ChatBoxMessage += new EventHandler<ChatTextInterceptEventArgs>(Current_ChatBoxMessage);
                 CoreManager.Current.EchoFilter.ServerDispatch += EchoFilter_ServerDispatch;
+
                 RefreshWantedSpells();
 
                 currentSkillLevel = GetSkillLevel();
@@ -100,7 +101,9 @@ namespace DoThingsBot.FSM.States {
                     lastThought = DateTime.UtcNow;
 
                     if (doneCasting) {
-                        if (itemBundle.GetCraftMode() != CraftMode.Buff && !Util.EnsureCombatState(CombatState.Peace)) return;
+                        if (itemBundle.GetCraftMode() != CraftMode.Buff && !Util.EnsureCombatState(CombatState.Peace)) {
+                            return;
+                        }
 
                         Globals.Stats.AddTimeSpentSelfBuffing((int)(DateTime.UtcNow - firstThought).TotalSeconds);
 
@@ -112,14 +115,9 @@ namespace DoThingsBot.FSM.States {
                     if (!Util.EnsureCombatState(CombatState.Magic)) return;
 
                     // make sure we have enough stamina
-                    if (!Spells.EnsureEnoughStamina(readyToCast)) return;
-
-                    // make sure we have enough mana
-                    if (!Spells.EnsureEnoughMana(readyToCast)) return;
-
-
-                    if (!CoreManager.Current.Actions.ChatState) {
-                        Util.StopMoving();
+                    if (!Spells.EnsureEnoughStamina(readyToCast) || !Spells.EnsureEnoughMana(readyToCast)) {
+                        readyToCast = false;
+                        return;
                     }
 
                     // refresh wanted enchantments in case of skill change
@@ -128,20 +126,32 @@ namespace DoThingsBot.FSM.States {
                     if (currentSkillLevel != GetSkillLevel()) {
                         _spellCache.Clear();
                         currentSkillLevel = GetSkillLevel();
-                        Util.WriteToChat("Clear Cache");
                     }
 
+                    if (DateTime.UtcNow - startedCasting > TimeSpan.FromSeconds(2)) readyToCast = true;
+
                     // cast next needed buff
-                    foreach (var spell in WantedSpells) {
-                        var enchantment = GetBestAvailableSpell(spell);
+                    foreach (var family in WantedSpells) {
+                        if (family == SpellClass.UNKNOWN) continue;
+
+                        var enchantment = GetBestAvailableSpell(family);
 
                         if (CastedSpells.Contains(enchantment)) continue;
+                        if (CastedSpells.Contains(family.ToString())) continue;
 
                         if (Spells.DoesSpellNeedRefresh(enchantment) || itemBundle.GetForceBuffMode() == true) {
-                            if (!readyToCast) return;
+                            var spellId = Spells.GetIdFromName(enchantment);
+                            var spell = Spells.GetSpell(spellId);
+
+                            if (!readyToCast) {
+                                //if (!CoreManager.Current.Actions.ChatState && (spell.School.Name == "Creature Enchantment" || spell.School.Name == "Life Magic")) {
+                                //    Util.StopMoving();
+                                //}
+                                return;
+                            }
+
                             readyToCast = false;
 
-                            var spellId = Spells.GetIdFromName(enchantment);
                             currentlyCasting = enchantment;
                             startedCasting = DateTime.UtcNow;
 
@@ -158,14 +168,24 @@ namespace DoThingsBot.FSM.States {
 
         private Dictionary<SpellClass, string> _spellCache = new Dictionary<SpellClass, string>();
 
-        private string GetBestAvailableSpell(SpellClass spell) {
-            if (_spellCache.ContainsKey(spell)) return _spellCache[spell];
+        private string GetBestAvailableSpell(SpellClass family) {
+            if (_spellCache.ContainsKey(family)) return _spellCache[family];
 
-            var name = Spells.GetBestKnownSpellByClass(spell, true).Name;
+            var bestSpell = Spells.GetBestKnownSpellByClass(family, true);
+            var name = "unknown";
 
-            _spellCache.Add(spell, name);
+            if (bestSpell != null) {
+                name = bestSpell.Name;
+            }
+            else if (!CastedSpells.Contains(family.ToString())) {
+                Util.WriteToChat("I don't know any spell for family: " + family.ToString());
+                CastedSpells.Add(family.ToString());
+                return null;
+            }
 
-            return _spellCache[spell];
+            _spellCache.Add(family, name);
+
+            return _spellCache[family];
         }
 
         private int GetSkillLevel() {
@@ -183,9 +203,10 @@ namespace DoThingsBot.FSM.States {
         private void RefreshWantedSpells() {
             WantedSpells.Clear();
             if (itemBundle.GetForceBuffMode() == true) {
+                
                 WantedSpells.AddRange(Config.Bot.GetWantedIdleEnchantments());
-                WantedSpells.AddRange(Config.Bot.GetWantedTinkerEnchantments());
-                WantedSpells.AddRange(Config.Bot.GetWantedBuffEnchantments());
+                if (Config.Tinkering.Enabled.Value) WantedSpells.AddRange(Config.Bot.GetWantedTinkerEnchantments());
+                if (Config.BuffBot.Enabled.Value) WantedSpells.AddRange(Config.Bot.GetWantedBuffEnchantments());
             }
             else if (itemBundle.HasOwner()) {
                 if (itemBundle.craftMode == CraftMode.Buff) {

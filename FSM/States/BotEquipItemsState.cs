@@ -25,6 +25,7 @@ namespace DoThingsBot.FSM.States {
         private DateTime lastEquipItemCommand = DateTime.MinValue;
 
         private List<int> requestedItemIds = new List<int>();
+        
 
         public BotEquipItemsState(ItemBundle items) {
             try {
@@ -89,6 +90,7 @@ namespace DoThingsBot.FSM.States {
                     if (!hasDequippedAllItems) {
                         if (slot != -1) {
                             movedItems.Add(e.Changed.Id);
+                            equipTryCount = 0;
                         }
                     }
                     else if (hasDequippedAllItems) {
@@ -170,6 +172,12 @@ namespace DoThingsBot.FSM.States {
                             if (lastEquippedItem != item.Id || DateTime.UtcNow - lastEquipItemCommand > dequipItemDelay) {
                                 if (item.Values(LongValueKey.Slot, -1) == -1) {
                                     //Util.WriteToDebugLog("Unequipping " + item.Name);
+
+                                    if (equipTryCount > 15) {
+                                        movedItems.Add(item.Id);
+                                    }
+
+                                    equipTryCount++;
                                     lastEquipItemCommand = DateTime.UtcNow;
                                     lastEquippedItem = item.Id;
                                     CoreManager.Current.Actions.MoveItem(item.Id, CoreManager.Current.CharacterFilter.Id);
