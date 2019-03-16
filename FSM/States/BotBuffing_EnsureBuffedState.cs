@@ -17,6 +17,7 @@ namespace DoThingsBot.FSM.States {
         private bool needsBuffs = false;
         private bool readyToCast = true;
         private int currentSkillLevel = 0;
+        Random rnd = new Random();
 
         public BotBuffing_EnsureBuffedState(ItemBundle items) {
             try {
@@ -91,10 +92,11 @@ namespace DoThingsBot.FSM.States {
         private string currentlyCasting = "";
         private DateTime startedCasting = DateTime.MinValue;
         private DateTime lastCasted = DateTime.MinValue;
+        
 
         public void Think(Machine machine) {
             try {
-                if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(500)) {
+                if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(300)) {
                     lastThought = DateTime.UtcNow;
 
                     if (doneCasting) {
@@ -114,6 +116,11 @@ namespace DoThingsBot.FSM.States {
 
                     // make sure we have enough mana
                     if (!Spells.EnsureEnoughMana(readyToCast)) return;
+
+
+                    if (!CoreManager.Current.Actions.ChatState) {
+                        Util.StopMoving();
+                    }
 
                     // refresh wanted enchantments in case of skill change
                     RefreshWantedSpells();

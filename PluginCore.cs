@@ -5,6 +5,8 @@ using Decal.Adapter;
 using MyClasses.MetaViewWrappers;
 using DoThingsBot.Views;
 using Decal.Filters;
+using System.Runtime.InteropServices;
+using Decal.Adapter.Messages;
 
 namespace DoThingsBot {
     //Attaches events from core

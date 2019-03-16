@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 
 using Decal.Adapter;
 using Decal.Adapter.Wrappers;
+using DoThingsBot.Lib;
 using Newtonsoft.Json;
 
 namespace DoThingsBot
@@ -111,6 +112,12 @@ namespace DoThingsBot
 
         public static void WriteMessageToLog(string player, string message) {
             File.AppendAllText(Path.Combine(Util.GetCharacterDataDirectory(), "messages.txt"), DateTime.Now.ToString("yy/MM/dd H:mm") + "|" + player + "|" + message + Environment.NewLine);
+        }
+
+        internal static void StopMoving() {
+            if (!CoreManager.Current.Actions.ChatState) {
+                PostMessageTools.SendMovement((char)Globals.Host.GetKeyboardMapping("MovementStop"), 10);
+            }
         }
 
         public static void WriteToLogFile(string logName, string message, bool addTimestamp=false) {

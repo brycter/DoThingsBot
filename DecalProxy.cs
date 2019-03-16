@@ -79,6 +79,63 @@ namespace DoThingsBot {
             return false;
         }
 
+        public static void Hooks_UIElementMove(Decal.Adapter.Wrappers.HooksWrapper hooks, UIElementType e, int x, int y) {
+            //This will load the cached assembly. We don't actually care what the version is
+            //since we just check below if the required members are present.
+            TestDecalVersion(new Version());
+
+            int ee = (int)e;
+
+            Type DecalType_UIElementType = iCachedDecalAssembly.GetType("Decal.Adapter.Wrappers.UIElementType");
+            if (DecalType_UIElementType == null) return;
+            object e_decal = Enum.ToObject(DecalType_UIElementType, ee);
+
+            Type DecalType_HooksWrapper = iCachedDecalAssembly.GetType("Decal.Adapter.Wrappers.HooksWrapper");
+            if (DecalType_HooksWrapper == null) return;
+            MethodInfo call = DecalType_HooksWrapper.GetMethod("UIElementMove", new Type[] { DecalType_UIElementType, typeof(int), typeof(int) });
+            if (call == null) return;
+
+            call.Invoke(hooks, new object[] { e_decal, x, y });
+        }
+
+        public static void Hooks_UIElementResize(Decal.Adapter.Wrappers.HooksWrapper hooks, UIElementType e, int width, int height) {
+            //This will load the cached assembly. We don't actually care what the version is
+            //since we just check below if the required members are present.
+            TestDecalVersion(new Version());
+
+            int ee = (int)e;
+
+            Type DecalType_UIElementType = iCachedDecalAssembly.GetType("Decal.Adapter.Wrappers.UIElementType");
+            if (DecalType_UIElementType == null) return;
+            object e_decal = Enum.ToObject(DecalType_UIElementType, ee);
+
+            Type DecalType_HooksWrapper = iCachedDecalAssembly.GetType("Decal.Adapter.Wrappers.HooksWrapper");
+            if (DecalType_HooksWrapper == null) return;
+            MethodInfo call = DecalType_HooksWrapper.GetMethod("UIElementResize", new Type[] { DecalType_UIElementType, typeof(int), typeof(int) });
+            if (call == null) return;
+
+            call.Invoke(hooks, new object[] { e_decal, width, height });
+        }
+
+        public static Rectangle Hooks_UIElementRegion(Decal.Adapter.Wrappers.HooksWrapper hooks, UIElementType e) {
+            //This will load the cached assembly. We don't actually care what the version is
+            //since we just check below if the required members are present.
+            TestDecalVersion(new Version());
+
+            int ee = (int)e;
+
+            Type DecalType_UIElementType = iCachedDecalAssembly.GetType("Decal.Adapter.Wrappers.UIElementType");
+            if (DecalType_UIElementType == null) return Rectangle.Empty;
+            object e_decal = Enum.ToObject(DecalType_UIElementType, ee);
+
+            Type DecalType_HooksWrapper = iCachedDecalAssembly.GetType("Decal.Adapter.Wrappers.HooksWrapper");
+            if (DecalType_HooksWrapper == null) return Rectangle.Empty;
+            MethodInfo call = DecalType_HooksWrapper.GetMethod("UIElementRegion", new Type[] { DecalType_UIElementType });
+            if (call == null) return Rectangle.Empty;
+
+            return (Rectangle)call.Invoke(hooks, new object[] { e_decal });
+        }
+
 
         [DllImport("Decal.dll")]
         static extern int DispatchOnChatCommand(ref IntPtr str, [MarshalAs(UnmanagedType.U4)] int target);

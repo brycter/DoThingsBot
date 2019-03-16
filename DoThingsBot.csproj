@@ -173,6 +173,15 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+    <COMReference Include="DecalDat">
+      <Guid>{C2C11EC7-2CB9-4999-BDD9-AF599455601F}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
     <COMReference Include="DecalFilters">
       <Guid>{DA16DAA9-7F16-45D9-A59F-8C45A7F2ACB1}</Guid>
       <VersionMajor>2</VersionMajor>
