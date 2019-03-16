@@ -125,6 +125,7 @@ namespace DoThingsBot {
                 bot.IsLoggedIn = false;
 
                 if (bot != null) bot.Dispose();
+                if (Globals.StatsView != null) Globals.StatsView.Dispose();
                 if (mainView != null) mainView.Dispose();
 
                 Util.WriteToDebugLog("Logoff");
@@ -134,6 +135,10 @@ namespace DoThingsBot {
 
         void Current_CommandLineText(object sender, ChatParserInterceptEventArgs e) {
             try {
+                if (e.Text == "/dtb test") {
+                    e.Eat = true;
+                }
+
                 if (e.Text == "/dtb start") {
                     Config.Bot.Enabled.Value = true;
                     e.Eat = true;
