@@ -144,9 +144,9 @@ namespace DoThingsBot.FSM.States {
                             var spell = Spells.GetSpell(spellId);
 
                             if (!readyToCast) {
-                                //if (!CoreManager.Current.Actions.ChatState && (spell.School.Name == "Creature Enchantment" || spell.School.Name == "Life Magic")) {
-                                //    Util.StopMoving();
-                                //}
+                                if (Config.Bot.FastCastSelfBuffs.Value && (spell.School.Name == "Creature Enchantment" || spell.School.Name == "Life Magic")) {
+                                    Util.StopMoving();
+                                }
                                 return;
                             }
 

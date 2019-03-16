@@ -22,6 +22,7 @@ namespace DoThingsBot {
             public static  Setting<int> DontResendDuplicateMessagesWindow;
             public static  Setting<int> BuffRefreshTime;
             public static Setting<double> RecompVendorSellRate;
+            public static Setting<bool> FastCastSelfBuffs;
 
             static Bot() {
             }
@@ -34,6 +35,7 @@ namespace DoThingsBot {
                 DontResendDuplicateMessagesWindow = new Setting<int>("Config/Bot/DontResendDuplicateMessagesWindow", "Don't send repeat messages if they fall within this time window (in seconds)", 2);
                 BuffRefreshTime = new Setting<int>("Config/Bot/BuffRefreshTime", "Refresh buffs if time left falls below this amount before a job request. (in minutes)", 5);
                 RecompVendorSellRate = new Setting<double>("Config/Bot/RecompVendorSellRate", "The sell rate of the vendor you buy components from (eg treetop is 140% so this should be set to '1.4')", 1.4);
+                FastCastSelfBuffs = new Setting<bool>("Config/Bot/FastCastSelfBuffs", "Enable fast casting of self buffs", false);
 
                 RecompVendorSellRate.Validate += ValidateVendorRate;
                 DefaultHeading.Validate += ValidateHeading;
