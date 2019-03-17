@@ -215,15 +215,42 @@
     <EmbeddedResource Include="Views\confirmView.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\BuffProfiles\2h.xml" />
-    <Content Include="Resources\BuffProfiles\finesse.xml" />
-    <Content Include="Resources\BuffProfiles\heavy.xml" />
-    <Content Include="Resources\BuffProfiles\light.xml" />
-    <Content Include="Resources\BuffProfiles\mage.xml" />
-    <Content Include="Resources\BuffProfiles\missile.xml" />
-    <Content Include="Resources\BuffProfiles\tink.xml" />
-    <Content Include="Resources\BuffProfiles\trades.xml" />
-    <Content Include="Resources\BuffProfiles\_generic.xml" />
+    <Content Include="Resources\BotProfiles\buff.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\BotProfiles\idle.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\BotProfiles\tinker.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\BuffProfiles\2h.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\BuffProfiles\finesse.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\BuffProfiles\heavy.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\BuffProfiles\light.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\BuffProfiles\mage.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\BuffProfiles\missile.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\BuffProfiles\tink.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\BuffProfiles\trades.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\BuffProfiles\_generic.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <EmbeddedResource Include="Views\statsView.xml" />
     <EmbeddedResource Include="Views\profileManagerView.xml" />
   </ItemGroup>

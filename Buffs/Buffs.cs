@@ -13,7 +13,7 @@ namespace DoThingsBot.Buffs {
         public static void LoadProfiles(bool verbose=false) {
             profiles = new Dictionary<string, BuffProfile>();
 
-            DirectoryInfo d = new DirectoryInfo(Path.Combine(Util.GetDataDirectory(), "buffprofiles"));
+            DirectoryInfo d = new DirectoryInfo(Path.Combine(Util.GetResourcesDirectory(), "BuffProfiles"));
             FileInfo[] files = d.GetFiles("*.xml");
 
             foreach (FileInfo file in files) {
@@ -83,13 +83,14 @@ namespace DoThingsBot.Buffs {
             return aliases.ContainsKey(profile);
         }
 
+
         public static string GetProfilePath(string profile) {
-            string file = Path.Combine(Util.GetDataDirectory(), "buffprofiles");
+            string file = Path.Combine(Util.GetResourcesDirectory(), "BuffProfiles");
             return Path.Combine(file, profile + ".xml");
         }
 
         public static string GetBotProfilePath(string profile) {
-            string file = Path.Combine(Util.GetDataDirectory(), "botprofiles");
+            string file = Path.Combine(Util.GetResourcesDirectory(), "BotProfiles");
             return Path.Combine(file, profile + ".xml");
         }
 

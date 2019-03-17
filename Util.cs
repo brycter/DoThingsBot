@@ -36,14 +36,21 @@ namespace DoThingsBot
             return Path.Combine(GetCharacterDataDirectory(), "logs");
         }
 
+        public static string GetResourcesDirectory() {
+            string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            return Path.Combine(assemblyFolder, "Resources");
+        }
+
         public static void CreateDataDirectories() {
             System.IO.Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.Personal) + @"\Decal Plugins\");
             System.IO.Directory.CreateDirectory(DataDirectory);
             System.IO.Directory.CreateDirectory(GetCharacterDataDirectory());
             System.IO.Directory.CreateDirectory(GetLogDirectory());
             System.IO.Directory.CreateDirectory(GetPlayerDataDirectory());
-            Directory.CreateDirectory(Path.Combine(DataDirectory, "buffprofiles"));
-            Directory.CreateDirectory(Path.Combine(DataDirectory, "botprofiles"));
+            System.IO.Directory.CreateDirectory(Util.GetResourcesDirectory());
+            System.IO.Directory.CreateDirectory(Path.Combine(Util.GetResourcesDirectory(), "BuffProfiles"));
+            System.IO.Directory.CreateDirectory(Path.Combine(Util.GetResourcesDirectory(), "BotProfiles"));
         }
 
         public static string GetVersion() {
