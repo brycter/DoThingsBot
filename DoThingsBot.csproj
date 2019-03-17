@@ -101,6 +101,7 @@
     <Compile Include="FSM\States\BotTrading_OpenTradeState.cs" />
     <Compile Include="FSM\States\BotTrading_TradeCancelledState.cs" />
     <Compile Include="Globals.cs" />
+    <Compile Include="Lib\PortalGem.cs" />
     <Compile Include="Lib\PostMessageTools.cs" />
     <Compile Include="Lib\User32.cs" />
     <Compile Include="MagTools\Shared\Settings\Setting.cs" />

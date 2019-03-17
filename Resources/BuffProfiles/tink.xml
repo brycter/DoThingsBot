@@ -1,4 +1,5 @@
 ﻿<profile name="tink">
+  <spell profile="xpchain" />
   <spell family="STRENGTH" />
   <spell family="ENDURANCE" />
   <spell family="COORDINATION" />
@@ -7,6 +8,4 @@
   <spell family="ITEM_TINKERING_EXPERTISE" />
   <spell family="MAGIC_ITEM_TINKERING_EXPERTISE" />
   <spell family="WEAPON_TINKERING_EXPERTISE" />
-  <spell family="LEADERSHIP_MASTERY" />
-  <spell family="FEALTY" />
 </profile>

@@ -15,7 +15,8 @@ namespace DoThingsBot {
         SecondaryPortal = 4,
         CheckSkills = 5,
         GiveBackItems = 6,
-        Buff = 7
+        Buff = 7,
+        PortalGem = 8
     }
 
     public enum EquipMode {
@@ -63,6 +64,8 @@ namespace DoThingsBot {
 
         private bool forceBuff = false;
         public bool IsImbue = false;
+
+        private string portalCommand = "";
 
         public ItemBundle() {
         }
@@ -119,6 +122,18 @@ namespace DoThingsBot {
                 return craftMode;
             }
             catch (Exception e) { Util.LogException(e); return CraftMode.None; }
+        }
+
+        public bool IsPortalCraftMode() {
+            return (craftMode == CraftMode.PrimaryPortal || craftMode == CraftMode.SecondaryPortal || craftMode == CraftMode.PortalGem);
+        }
+
+        public void SetPortalCommand(string command) {
+            portalCommand = command;
+        }
+
+        public string GetPortalCommand() {
+            return portalCommand;
         }
 
         public List<int> GetItems() {

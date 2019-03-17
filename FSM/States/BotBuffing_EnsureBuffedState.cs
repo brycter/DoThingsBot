@@ -107,7 +107,7 @@ namespace DoThingsBot.FSM.States {
 
                         Globals.Stats.AddTimeSpentSelfBuffing((int)(DateTime.UtcNow - firstThought).TotalSeconds);
 
-                        machine.ChangeState(new BotBuffing_FinishedState(itemBundle));
+                        machine.ChangeState(new Finished(itemBundle));
                         return;
                     }
 

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace DoThingsBot.FSM.States {
-    class BotBuffing_FinishedState : IBotState {
+    class Finished : IBotState {
         public string Name { get => "BotBuffing_FinishedState"; }
         private ItemBundle itemBundle;
 
-        public BotBuffing_FinishedState(ItemBundle items) {
+        public Finished(ItemBundle items) {
             itemBundle = items;
         }
 

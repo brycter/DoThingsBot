@@ -371,8 +371,8 @@ namespace DoThingsBot {
 
                 default:
                     // check for buff command
-                    // todo: handle single buff commands
                     var allBuffProfiles = Buffs.Buffs.GetAllProfileCommands();
+
                     if (allBuffProfiles.Contains(e.Command)) {
                         if (!Config.BuffBot.Enabled.Value) {
                             ChatManager.Tell(e.PlayerName, "My Buff Bot functionality is currently disabled, sorry!");
@@ -401,6 +401,24 @@ namespace DoThingsBot {
                         }
                         else {
                             AddToQueue(e.PlayerName, commands);
+                        }
+                        return;
+                    }
+
+                    if (Config.Portals.PortalGemCommands().ContainsKey(e.Command)) {
+                        if (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) {
+                            var itemBundle = new ItemBundle(e.PlayerName);
+                            currentItemBundle = itemBundle;
+                            Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
+
+                            itemBundle.SetEquipMode(EquipMode.Idle);
+                            itemBundle.SetCraftMode(CraftMode.PortalGem);
+                            itemBundle.SetPortalCommand(e.Command);
+
+                            _machine.ChangeState(new BotStartState(itemBundle));
+                        }
+                        else {
+                            AddToQueue(e.PlayerName, e.Command);
                         }
                         return;
                     }

@@ -8,6 +8,7 @@ using System.Text;
 
 using Mag.Shared.Settings;
 using static DoThingsBot.Spells;
+using DoThingsBot.Lib;
 
 namespace DoThingsBot {
     public class BotConfigChangedEventArgs : EventArgs {
@@ -110,6 +111,8 @@ namespace DoThingsBot {
             public static Setting<string> SecondaryPortalTieLocation;
             public static Setting<int> SecondaryPortalHeading;
 
+            public static Setting<List<string>> PortalGems;
+
             static Portals() {
             }
 
@@ -122,8 +125,29 @@ namespace DoThingsBot {
                 SecondaryPortalTieLocation = new Setting<string>("Config/Portals/SecondaryPortalTieLocation", "Your secondary portal tie location (eg: Temple of Forgetfulness)", "Somewhere else");
                 SecondaryPortalHeading = new Setting<int>("Config/Portals/SecondaryPortalHeading", "Heading while summoning your secondary portal tie. 0-359. (0=North, 90=East, 180=South, 270=West)", 45);
 
+                PortalGems = new Setting<List<string>>("Config/Portals/PortalGems/Gem", "Portal Gem summoning commands", new List<string>());
+
                 PrimaryPortalHeading.Validate += ValidateHeading;
                 SecondaryPortalHeading.Validate += ValidateHeading;
+            }
+
+            public static Dictionary<string, PortalGem> PortalGemCommands() {
+                var portalGemCommands = new Dictionary<string, PortalGem>();
+                foreach (var portalGemEntry in PortalGems.Value) {
+                    var parts = portalGemEntry.Split('|');
+                    if (parts.Length != 4) continue;
+
+                    if (!portalGemCommands.ContainsKey(parts[0])) {
+                        int heading = 0;
+                        int icon = 0;
+
+                        if (Int32.TryParse(parts[2], out heading) && Int32.TryParse(parts[3], out icon)) {
+                            portalGemCommands.Add(parts[0].ToLower(), new PortalGem(parts[1], heading, icon));
+                        }
+                    }
+                }
+
+                return portalGemCommands;
             }
         }
 

@@ -1,12 +1,8 @@
 ﻿<profile name="finesse" aliases="fw finesseweapons">
-  <spell profile="_generic" />
-  <spell family="AURA_OF_HEART_SEEKER" />
-  <spell family="AURA_OF_BLOOD_DRINKER" />
-  <spell family="AURA_OF_SWIFT_KILLER" />
   <spell family="FINESSE_WEAPON_MASTERY" />
-  <spell family="SHIELD_MASTERY" />
-  <spell profile="banes" />
   <spell family="DUAL_WIELD_MASTERY" />
-  <spell family="DIRTY_FIGHTING_MASTERY" />
-  <spell family="SNEAK_ATTACK_MASTERY" />
+  <spell family="SHIELD_MASTERY" />
+  <spell profile="_melee" />
+  <spell profile="_generic" />
+  <spell profile="banes" />
 </profile>

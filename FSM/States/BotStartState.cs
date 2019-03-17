@@ -32,8 +32,13 @@ namespace DoThingsBot.FSM.States {
                     Globals.StatsView.ShowCharacterStats(itemBundle.GetOwner());
                 }
 
-                if (itemBundle.GetCraftMode() == CraftMode.PrimaryPortal || itemBundle.GetCraftMode() == CraftMode.SecondaryPortal) {
-                    machine.ChangeState(new BotEquipItemsState(itemBundle));
+                if (itemBundle.IsPortalCraftMode()) {
+                    if (itemBundle.GetCraftMode() == CraftMode.PortalGem) {
+                        machine.ChangeState(new BotSummonPortalState(itemBundle));
+                    }
+                    else {
+                        machine.ChangeState(new BotEquipItemsState(itemBundle));
+                    }
                 }
                 else if (itemBundle.GetCraftMode() == CraftMode.WeaponTinkering && Spells.DoesAnySpellNeedRefresh(Config.Bot.GetWantedTinkerEnchantments())) {
                     ChatManager.Tell(itemBundle.GetOwner(), "One moment please, I need to buff.");
