@@ -321,7 +321,7 @@ namespace DoThingsBot {
                     break;
 
                 case "profiles":
-                    if (!Config.Portals.Enabled.Value) {
+                    if (!Config.BuffBot.Enabled.Value) {
                         ChatManager.Tell(e.PlayerName, "My buff bot functionality is currently disabled, sorry!");
                         return;
                     }
@@ -406,6 +406,10 @@ namespace DoThingsBot {
                     }
 
                     if (Config.Portals.PortalGemCommands().ContainsKey(e.Command)) {
+                        if (!Config.Portals.Enabled.Value) {
+                            ChatManager.Tell(e.PlayerName, "My Portal Bot functionality is currently disabled, sorry!");
+                            return;
+                        }
                         if (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) {
                             var itemBundle = new ItemBundle(e.PlayerName);
                             currentItemBundle = itemBundle;
