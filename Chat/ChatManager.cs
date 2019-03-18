@@ -51,17 +51,27 @@ namespace DoThingsBot.Chat {
 
     public class ChatManager : IDisposable {
         public const int ChatCommandDelay = 500;
-        
+
+        private static Queue<string> messageQueue;
         private static Queue<string> commandQueue;
         static DateTime lastChatCommandSentAt = DateTime.MinValue;
         static DateTime lastAnnouncementTime = DateTime.UtcNow;
+        static List<DateTime> chatMessageTimes = new List<DateTime>();
 
         public static event EventHandler<ChatCommandEventArgs> RaiseChatCommandEvent;
 
         static Random rnd = new Random();
 
+        public static DateTime firstThought = DateTime.UtcNow;
+
+        private static readonly Regex PublicChatMessageRegex = new Regex("^([\\/@](cg|ct|s|a|e) |:|^(?![:\\/@\\*])).*$");
+        private static readonly Regex PrivateChatMessageRegex = new Regex("^([\\/@](tell|reply|rt|r|t) ).*$");
+
+        private static string lastMessage = "";
+
         public ChatManager() {
             try {
+                messageQueue = new Queue<string>();
                 commandQueue = new Queue<string>();
                 CoreManager.Current.ChatBoxMessage += new EventHandler<ChatTextInterceptEventArgs>(Current_ChatBoxMessage);
             }
@@ -130,11 +140,11 @@ namespace DoThingsBot.Chat {
         }
 
         public static void Tell(string playerName, string message) {
-            commandQueue.Enqueue(String.Format("/tell {0}, {1}", playerName, message));
+            messageQueue.Enqueue(String.Format("/tell {0}, {1}", playerName, message));
         }
 
         public static void Say(string message) {
-            commandQueue.Enqueue(String.Format("/say {0}", message));
+            messageQueue.Enqueue(String.Format("/say {0}", message));
         }
 
         public static void AddSpamToChatBox(string message) {
@@ -146,21 +156,43 @@ namespace DoThingsBot.Chat {
         }
 
         public static void AddToChatBox(string command) {
-            commandQueue.Enqueue(command);
+            if (IsChatCommand(command)) {
+                messageQueue.Enqueue(command);
+            }
+            else {
+                commandQueue.Enqueue(command);
+            }
         }
 
-        public static DateTime firstThought = DateTime.UtcNow;
+        public static bool IsChatCommand(string command) {
+            return (PublicChatMessageRegex.IsMatch(command.ToLower()) || PrivateChatMessageRegex.IsMatch(command.ToLower()));
+        }
 
-        private static readonly Regex PublicChatMessageRegex = new Regex("^([\\/@](cg|ct|s|a|e) |:|^(?![:\\/@\\*])).*$");
-        private static readonly Regex PrivateChatMessageRegex = new Regex("^([\\/@](tell|reply|rt|r|t) ).*$");
+        private static void CleanChatMessageTimes() {
+            var times = new List<DateTime>();
 
-        private static string lastMessage = "";
+            foreach (var time in chatMessageTimes) {
+                if (DateTime.UtcNow - time <= TimeSpan.FromSeconds(9)) {
+                    times.Add(time);
+                }
+            }
+
+            chatMessageTimes.Clear();
+            chatMessageTimes.AddRange(times);
+        }
+
+        public static bool CanSendChatMessage() {
+            CleanChatMessageTimes();
+
+            return !(chatMessageTimes.Count >= 8);
+        }
 
         public static void Think() {
             if (DateTime.UtcNow - lastChatCommandSentAt > TimeSpan.FromSeconds(Config.Bot.DontResendDuplicateMessagesWindow.Value)) {
                 lastMessage = "";
             }
 
+            // announcements
             if (DateTime.UtcNow - lastAnnouncementTime > TimeSpan.FromMinutes(Config.Announcements.SpamInterval.Value) && Config.Bot.Enabled.Value == true) {
                 if (DateTime.UtcNow - firstThought < TimeSpan.FromSeconds(5)) return;
 
@@ -177,22 +209,24 @@ namespace DoThingsBot.Chat {
                 }
             }
 
+            // commands
+            if (commandQueue.Count > 0) {
+                var command = commandQueue.Dequeue();
+                DecalProxy.DispatchChatToBoxWithPluginIntercept(command);
+                Util.WriteToDebugLog(command);
+                return;
+            }
+
+            // chat spam
             if (DateTime.UtcNow - lastChatCommandSentAt > TimeSpan.FromMilliseconds(ChatCommandDelay)) {
-                if (commandQueue.Count > 0) {
-                    var command = commandQueue.Dequeue();
+                if (messageQueue.Count > 0 && CanSendChatMessage()) {
+                    var command = messageQueue.Dequeue();
 
                     if (lastMessage != command) {
                         lastMessage = command;
                         lastChatCommandSentAt = DateTime.UtcNow;
 
-                        DecalProxy.DispatchChatToBoxWithPluginIntercept(command);
-                        Util.WriteToDebugLog(command);
-                    }
-                    // this is a command, so always let it through
-                    else if (!(PublicChatMessageRegex.IsMatch(command.ToLower()) || PrivateChatMessageRegex.IsMatch(command.ToLower()))) {
-                        lastMessage = command;
-                        lastChatCommandSentAt = DateTime.UtcNow;
-
+                        chatMessageTimes.Add(DateTime.UtcNow);
                         DecalProxy.DispatchChatToBoxWithPluginIntercept(command);
                         Util.WriteToDebugLog(command);
                     }
