@@ -82,6 +82,32 @@ namespace DoThingsBot.Views {
 
                 UIBuffProfileManagerMoveSpell.Hit += UIBuffProfileManagerMoveSpell_Hit;
                 UIBuffProfileManagerSaveProfile.Hit += UIBuffProfileManagerSaveProfile_Hit;
+
+                UIBuffProfileManagerAddNew.Hit += UIBuffProfileManagerAddNew_Hit;
+            }
+            catch (Exception ex) { Util.LogException(ex); }
+        }
+
+        private void UIBuffProfileManagerAddNew_Hit(object sender, EventArgs e) {
+            try {
+                var newName = UIBuffProfileManagerNewName.Text;
+
+                if (string.IsNullOrEmpty(newName)) {
+                    Util.WriteToChat("Profile name cannot be blank.");
+                    return;
+                }
+
+                if (newName.Contains(" ")) {
+                    Util.WriteToChat("Profile name cannot contain spaces.");
+                    return;
+                }
+
+                UIBuffProfileManagerEdit.AddItem(newName, newName);
+                UIBuffProfileManagerEdit.Current = UIBuffProfileManagerEdit.Count - 1;
+
+                Util.WriteToChat("Creating new profile: " + newName);
+
+                LoadProfile(newName, true);
             }
             catch (Exception ex) { Util.LogException(ex); }
         }
@@ -540,7 +566,7 @@ namespace DoThingsBot.Views {
             LoadProfile(c.Text);
         }
 
-        private void LoadProfile(string name) {
+        private void LoadProfile(string name, bool isNew = false) {
             try {
                 if (string.IsNullOrEmpty(name)) {
                     ReloadProfiles();
@@ -553,49 +579,57 @@ namespace DoThingsBot.Views {
                 if (selectedAvailableRow != -1) selectedAvailableRow = 0;
                 if (selectedProfileRow != -1) selectedProfileRow = 0;
 
-                if (editMode == ProfileEditMode.BUFF_PROFILES) {
-                    profile = Buffs.Buffs.GetProfile(name);
-                }
-                else if (editMode == ProfileEditMode.BOT_PROFILES) {
-                    profile = Buffs.Buffs.GetBotProfile(name);
+                if (!isNew) {
+                    if (editMode == ProfileEditMode.BUFF_PROFILES) {
+                        profile = Buffs.Buffs.GetProfile(name);
+                    }
+                    else if (editMode == ProfileEditMode.BOT_PROFILES) {
+                        profile = Buffs.Buffs.GetBotProfile(name);
+                    }
                 }
 
                 var index = 0;
 
                 profileFamilyIds.Clear();
-                profileFamilyIds.AddRange(profile.directFamilyIds);
                 profileIncludes.Clear();
-                profileIncludes.AddRange(profile.includedProfiles.Values);
-                
-                foreach (var family in profileFamilyIds) {
+
+                if (!isNew) {
+                    profileIncludes.AddRange(profile.includedProfiles.Values);
+                    profileFamilyIds.AddRange(profile.directFamilyIds);
+
+                    foreach (var family in profileFamilyIds) {
+                        while (profile.includedProfiles.ContainsKey(index)) {
+                            HudList.HudListRowAccessor profileRow = UIBuffProfileManagerProfileSpells.AddRow();
+                            ((HudPictureBox)profileRow[0]).Image = 0x060016CB;
+                            ((HudStaticText)profileRow[1]).Text = profile.includedProfiles[index];
+                            ((HudStaticText)profileRow[4]).Text = "-1";
+                            index++;
+                        }
+
+                        var spell = Spells.GetExampleSpellByClass(family);
+                        var friendlyName = FriendlyName(family);
+                        HudList.HudListRowAccessor newRow = UIBuffProfileManagerProfileSpells.AddRow();
+                        ((HudPictureBox)newRow[0]).Image = spell.IconId;
+                        ((HudStaticText)newRow[1]).Text = index == selectedProfileRow ? "> " + friendlyName : friendlyName;
+                        ((HudStaticText)newRow[4]).Text = ((int)family).ToString();
+
+                        index++;
+                    }
+
                     while (profile.includedProfiles.ContainsKey(index)) {
                         HudList.HudListRowAccessor profileRow = UIBuffProfileManagerProfileSpells.AddRow();
                         ((HudPictureBox)profileRow[0]).Image = 0x060016CB;
                         ((HudStaticText)profileRow[1]).Text = profile.includedProfiles[index];
                         ((HudStaticText)profileRow[4]).Text = "-1";
+
                         index++;
                     }
 
-                    var spell = Spells.GetExampleSpellByClass(family);
-                    var friendlyName = FriendlyName(family);
-                    HudList.HudListRowAccessor newRow = UIBuffProfileManagerProfileSpells.AddRow();
-                    ((HudPictureBox)newRow[0]).Image = spell.IconId;
-                    ((HudStaticText)newRow[1]).Text = index == selectedProfileRow ? "> " + friendlyName : friendlyName;
-                    ((HudStaticText)newRow[4]).Text = ((int)family).ToString();
-
-                    index++;
+                    UIBuffProfileManagerAliases.Text = string.Join(" ", profile.aliases.ToArray());
                 }
-
-                while (profile.includedProfiles.ContainsKey(index)) {
-                    HudList.HudListRowAccessor profileRow = UIBuffProfileManagerProfileSpells.AddRow();
-                    ((HudPictureBox)profileRow[0]).Image = 0x060016CB;
-                    ((HudStaticText)profileRow[1]).Text = profile.includedProfiles[index];
-                    ((HudStaticText)profileRow[4]).Text = "-1";
-
-                    index++;
+                else {
+                    UIBuffProfileManagerAliases.Text = "";
                 }
-
-                UIBuffProfileManagerAliases.Text = string.Join(" ", profile.aliases.ToArray());
 
                 RedrawAvailableList();
 
