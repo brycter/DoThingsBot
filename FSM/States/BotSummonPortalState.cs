@@ -97,6 +97,9 @@ namespace DoThingsBot.FSM.States {
             if (Globals.Core.Actions.BusyState != 0) return;
 
             Globals.Core.Actions.UseItem(portalGemObject.Id, 0);
+
+            Globals.Stats.AddPlayerPortalSummoned(itemBundle.GetOwner(), portalGemObject.Name);
+
             Finished(machine);
         }
 
