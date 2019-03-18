@@ -72,16 +72,19 @@
     <page label="Portals">
       <control progid="DecalControls.FixedLayout" clipped="">
         <control progid="DecalControls.StaticText" name="UIBotPortalsPortalHeader" left="1" top="8" width="60" height="20" text="Portal" fontstyle="bold"/>
-        <control progid="DecalControls.StaticText" name="UIBotPortalsPortalHeader" left="70" top="8" width="60" height="20" text="Location" fontstyle="bold"/>
-        <control progid="DecalControls.StaticText" name="UIBotPortalsPortalHeader" left="290" top="8" width="60" height="20" text="Heading" fontstyle="bold"/>
-
+        <control progid="DecalControls.StaticText" name="UIBotPortalsCommandHeader" left="60" top="8" width="80" height="20" text="Extra Cmd" fontstyle="bold"/>
+        <control progid="DecalControls.StaticText" name="UIBotPortalsLocationHeader" left="145" top="8" width="60" height="20" text="Location" fontstyle="bold"/>
+        <control progid="DecalControls.StaticText" name="UIBotPortalsHeadingHeader" left="300" top="8" width="60" height="20" text="Heading" fontstyle="bold"/>
+        
         <control progid="DecalControls.StaticText" name="UIPrimaryPortalLocationLabel" left="1" top="28" width="60" height="20" text="Primary:"/>
-        <control progid="DecalControls.Edit" name="UIPrimaryPortalLocation" left="70" top="28" width="210" height="20" text=""/>
-        <control progid="DecalControls.Edit" name="UIPrimaryPortalHeading" left="290" top="28" width="50" height="20" text=""/>
+        <control progid="DecalControls.Edit" name="UIPrimaryPortalExtraCommand" left="60" top="28" width="80" height="20" text=""/>
+        <control progid="DecalControls.Edit" name="UIPrimaryPortalLocation" left="145" top="28" width="150" height="20" text=""/>
+        <control progid="DecalControls.Edit" name="UIPrimaryPortalHeading" left="300" top="28" width="30" height="20" text=""/>
 
         <control progid="DecalControls.StaticText" name="UISecondaryPortalLocationLabel" left="1" top="53" width="60" height="20" text="Secondary:"/>
-        <control progid="DecalControls.Edit" name="UISecondaryPortalLocation" left="70" top="53" width="210" height="20" text=""/>
-        <control progid="DecalControls.Edit" name="UISecondaryPortalHeading" left="290" top="53" width="50" height="20" text=""/>
+        <control progid="DecalControls.Edit" name="UISecondaryPortalExtraCommand" left="60" top="53" width="80" height="20" text=""/>
+        <control progid="DecalControls.Edit" name="UISecondaryPortalLocation" left="145" top="53" width="150" height="20" text=""/>
+        <control progid="DecalControls.Edit" name="UISecondaryPortalHeading" left="300" top="53" width="30" height="20" text=""/>
 
         <control progid="DecalControls.StaticText" name="UIPortalHeadingHelpLabel" left="32" top="73" width="315" height="20" text="(Heading 0 = North, 90 = East, 180 = South, 270 = West)"/>
         <control progid="DecalControls.StaticText" name="UIPortalGemCommandsCommandLabel" left="4" top="93" width="75" height="20" text="Command"/>

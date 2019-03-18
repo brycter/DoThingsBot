@@ -107,9 +107,11 @@ namespace DoThingsBot {
 
             public static Setting<string> PrimaryPortalTieLocation;
             public static Setting<int> PrimaryPortalHeading;
+            public static Setting<string> PrimaryPortalExtraCommand;
 
             public static Setting<string> SecondaryPortalTieLocation;
             public static Setting<int> SecondaryPortalHeading;
+            public static Setting<string> SecondaryPortalExtraCommand;
 
             public static Setting<List<string>> PortalGems;
 
@@ -121,14 +123,27 @@ namespace DoThingsBot {
 
                 PrimaryPortalTieLocation = new Setting<string>("Config/Portals/PrimaryPortalTieLocation", "Your primary portal tie location (eg: Temple of Enlightenment)", "Somewhere");
                 PrimaryPortalHeading = new Setting<int>("Config/Portals/PrimaryPortalHeading", "Heading while summoning your primary portal tie. 0-359. (0=North, 90=East, 180=South, 270=West)", 315);
+                PrimaryPortalExtraCommand = new Setting<string>("Config/Portals/PrimaryPortalExtraCommand", "Bot will also respond to this command to summon primary portal (eg: tn)", "");
 
                 SecondaryPortalTieLocation = new Setting<string>("Config/Portals/SecondaryPortalTieLocation", "Your secondary portal tie location (eg: Temple of Forgetfulness)", "Somewhere else");
                 SecondaryPortalHeading = new Setting<int>("Config/Portals/SecondaryPortalHeading", "Heading while summoning your secondary portal tie. 0-359. (0=North, 90=East, 180=South, 270=West)", 45);
+                SecondaryPortalExtraCommand = new Setting<string>("Config/Portals/SecondaryPortalExtraCommand", "Bot will also respond to this command to summon primary portal (eg: tn)", "");
 
                 PortalGems = new Setting<List<string>>("Config/Portals/PortalGems/Gem", "Portal Gem summoning commands", new List<string>());
 
                 PrimaryPortalHeading.Validate += ValidateHeading;
                 SecondaryPortalHeading.Validate += ValidateHeading;
+            }
+
+            public static string[] GetValidPortalGemCommands() {
+                var commands = new List<string>();
+                var portalGemCommands = PortalGemCommands();
+
+                foreach (var command in portalGemCommands) {
+                    commands.Add(command.Key);
+                }
+
+                return commands.ToArray();
             }
 
             public static Dictionary<string, PortalGem> PortalGemCommands() {

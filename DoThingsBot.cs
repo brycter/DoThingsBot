@@ -174,6 +174,8 @@ namespace DoThingsBot {
                 currentItemBundle = null;
             }
 
+            if (string.IsNullOrEmpty(e.Command)) return;
+
             switch (e.Command) {
                 case "help":
                     Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
@@ -226,10 +228,41 @@ namespace DoThingsBot {
 
                     Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
 
-                    ChatManager.Tell(e.PlayerName, String.Format("I am currently tied to {0} and {1}. '/t {2}, primary' for {0}. '/t {2}, secondary' for {1}",
-                        Config.Portals.PrimaryPortalTieLocation.Value,
-                        Config.Portals.SecondaryPortalTieLocation.Value,
-                        CoreManager.Current.CharacterFilter.Name));
+                    if (string.IsNullOrEmpty(e.Arguments)) {
+                        ChatManager.Tell(e.PlayerName, String.Format("I am currently tied to {0} and {1}. '/t {2}, primary' for {0}. '/t {2}, secondary' for {1}",
+                            Config.Portals.PrimaryPortalTieLocation.Value,
+                            Config.Portals.SecondaryPortalTieLocation.Value,
+                            CoreManager.Current.CharacterFilter.Name));
+
+                        var validPortalCommands = Config.Portals.GetValidPortalGemCommands();
+                        if (validPortalCommands.Length > 0) {
+                            ChatManager.Tell(e.PlayerName, string.Format("I can also summon: {0}", string.Join(", ", validPortalCommands)));
+                        }
+                    }
+                    else {
+                        string willSummon = "";
+
+                        if (e.Arguments == Config.Portals.PrimaryPortalExtraCommand.Value) {
+                            willSummon = Config.Portals.PrimaryPortalTieLocation.Value;
+                        }
+                        else if (e.Arguments == Config.Portals.SecondaryPortalExtraCommand.Value) {
+                            willSummon = Config.Portals.PrimaryPortalTieLocation.Value;
+                        }
+                        else if (Config.Portals.PortalGemCommands().ContainsKey(e.Arguments)) {
+                            willSummon = Config.Portals.PortalGemCommands()[e.Arguments].Name;
+                        }
+
+                        if (string.IsNullOrEmpty(willSummon)) {
+                            ChatManager.Tell(e.PlayerName, string.Format("I don't know how to summon '{0}'", e.Arguments));
+                        }
+                        else {
+                            ChatManager.Tell(e.PlayerName, string.Format("If you '/t {0}, {1}' I will summon {2}",
+                                Globals.Core.CharacterFilter.Name,
+                                e.Arguments,
+                                willSummon));
+                        }
+                    }
+
                     break;
 
                 case "remove":
@@ -405,6 +438,38 @@ namespace DoThingsBot {
                         return;
                     }
 
+                    // portal alternative (extra) commands
+                    if (e.Command == Config.Portals.PrimaryPortalExtraCommand.Value || e.Command == Config.Portals.SecondaryPortalExtraCommand.Value) {
+                        if (!Config.Portals.Enabled.Value) {
+                            ChatManager.Tell(e.PlayerName, "My portal bot functionality is currently disabled, sorry!");
+                            return;
+                        }
+
+                        if (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) {
+                            var itemBundle = new ItemBundle(e.PlayerName);
+                            currentItemBundle = itemBundle;
+                            Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
+
+                            CraftMode portalMode;
+
+                            if (e.Command == Config.Portals.PrimaryPortalExtraCommand.Value) {
+                                portalMode = CraftMode.PrimaryPortal;
+                            }
+                            else {
+                                portalMode = CraftMode.SecondaryPortal;
+                            }
+
+                            itemBundle.SetEquipMode(EquipMode.SummonPortal);
+                            itemBundle.SetCraftMode(portalMode);
+                            _machine.ChangeState(new BotStartState(itemBundle));
+                        }
+                        else {
+                            AddToQueue(e.PlayerName, e.Command);
+                        }
+                        return;
+                    }
+
+                    // portal gem commands
                     if (Config.Portals.PortalGemCommands().ContainsKey(e.Command)) {
                         if (!Config.Portals.Enabled.Value) {
                             ChatManager.Tell(e.PlayerName, "My Portal Bot functionality is currently disabled, sorry!");

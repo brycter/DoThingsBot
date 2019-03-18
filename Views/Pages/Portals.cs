@@ -7,8 +7,10 @@ namespace DoThingsBot.Views.Pages {
     class PortalsPage : IDisposable {
         HudTextBox UIPrimaryPortalLocation { get; set; }
         HudTextBox UIPrimaryPortalHeading { get; set; }
+        HudTextBox UIPrimaryPortalExtraCommand { get; set; }
         HudTextBox UISecondaryPortalLocation { get; set; }
         HudTextBox UISecondaryPortalHeading { get; set; }
+        HudTextBox UISecondaryPortalExtraCommand { get; set; }
         HudTextBox UIPortalGemAddCommandText { get; set; }
         HudTextBox UIPortalGemAddHeadingText { get; set; }
         HudButton UIPortalGemAddSelected { get; set; }
@@ -18,8 +20,12 @@ namespace DoThingsBot.Views.Pages {
             try {
                 UIPrimaryPortalLocation = mainView.view != null ? (HudTextBox)mainView.view["UIPrimaryPortalLocation"] : new HudTextBox();
                 UIPrimaryPortalHeading = mainView.view != null ? (HudTextBox)mainView.view["UIPrimaryPortalHeading"] : new HudTextBox();
+                UIPrimaryPortalExtraCommand = (HudTextBox)mainView.view["UIPrimaryPortalExtraCommand"];
+
                 UISecondaryPortalLocation = mainView.view != null ? (HudTextBox)mainView.view["UISecondaryPortalLocation"] : new HudTextBox();
                 UISecondaryPortalHeading = mainView.view != null ? (HudTextBox)mainView.view["UISecondaryPortalHeading"] : new HudTextBox();
+                UISecondaryPortalExtraCommand = (HudTextBox)mainView.view["UISecondaryPortalExtraCommand"];
+
                 UIPortalGemAddCommandText = (HudTextBox)mainView.view["UIPortalGemAddCommandText"];
                 UIPortalGemAddHeadingText = (HudTextBox)mainView.view["UIPortalGemAddHeadingText"];
                 UIPortalGemAddSelected = (HudButton)mainView.view["UIPortalGemAddSelected"];
@@ -27,11 +33,16 @@ namespace DoThingsBot.Views.Pages {
 
                 UIPrimaryPortalLocation.Text = Config.Portals.PrimaryPortalTieLocation.Value;
                 UIPrimaryPortalHeading.Text = Config.Portals.PrimaryPortalHeading.Value.ToString();
+                UIPrimaryPortalExtraCommand.Text = Config.Portals.PrimaryPortalExtraCommand.Value.ToString();
+
                 UISecondaryPortalLocation.Text = Config.Portals.SecondaryPortalTieLocation.Value;
                 UISecondaryPortalHeading.Text = Config.Portals.SecondaryPortalHeading.Value.ToString();
+                UISecondaryPortalExtraCommand.Text = Config.Portals.SecondaryPortalExtraCommand.Value.ToString();
 
                 Config.Portals.PrimaryPortalTieLocation.Changed += obj => { UIPrimaryPortalLocation.Text = obj.Value; };
                 Config.Portals.PrimaryPortalHeading.Changed += obj => { UIPrimaryPortalHeading.Text = obj.Value.ToString(); };
+                Config.Portals.PrimaryPortalExtraCommand.Changed += obj => { UIPrimaryPortalExtraCommand.Text = obj.Value; };
+
                 Config.Portals.SecondaryPortalTieLocation.Changed += obj => { UISecondaryPortalLocation.Text = obj.Value; };
                 Config.Portals.SecondaryPortalHeading.Changed += obj => { UISecondaryPortalHeading.Text = obj.Value.ToString(); };
 
@@ -51,6 +62,13 @@ namespace DoThingsBot.Views.Pages {
                     catch (Exception ex) { Util.LogException(ex); }
                 };
 
+                UIPrimaryPortalExtraCommand.LostFocus += (s, e) => {
+                    try {
+                        Config.Portals.PrimaryPortalExtraCommand.Value = UIPrimaryPortalExtraCommand.Text;
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                };
+
                 UISecondaryPortalLocation.LostFocus += (s, e) => {
                     try {
                         Config.Portals.SecondaryPortalTieLocation.Value = UISecondaryPortalLocation.Text;
@@ -63,6 +81,13 @@ namespace DoThingsBot.Views.Pages {
                         if (!int.TryParse(UISecondaryPortalHeading.Text, out int value))
                             value = Config.Portals.SecondaryPortalHeading.Value;
                         Config.Portals.SecondaryPortalHeading.Value = value;
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                };
+
+                UISecondaryPortalExtraCommand.LostFocus += (s, e) => {
+                    try {
+                        Config.Portals.SecondaryPortalExtraCommand.Value = UISecondaryPortalExtraCommand.Text;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };
