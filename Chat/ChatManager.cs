@@ -131,6 +131,17 @@ namespace DoThingsBot.Chat {
                         RaiseChatCommandEvent(this, new ChatCommandEventArgs(playerName, command, e.Text));
                     }
                 }
+                else if (Util.IsChat(e.Text, Util.ChatFlags.PlayerSaysLocal)) {
+                    var message = Util.GetMessageFromChat(e.Text);
+                    var playerName = Util.GetSourceOfChat(e.Text);
+
+                    if (message == "whereto") {
+                        Globals.DoThingsBot.RespondToWhereTo(playerName);
+                    }
+                    else if (message.StartsWith("whereto ")) {
+                        Globals.DoThingsBot.RespondToWhereTo(playerName, message.Replace("whereto ", ""));
+                    }
+                }
             }
             catch (Exception ex) { Util.LogException(ex); }
         }

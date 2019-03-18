@@ -226,42 +226,7 @@ namespace DoThingsBot {
                         return;
                     }
 
-                    Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
-
-                    if (string.IsNullOrEmpty(e.Arguments)) {
-                        ChatManager.Tell(e.PlayerName, String.Format("I am currently tied to {0} and {1}. '/t {2}, primary' for {0}. '/t {2}, secondary' for {1}",
-                            Config.Portals.PrimaryPortalTieLocation.Value,
-                            Config.Portals.SecondaryPortalTieLocation.Value,
-                            CoreManager.Current.CharacterFilter.Name));
-
-                        var validPortalCommands = Config.Portals.GetValidPortalGemCommands();
-                        if (validPortalCommands.Length > 0) {
-                            ChatManager.Tell(e.PlayerName, string.Format("I can also summon: {0}", string.Join(", ", validPortalCommands)));
-                        }
-                    }
-                    else {
-                        string willSummon = "";
-
-                        if (e.Arguments == Config.Portals.PrimaryPortalExtraCommand.Value) {
-                            willSummon = Config.Portals.PrimaryPortalTieLocation.Value;
-                        }
-                        else if (e.Arguments == Config.Portals.SecondaryPortalExtraCommand.Value) {
-                            willSummon = Config.Portals.PrimaryPortalTieLocation.Value;
-                        }
-                        else if (Config.Portals.PortalGemCommands().ContainsKey(e.Arguments)) {
-                            willSummon = Config.Portals.PortalGemCommands()[e.Arguments].Name;
-                        }
-
-                        if (string.IsNullOrEmpty(willSummon)) {
-                            ChatManager.Tell(e.PlayerName, string.Format("I don't know how to summon '{0}'", e.Arguments));
-                        }
-                        else {
-                            ChatManager.Tell(e.PlayerName, string.Format("If you '/t {0}, {1}' I will summon {2}",
-                                Globals.Core.CharacterFilter.Name,
-                                e.Arguments,
-                                willSummon));
-                        }
-                    }
+                    RespondToWhereTo(e.PlayerName, e.Arguments);
 
                     break;
 
@@ -499,6 +464,45 @@ namespace DoThingsBot {
             }
         }
 
+        internal void RespondToWhereTo(string playerName, string arguments="") {
+            Globals.Stats.AddPlayerCommandIssued(playerName, "whereto");
+
+            if (string.IsNullOrEmpty(arguments)) {
+                ChatManager.Tell(playerName, String.Format("I am currently tied to {0} and {1}. '/t {2}, primary' for {0}. '/t {2}, secondary' for {1}",
+                    Config.Portals.PrimaryPortalTieLocation.Value,
+                    Config.Portals.SecondaryPortalTieLocation.Value,
+                    CoreManager.Current.CharacterFilter.Name));
+
+                var validPortalCommands = Config.Portals.GetValidPortalGemCommands();
+                if (validPortalCommands.Length > 0) {
+                    ChatManager.Tell(playerName, string.Format("I can also summon: {0}", string.Join(", ", validPortalCommands)));
+                }
+            }
+            else {
+                string willSummon = "";
+
+                if (arguments == Config.Portals.PrimaryPortalExtraCommand.Value) {
+                    willSummon = Config.Portals.PrimaryPortalTieLocation.Value;
+                }
+                else if (arguments == Config.Portals.SecondaryPortalExtraCommand.Value) {
+                    willSummon = Config.Portals.PrimaryPortalTieLocation.Value;
+                }
+                else if (Config.Portals.PortalGemCommands().ContainsKey(arguments)) {
+                    willSummon = Config.Portals.PortalGemCommands()[arguments].Name;
+                }
+
+                if (string.IsNullOrEmpty(willSummon)) {
+                    ChatManager.Tell(playerName, string.Format("I don't know how to summon '{0}'", arguments));
+                }
+                else {
+                    ChatManager.Tell(playerName, string.Format("If you '/t {0}, {1}' I will summon {2}",
+                        Globals.Core.CharacterFilter.Name,
+                        arguments,
+                        willSummon));
+                }
+            }
+        }
+
         void PrintHelpMessage(string playerName, string arguments) {
             switch (arguments) {
                 case "tinker":
@@ -522,7 +526,7 @@ namespace DoThingsBot {
                     break;
 
                 case "whereto":
-                    ChatManager.Tell(playerName, "whereto - I will tell you where my portals are currently tied to.");
+                    ChatManager.Tell(playerName, "whereto [location] - I will tell you where my portals are currently tied to, and what portal gems I can use.");
                     break;
 
                 case "about":

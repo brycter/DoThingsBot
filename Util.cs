@@ -552,6 +552,11 @@ namespace DoThingsBot
 
                 return match.Groups["msg"].Value;
             }
+            else if (Util.IsChat(text, Util.ChatFlags.PlayerSaysLocal)) {
+                Match match = PlayerSaysLocal.Match(text);
+
+                return match.Groups["msg"].Value;
+            }
             else {
                 return null;
             }
