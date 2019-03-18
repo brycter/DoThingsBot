@@ -84,7 +84,7 @@ namespace DoThingsBot.FSM.States {
                     return;
                 }
 
-                if (itemBundle.GetCraftMode() == CraftMode.PrimaryPortal || itemBundle.GetCraftMode() == CraftMode.PrimaryPortal) {
+                if (itemBundle.GetCraftMode() == CraftMode.PrimaryPortal || itemBundle.GetCraftMode() == CraftMode.SecondaryPortal) {
                     CastSummonPortal(machine);
                 }
                 else {
