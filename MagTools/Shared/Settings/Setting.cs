@@ -22,7 +22,7 @@ namespace Mag.Shared.Settings {
         }
     }
 
-    class Setting<T> {
+    public class Setting<T> {
         public readonly string Xpath;
 
         public readonly string Description;

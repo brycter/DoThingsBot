@@ -9,6 +9,7 @@ using System.Text;
 using Mag.Shared.Settings;
 using static DoThingsBot.Spells;
 using DoThingsBot.Lib;
+using System.Reflection;
 
 namespace DoThingsBot {
     public class BotConfigChangedEventArgs : EventArgs {
@@ -24,6 +25,18 @@ namespace DoThingsBot {
             public static  Setting<int> BuffRefreshTime;
             public static Setting<double> RecompVendorSellRate;
             public static Setting<bool> FastCastSelfBuffs;
+            public static Setting<bool> AnnounceLowComponents;
+            public static Setting<bool> AnnounceLowComponentsAfterJob;
+
+            public static Setting<int> PrismaticTaperLowCount;
+            public static Setting<int> LeadScarabLowCount;
+            public static Setting<int> IronScarabLowCount;
+            public static Setting<int> CopperScarabLowCount;
+            public static Setting<int> SilverScarabLowCount;
+            public static Setting<int> GoldScarabLowCount;
+            public static Setting<int> PyrealScarabLowCount;
+            public static Setting<int> PlatinumScarabLowCount;
+            public static Setting<int> ManaScarabLowCount;
 
             static Bot() {
             }
@@ -37,6 +50,18 @@ namespace DoThingsBot {
                 BuffRefreshTime = new Setting<int>("Config/Bot/BuffRefreshTime", "Refresh buffs if time left falls below this amount before a job request. (in minutes)", 5);
                 RecompVendorSellRate = new Setting<double>("Config/Bot/RecompVendorSellRate", "The sell rate of the vendor you buy components from (eg treetop is 140% so this should be set to '1.4')", 1.4);
                 FastCastSelfBuffs = new Setting<bool>("Config/Bot/FastCastSelfBuffs", "Enable fast casting of self buffs", false);
+                AnnounceLowComponents = new Setting<bool>("Config/Bot/AnnounceLowComponents", "Replace announcements with low component warnings when you are low", true);
+                AnnounceLowComponentsAfterJob = new Setting<bool>("Config/Bot/AnnounceLowComponentsAfterJob", "Announce low components after a job is finished and you are low", true);
+
+                PrismaticTaperLowCount = new Setting<int>("Config/Bot/PrismaticTaperLowCount", "Warn when Pristmatic Tapers fall below this amount", 100);
+                LeadScarabLowCount = new Setting<int>("Config/Bot/LeadScarabLowCount", "Warn when Lead Scarabs fall below this amount", 0);
+                IronScarabLowCount = new Setting<int>("Config/Bot/IronScarabLowCount", "Warn when Iron Scarabs fall below this amount", 0);
+                CopperScarabLowCount = new Setting<int>("Config/Bot/CopperScarabLowCount", "Warn when Copper Scarabs fall below this amount", 10);
+                SilverScarabLowCount = new Setting<int>("Config/Bot/SilverScarabLowCount", "Warn when Silver Scarabs fall below this amount", 10);
+                GoldScarabLowCount = new Setting<int>("Config/Bot/GoldScarabLowCount", "Warn when Gold Scarabs fall below this amount", 10);
+                PyrealScarabLowCount = new Setting<int>("Config/Bot/PyrealScarabLowCount", "Warn when Pyreal Scarabs fall below this amount", 10);
+                PlatinumScarabLowCount = new Setting<int>("Config/Bot/PlatinumScarabLowCount", "Warn when Platinum Scarabs fall below this amount", 10);
+                ManaScarabLowCount = new Setting<int>("Config/Bot/ManaScarabLowCount", "Warn when Mana Scarabs fall below this amount", 10);
 
                 RecompVendorSellRate.Validate += ValidateVendorRate;
                 DefaultHeading.Validate += ValidateHeading;
@@ -52,6 +77,63 @@ namespace DoThingsBot {
 
             public static List<SpellClass> GetWantedTinkerEnchantments() {
                 return Buffs.Buffs.GetBotProfile("tinker").familyIds;
+            }
+
+            public static void SetComponentLowWarningLevel(string configKey, int value) {
+                switch (configKey) {
+                    case "PrismaticTaperLowCount":
+                        PrismaticTaperLowCount.Value = value;
+                        break;
+                    case "LeadScarabLowCount":
+                        LeadScarabLowCount.Value = value;
+                        break;
+                    case "IronScarabLowCount":
+                        IronScarabLowCount.Value = value;
+                        break;
+                    case "CopperScarabLowCount":
+                        CopperScarabLowCount.Value = value;
+                        break;
+                    case "SilverScarabLowCount":
+                        SilverScarabLowCount.Value = value;
+                        break;
+                    case "GoldScarabLowCount":
+                        GoldScarabLowCount.Value = value;
+                        break;
+                    case "PyrealScarabLowCount":
+                        PyrealScarabLowCount.Value = value;
+                        break;
+                    case "PlatinumScarabLowCount":
+                        PlatinumScarabLowCount.Value = value;
+                        break;
+                    case "ManaScarabLowCount":
+                        ManaScarabLowCount.Value = value;
+                        break;
+                }
+            }
+
+            public static int GetComponentLowWarningLevel(string configKey) {
+                switch (configKey) {
+                    case "PrismaticTaperLowCount":
+                        return PrismaticTaperLowCount.Value;
+                    case "LeadScarabLowCount":
+                        return LeadScarabLowCount.Value;
+                    case "IronScarabLowCount":
+                        return IronScarabLowCount.Value;
+                    case "CopperScarabLowCount":
+                        return CopperScarabLowCount.Value;
+                    case "SilverScarabLowCount":
+                        return SilverScarabLowCount.Value;
+                    case "GoldScarabLowCount":
+                        return GoldScarabLowCount.Value;
+                    case "PyrealScarabLowCount":
+                        return PyrealScarabLowCount.Value;
+                    case "PlatinumScarabLowCount":
+                        return PlatinumScarabLowCount.Value;
+                    case "ManaScarabLowCount":
+                        return ManaScarabLowCount.Value;
+                }
+
+                return 0;
             }
 
         }
@@ -171,7 +253,7 @@ namespace DoThingsBot {
             public static Setting<bool> EnableSingleBuffs;
             public static Setting<bool> EnableTreeStatsBuffs;
             public static Setting<bool> AlwaysEnableBanes;
-            public static Setting<int> LimitBuffLevel;
+            public static Setting<int> LimitBuffOtherLevel;
 
             static BuffBot() {
             }
@@ -181,9 +263,9 @@ namespace DoThingsBot {
                 EnableTreeStatsBuffs = new Setting<bool>("Config/BuffBot/EnableTreeStatsBuffs", "Enable treestats buffs when someone tells you 'buffs'", true);
                 EnableSingleBuffs = new Setting<bool>("Config/BuffBot/EnableSingleBuffs", "Enable single buffs (strength, focus, war magic, etc)", true);
                 AlwaysEnableBanes = new Setting<bool>("Config/BuffBot/AlwaysEnableBanes", "Enable banes even when target doesn't have a shield equipped. (keep off on GDLE)", false);
-                LimitBuffLevel = new Setting<int>("Config/BuffBot/LimitBuffLevel", "Limit buff spell levels to this value", 7);
+                LimitBuffOtherLevel = new Setting<int>("Config/BuffBot/LimitBuffLevel", "Limit buff spell levels to this value", 7);
 
-                LimitBuffLevel.Validate += ValidateSpellLevel;
+                LimitBuffOtherLevel.Validate += ValidateSpellLevel;
             }
         }
 

@@ -56,16 +56,16 @@
       </control>
     </page>
     <page label="BuffBot">
-      <control progid="DecalControls.FixedLayout" clipped="">
+      <control progid="DecalControls.FixedLayout" clipped="" name="UIBuffBotLayout">
         <control progid="DecalControls.Checkbox" name="UIBotBuffBotEnableTreeStatsBuffs" left="8" top="8" width="300" height="20" text="Enable TreeStats automatic buffs ('buff' command)"/>
         <control progid="DecalControls.Checkbox" name="UIBotBuffBotEnableSingleBuffs" left="8" top="28" width="330" height="20" text="Enable single buffs (strength, coordination, warmagic, etc)"/>
         <control progid="DecalControls.Checkbox" name="UIBotBuffBotAlwaysEnableBanes" left="8" top="48" width="330" height="20" text="Bane when no shield present on target (keep off on GDLE)"/>
-        
-        <control progid="DecalControls.StaticText" name="UIBotBuffBotLimitBuffLevelLabel" left="8" top="68" width="110" height="40" text="Limit buffs to level:"/>
-        <control progid="DecalControls.Edit" name="UIBotBuffBotLimitBuffLevel" left="120" top="68" width="20" height="20" text="7"/>
 
-        <control progid="DecalControls.PushButton" name="UIBotBuffBotReloadBuffProfiles" left="45" top="158" width="120" height="22" text="Reload Buff Profiles" fontstyle="bold"/>
-        <control progid="DecalControls.PushButton" name="UIBotBuffBotManageBuffProfiles" left="185" top="158" width="120" height="22" text="Manage Buff Profiles" fontstyle="bold"/>
+        <control progid="DecalControls.StaticText" name="UIBotBuffBotLimitBuffLevelLabel" left="8" top="68" width="140" height="20" text="Limit other buffs to level:"/>
+        <control progid="DecalControls.Edit" name="UIBotBuffBotLimitBuffOtherLevel" left="150" top="66" width="20" height="18" text="7"/>
+
+        <control progid="DecalControls.PushButton" name="UIBotBuffBotReloadBuffProfiles" left="45" top="191" width="130" height="20" text="Reload Buff Profiles" fontstyle="bold"/>
+        <control progid="DecalControls.PushButton" name="UIBotBuffBotManageBuffProfiles" left="185" top="191" width="120" height="20" text="Manage Buff Profiles" fontstyle="bold"/>
 
       </control>
     </page>
@@ -164,7 +164,7 @@
       </control>
     </page>
     <page label="Config">
-      <control progid="DecalControls.FixedLayout" clipped="">
+      <control progid="DecalControls.FixedLayout" clipped="" name="UIConfigTabLayout">
         <control progid="DecalControls.StaticText" name="UIDefaultHeadingLabel" left="1" top="5" width="320" height="20" text="Default Heading (0=N, 90=E, 180=S, 270=W):"/>
         <control progid="DecalControls.Edit" name="UIDefaultHeading" left="290" top="5" width="50" height="17" text="0" />
         
@@ -176,8 +176,10 @@
 
         <control progid="DecalControls.StaticText" name="UIFastCastSelfBuffsLabel" left="1" top="78" width="320" height="20" text="Fastcast self buffs:"/>
         <control progid="DecalControls.Checkbox" name="UIFastCastSelfBuffs" left="290" top="78" width="50" height="20" text=""/>
+        
+        <control progid="DecalControls.StaticText" name="UILowComponentsHeader" left="95" top="98" width="180" height="20" text="Low Component Warning Levels"/>
 
-        <control progid="DecalControls.PushButton" name="UIManageBotSpellProfiles" left="100" top="180" width="150" height="22" text="Manage Bot Spell Profiles" fontstyle="bold"/>
+        <control progid="DecalControls.PushButton" name="UIManageBotSpellProfiles" left="100" top="188" width="150" height="20" text="Manage Bot Spell Profiles" fontstyle="bold"/>
 
       </control>
     </page>

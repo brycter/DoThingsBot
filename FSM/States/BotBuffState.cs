@@ -89,7 +89,7 @@ namespace DoThingsBot.FSM.States {
             bool hasSpells = false;
 
             foreach (var family in buffProfile.familyIds) {
-                var spell = Spells.GetBestKnownSpellByClass(family, false, Config.BuffBot.LimitBuffLevel.Value);
+                var spell = Spells.GetBestKnownSpellByClass(family, false, Config.BuffBot.LimitBuffOtherLevel.Value);
 
                 if (spell == null) {
                     Util.WriteToChat("I dont know any spell for: " + family);

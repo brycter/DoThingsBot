@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DoThingsBot.Lib;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
 using VirindiViewService.Controls;
 
@@ -9,9 +11,16 @@ namespace DoThingsBot.Views.Pages {
         HudTextBox UIKeepTinkerEquipmentWhileIdleDelay { get; set; }
         HudButton UIManageBotSpellProfiles { get; set; }
         HudCheckBox UIFastCastSelfBuffs { get; set; }
+        HudFixedLayout UIConfigTabLayout;
+
+        MainView mainView;
 
         public ConfigPage(MainView mainView) {
             try {
+                this.mainView = mainView;
+
+                UIConfigTabLayout = (HudFixedLayout)mainView.view["UIConfigTabLayout"];
+
                 UIManageBotSpellProfiles = (HudButton)mainView.view["UIManageBotSpellProfiles"];
                 UIDefaultHeading = mainView.view != null ? (HudTextBox)mainView.view["UIDefaultHeading"] : new HudTextBox();
                 UIRespondToUnknownCommands = mainView.view != null ? (HudCheckBox)mainView.view["UIRespondToUnknownCommands"] : new HudCheckBox();
@@ -51,6 +60,8 @@ namespace DoThingsBot.Views.Pages {
                 UIFastCastSelfBuffs.Change += (s, e) => { try { Config.Bot.FastCastSelfBuffs.Value = ((HudCheckBox)s).Checked; } catch (Exception ex) { Util.LogException(ex); } };
 
                 UIManageBotSpellProfiles.Hit += UIManageBotSpellProfiles_Hit;
+
+                DrawTrackedComponents();
             }
             catch (Exception ex) { Util.LogException(ex); }
         }
@@ -60,6 +71,52 @@ namespace DoThingsBot.Views.Pages {
                 Globals.ProfileManagerView.EditBotProfiles();
             }
             catch (Exception ex) { Util.LogException(ex); }
+        }
+
+        private void DrawTrackedComponents() {
+            int row = 0;
+            int col = 0;
+
+            foreach (var trackedComponent in ComponentManager.trackedComponents) {
+                DrawTrackedComponent(trackedComponent, row, col);
+
+                row++;
+
+                if (row == 3) {
+                    row = 0;
+                    col++;
+                }
+            }
+        }
+
+        private void DrawTrackedComponent(Component trackedComponent, int row, int col) {
+            int rowHeight = 20;
+            int rowWidth = (mainView.view.Width / 3) + 12;
+
+            HudPictureBox icon = new HudPictureBox();
+            icon.Image = new VirindiViewService.ACImage(trackedComponent.Icon);
+            icon.Visible = true;
+            UIConfigTabLayout.AddControl(icon, new System.Drawing.Rectangle(col * rowWidth, 120 + (row * rowHeight), rowHeight, rowHeight));
+
+            HudTextBox text = new HudTextBox();
+            text.Text = trackedComponent.LowWarningAmount().ToString();
+            UIConfigTabLayout.AddControl(text, new System.Drawing.Rectangle((col * rowWidth) + rowHeight, 120 + (row * rowHeight) + 1, 35, rowHeight - 2));
+
+            text.LostFocus += (s, e) => {
+                int value = Config.Bot.GetComponentLowWarningLevel(trackedComponent.ConfigKey);
+
+                if (!Int32.TryParse(text.Text, out value)) {
+                    Util.WriteToChat("Invalid number for " + trackedComponent.Name);
+                    text.Text = Config.Bot.GetComponentLowWarningLevel(trackedComponent.ConfigKey).ToString();
+                    return;
+                }
+
+                Config.Bot.SetComponentLowWarningLevel(trackedComponent.ConfigKey, value);
+            };
+
+            HudStaticText label = new HudStaticText();
+            label.Text = trackedComponent.Name.Replace(" Taper", "").Replace(" Scarab", "");
+            UIConfigTabLayout.AddControl(label, new System.Drawing.Rectangle((col * rowWidth) + rowHeight + 38, 120 + (row * rowHeight) + 2, 70, rowHeight));
         }
 
         private bool disposed;

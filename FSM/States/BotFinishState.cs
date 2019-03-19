@@ -1,4 +1,5 @@
-﻿using DoThingsBot.Lib;
+﻿using DoThingsBot.Chat;
+using DoThingsBot.Lib;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -26,6 +27,10 @@ namespace DoThingsBot.FSM.States {
         }
 
         public void Enter(Machine machine) {
+            if (ComponentManager.IsLowOnComps() && Config.Bot.AnnounceLowComponentsAfterJob.Value) {
+                ChatManager.AddSpamToChatBox("/s " + ComponentManager.LowComponentAnnouncement());
+            }
+
             if (Config.Tinkering.KeepEquipmentOnDelay.Value > 0) {
                 machine.ChangeState(new BotIdleState());
             }

@@ -667,6 +667,5 @@ namespace DoThingsBot
             }
             catch (Exception ex) { Util.LogException(ex); }
         }
-
     }
 }

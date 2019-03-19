@@ -6,6 +6,7 @@ using Decal.Adapter;
 using Decal.Adapter.Wrappers;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using DoThingsBot.Lib;
 
 namespace DoThingsBot.Chat {
     public class ChatCommandEventArgs : EventArgs {
@@ -212,7 +213,10 @@ namespace DoThingsBot.Chat {
 
                     var announcements = Config.Announcements.Messages.Value;
 
-                    if (announcements.Count > 0) {
+                    if (ComponentManager.IsLowOnComps() && Config.Bot.AnnounceLowComponents.Value) {
+                        AddSpamToChatBox("/s " + ComponentManager.LowComponentAnnouncement());
+                    }
+                    else if (announcements.Count > 0) {
                         int r = rnd.Next(announcements.Count);
                         string message = announcements[r];
                         AddSpamToChatBox(message);

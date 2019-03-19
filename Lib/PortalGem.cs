@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 namespace DoThingsBot.Lib {
-    class PortalGem {
+    public class PortalGem {
         public string Name { get; private set; }
         public int Heading { get; private set; }
         public int Icon { get; private set; }
