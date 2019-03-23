@@ -318,6 +318,18 @@ namespace DoThingsBot {
                 case "cancel":
                     break;
 
+                case "stats":
+                    Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
+
+                    if (!string.IsNullOrEmpty(e.Arguments) && e.Arguments.Trim() == "global") {
+                        ChatManager.Tell(e.PlayerName, Globals.Stats.GetGlobalStatsMessage());
+                    }
+                    else {
+                        ChatManager.Tell(e.PlayerName, Globals.Stats.GetCharacterStatsMessage(e.PlayerName));
+                    }
+
+                    break;
+
                 case "profiles":
                     if (!Config.BuffBot.Enabled.Value) {
                         ChatManager.Tell(e.PlayerName, "My buff bot functionality is currently disabled, sorry!");
@@ -533,6 +545,10 @@ namespace DoThingsBot {
                     ChatManager.Tell(playerName, "about - I will tell you about my software.");
                     break;
 
+                case "stats":
+                    ChatManager.Tell(playerName, "stats [global] - I will tell you some stats about yourself, or global stats about the bot.");
+                    break;
+
                 case "buff":
                     ChatManager.Tell(playerName, "buff - I will automatically buff you based on your TreeStats profile.");
                     break;
@@ -542,7 +558,7 @@ namespace DoThingsBot {
                     break;
 
                 default:
-                    ChatManager.Tell(playerName, String.Format("I'm a DoThingsBot. Tell me 'tinker' or 'profiles'. Other commands: buff, lostitems, whereto, message, about, version.", Util.GetVersion()));
+                    ChatManager.Tell(playerName, String.Format("I'm a DoThingsBot. Tell me 'tinker' or 'profiles'. Other commands: buff, lostitems, whereto, message, about.", Util.GetVersion()));
                     break;
 
             }

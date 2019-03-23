@@ -294,7 +294,7 @@ namespace DoThingsBot.FSM.States {
                         var components = new List<string>();
 
                         foreach (var ckey in burnedComponents.Keys) {
-                            components.Add(ckey + " x" + burnedComponents[ckey]);
+                            components.Add(ckey + " *" + burnedComponents[ckey]);
                         }
 
                         response += string.Format("{1}burned: {0}.", string.Join(", ", components.ToArray()), fizzleCounter > 0 ? " and " : " I ");

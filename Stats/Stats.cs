@@ -258,6 +258,71 @@ namespace DoThingsBot.Stats {
             }
         }
 
+        internal string GetCharacterStatsMessage(string playerName) {
+            var results = new List<string>();
+            var bundle = GetItemBundle(playerName);
+
+            if (Config.BuffBot.Enabled.Value) {
+                results.Add(string.Format("({0}) BuffBot: Time: {1} | Buffs: {2} | Profiles: {3} | CompsBurned: {4} | Fizzles: {5}",
+                    playerName,
+                    Util.GetFriendlyTimeDifference(bundle.playerData.totalTimeSpentBuffing),
+                    bundle.playerData.totalBuffsCast,
+                    bundle.playerData.totalBuffProfilesCast,
+                    bundle.playerData.GetTotalBurnedComponents(),
+                    bundle.playerData.fizzles));
+            }
+
+            if (Config.Portals.Enabled.Value) {
+                results.Add(string.Format("Portals: {0}", bundle.playerData.GetTotalPortalsSummoned()));
+            }
+
+            if (Config.Tinkering.Enabled.Value) {
+                results.Add(string.Format("TinkerBot: Bags: {0} | Imbues: {1}({2}%) | ImbueSuccessStreak: {3} | ImbueFailureStreak: {4} | HighestFail: {5}% | LowestSuccess: {6}%",
+                    bundle.playerData.GetTotalSalvageBagsUsed(),
+                    bundle.playerData.GetTotalImbueAttempts(),
+                    bundle.playerData.GetOverallImbuePercentage(),
+                    bundle.playerData.highestImbueLandedStreak,
+                    bundle.playerData.highestImbueFailedStreak,
+                    bundle.playerData.highestFailedTinkerChance,
+                    bundle.playerData.lowestSuccessfulTinkerChance));
+            }
+
+            return string.Join(" | ", results.ToArray());
+        }
+
+        internal string GetGlobalStatsMessage() {
+            var results = new List<string>();
+
+            results.Add(string.Format("(Global) Runtime: ", Util.GetFriendlyTimeDifference(globalStats.uptime)));
+
+            if (Config.BuffBot.Enabled.Value) {
+                results.Add(string.Format("BuffBot: Time: {0} | Buffs: {1} | Profiles: {2} | CompsBurned: {4} | Fizzles: {5}",
+                    Util.GetFriendlyTimeDifference(globalStats.timeSpentBuffing),
+                    globalStats.playerBuffsCasted + globalStats.selfBuffsCasted,
+                    globalStats.buffProfilesCasted,
+                    globalStats.GetTotalPortalsSummoned(),
+                    globalStats.GetTotalBurnedComponents(),
+                    globalStats.fizzles));
+            }
+
+            if (Config.Portals.Enabled.Value) {
+                results.Add(string.Format("Portals: {0}", globalStats.GetTotalPortalsSummoned()));
+            }
+
+            if (Config.Tinkering.Enabled.Value) {
+                results.Add(string.Format("TinkerBot: Bags: {0} | Imbues: {1}({2}%) | ImbueSuccessStreak: {3} | ImbueFailureStreak: {4} | HighestFail: {5}% | LowestSuccess: {6}%",
+                    globalStats.GetTotalSalvageBagsUsed(),
+                    globalStats.GetTotalImbueAttempts(),
+                    globalStats.GetOverallImbuePercentage(),
+                    globalStats.highestImbueLandedStreak,
+                    globalStats.highestImbueFailedStreak,
+                    globalStats.highestFailedTinkerChance,
+                    globalStats.lowestSuccessfulTinkerChance));
+            }
+
+            return string.Join(" | ", results.ToArray());
+        }
+
         public void AddPlayerTimeSpentBuffing(string playerName, int seconds) {
             IncDictionaryKey(playerTimeSpentBuffing, playerName, seconds);
 
