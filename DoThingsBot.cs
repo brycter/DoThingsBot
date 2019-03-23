@@ -612,7 +612,6 @@ namespace DoThingsBot {
                         if (queue.Count > 0) {
                             lastDequeue = DateTime.UtcNow;
                             ProcessCommand(new ChatCommandEventArgs(queue[0].PlayerName, queue[0].Command, queue[0].Command), true);
-                            Util.WriteToChat(string.Format("Removing {0} from queue", queue[0].PlayerName));
                             queue.RemoveAt(0);
                         }
                     }

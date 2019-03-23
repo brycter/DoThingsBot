@@ -303,7 +303,7 @@ namespace DoThingsBot.FSM.States {
                     var timeSpent = string.Format("{0}", Util.GetFriendlyTimeDifference((ulong)itemBundle.playerData.totalTimeSpentBuffing));
 
                     // if (config.ShowPersonalBuffStatsAfterJob)
-                    response += string.Format(" Your overall stats: Buffs: {0}, Time: {1}, Balance: {2:n0}p", itemBundle.playerData.totalBuffsCast, timeSpent, itemBundle.playerData.balance);
+                    response += string.Format(" Your overall stats: Buffs: {0}, Time: {1}", itemBundle.playerData.totalBuffsCast, timeSpent);
 
                     if (CastedEnchantments.Count > 0) {
                         ChatManager.Tell(itemBundle.GetOwner(), response);
