@@ -592,6 +592,7 @@ namespace DoThingsBot {
         }
 
         DateTime lastUpdatedUptime = DateTime.UtcNow;
+        DateTime lastDequeue = DateTime.UtcNow;
         internal bool needsEquipmentCheck = true;
 
         void Think() {
@@ -607,11 +608,12 @@ namespace DoThingsBot {
                 }
 
                 if (isRunning) {
-                    if (_machine.IsInState("BotIdleState")) {
+                    if (_machine.IsInState("BotIdleState") && DateTime.UtcNow - lastDequeue > TimeSpan.FromMilliseconds(1000)) {
                         if (queue.Count > 0) {
+                            lastDequeue = DateTime.UtcNow;
                             ProcessCommand(new ChatCommandEventArgs(queue[0].PlayerName, queue[0].Command, queue[0].Command), true);
+                            Util.WriteToChat(string.Format("Removing {0} from queue", queue[0].PlayerName));
                             queue.RemoveAt(0);
-                            return;
                         }
                     }
 
