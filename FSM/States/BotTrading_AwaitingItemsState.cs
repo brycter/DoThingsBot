@@ -171,6 +171,8 @@ namespace DoThingsBot.FSM.States {
             if (DateTime.UtcNow - startedThinking > TimeSpan.FromSeconds(120)) {
                 ChatManager.Tell(itemBundle.GetOwner(), "This tinkering session has timed out.");
                 CoreManager.Current.Actions.TradeEnd();
+                _machine.ChangeState(new BotTrading_TradeCancelledState(itemBundle));
+                return;
             }
 
             if (tradeItemsAwaitingIdentity.Count > 0) {
