@@ -1,5 +1,9 @@
 CHANGELOG
 
+1.1.1.0
+    - Fix tinkering timeout spam
+    - Fix low comp warnings when low comp minimum is set to 0
+
 1.1.0.0
     - Added buffbot (Edit buff and bot profiles ingame with new ui)
     - Fixed wandering bot (hopefully?)
