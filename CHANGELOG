@@ -1,7 +1,18 @@
 CHANGELOG
 
+1.1.0.0
+    - Added buffbot (Edit buff and bot profiles ingame with new ui)
+    - Fixed wandering bot (hopefully?)
+    - Added PortalGem summoning support
+    - Added Stats
+    - Added Low Component warnings
+    - Bot now responds to 'whereto' in local chat
+    - Better equipment managment
+    - Fix config loading when switching characters
+    - Much better spell support
+
 1.0.0.1
-	- Fixed ability to add brass to wands...
+    - Fixed ability to add brass to wands...
 
 1.0.0.0
     - Fixed issue where bot thought it could add sunstone to wands and iron to bows
@@ -10,20 +21,20 @@ CHANGELOG
     - Cleaned up logging
 
 0.1.1.0
-	- Added ability to clear/open logs within the plugin window
-	- Added startup command/message to announcements tab, leave blank for none. (announcements now only go out after inital delay)
-	- Added ability to disable all announcements from announcements tab.
-	- Added /dtb forcebuff command
-	- Added option keep tinkering equipment equipped for x seconds after tink job, so consecutive tinks are faster (default 30s).
-	- Added option in main config tab to respond to unknown commands
-	- Fixed issue where items added to equipment lists that disappeared caused the list to break.
-	- Don't send duplicate messages within time window (config file only currently, DontResendDuplicateMessagesWindow, default 2s).
-	- Fixed bug where equipment spells could cause infinite buffing loop
-	- Force add -b- to all bot chat/emote spam
-	- Added seconds to timestamp in debuglog.txt
-	- Speed up item equip/dequip cycle
-	- Clean up help command response
-	- Tested on 1.25 (need rare/foolproof support)
+    - Added ability to clear/open logs within the plugin window
+    - Added startup command/message to announcements tab, leave blank for none. (announcements now only go out after inital delay)
+    - Added ability to disable all announcements from announcements tab.
+    - Added /dtb forcebuff command
+    - Added option keep tinkering equipment equipped for x seconds after tink job, so consecutive tinks are faster (default 30s).
+    - Added option in main config tab to respond to unknown commands
+    - Fixed issue where items added to equipment lists that disappeared caused the list to break.
+    - Don't send duplicate messages within time window (config file only currently, DontResendDuplicateMessagesWindow, default 2s).
+    - Fixed bug where equipment spells could cause infinite buffing loop
+    - Force add -b- to all bot chat/emote spam
+    - Added seconds to timestamp in debuglog.txt
+    - Speed up item equip/dequip cycle
+    - Clean up help command response
+    - Tested on 1.25 (need rare/foolproof support)
 
 0.1.0.0
-	- Initial Release
+    - Initial Release
