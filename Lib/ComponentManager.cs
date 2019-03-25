@@ -28,7 +28,7 @@ namespace DoThingsBot.Lib {
         }
 
         public bool IsLow() {
-            return Count() <= LowWarningAmount();
+            return LowWarningAmount() != 0 && Count() <= LowWarningAmount();
         }
     }
 
@@ -66,7 +66,8 @@ namespace DoThingsBot.Lib {
             var emptyComponents = new List<string>();
 
             foreach (var comp in trackedComponents) {
-                if (comp.Count() == 0 && comp.LowWarningAmount() > 0) {
+                if (comp.LowWarningAmount() == 0) continue;
+                if (comp.Count() == 0) {
                     emptyComponents.Add(comp.Name + "s");
                 }
                 else if (comp.IsLow()) {
