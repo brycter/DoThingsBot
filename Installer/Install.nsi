@@ -1,7 +1,7 @@
 ; Define your application name
 !define APPNAME "DoThingsBot"
 !define SOFTWARECOMPANY "SunnujDecalPlugins"
-!define VERSION	"1.0.0.1"
+!define VERSION	"1.1.0.0"
 !define APPGUID "{96A085A9-7A75-4D36-9437-07DB39EF0BA0}"
 
 !define ASSEMBLY "DoThingsBot.dll"
@@ -51,6 +51,12 @@ Section "" CoreSection
 	File "${BUILDPATH}\${ASSEMBLY}"
 	File "${BUILDPATH}\Newtonsoft.Json.dll"
 	;File "ADDITIONALFILES"
+
+	SetOutPath "$INSTDIR\Resources\BotProfiles"
+	File "${BUILDPATH}\Resources\BotProfiles\*.xml"
+
+	SetOutPath "$INSTDIR\Resources\BuffProfiles"
+	File "${BUILDPATH}\Resources\BuffProfiles\*.xml"
 
 SectionEnd
 
