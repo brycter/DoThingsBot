@@ -36,7 +36,7 @@ namespace DoThingsBot.Stats {
                     var predictedRuntime = Util.GetFriendlyTimeDifference(lowest);
                     var count = (ulong)Util.GetItemCount(lowestKey);
 
-                    messages.Add(string.Format("I have burned {0} {1}s (out of {2}) in {3}. At this rate I should be able to run for another {4} until I need more components.", Globals.Stats.burnedComponents[lowestKey], lowestKey, count, duration, predictedRuntime));
+                    messages.Add(string.Format("I have burned {0} {1}s (out of {2}) in {3}. I will run out in {4}.", Globals.Stats.burnedComponents[lowestKey], lowestKey, count, duration, predictedRuntime));
                 }
             }
 

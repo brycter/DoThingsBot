@@ -162,7 +162,10 @@ namespace DoThingsBot.Chat {
 
         public static void AddSpamToChatBox(string message) {
             if (!message.StartsWith("*") && PublicChatMessageRegex.IsMatch(message.ToLower())) {
-                message = String.Format("{0} -b-", message);
+                message = string.Format("{0} -b-", message);
+                if (message.StartsWith("/s ") || (!message.StartsWith("/") && !message.StartsWith(":"))) {
+                    message = string.Format("/e says, \"{0}\"", message.Replace("/s ", ""));
+                }
             }
 
             AddToChatBox(message);
@@ -206,7 +209,7 @@ namespace DoThingsBot.Chat {
             }
 
             // announcements
-            if (DateTime.UtcNow - lastAnnouncementTime > TimeSpan.FromMinutes(Config.Announcements.SpamInterval.Value) && Config.Bot.Enabled.Value == true) {
+            if (DateTime.UtcNow - lastAnnouncementTime > TimeSpan.FromSeconds(3) /*TimeSpan.FromMinutes(Config.Announcements.SpamInterval.Value)*/ && Config.Bot.Enabled.Value == true) {
                 if (DateTime.UtcNow - firstThought < TimeSpan.FromSeconds(5)) return;
 
                 if (Config.Announcements.Enabled.Value == true) {
@@ -215,10 +218,12 @@ namespace DoThingsBot.Chat {
                     var announcements = new List<string>();
                     announcements.AddRange(Config.Announcements.Messages.Value);
 
-                    var statAnnouncement = StatAnnouncements.GetRandom();
+                    if (Config.Announcements.EnableStatSpam.Value) {
+                        var statAnnouncement = StatAnnouncements.GetRandom();
 
-                    if (!string.IsNullOrEmpty(statAnnouncement)) {
-                        announcements.Add("/s " + statAnnouncement);
+                        if (!string.IsNullOrEmpty(statAnnouncement)) {
+                            announcements.Add("/s " + statAnnouncement);
+                        }
                     }
 
                     if (ComponentManager.IsLowOnComps() && Config.Bot.AnnounceLowComponents.Value) {

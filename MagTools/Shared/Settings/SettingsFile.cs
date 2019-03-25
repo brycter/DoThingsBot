@@ -102,7 +102,7 @@ namespace Mag.Shared.Settings {
                 // save default setting to xml if it doesn't exist
                 PutSetting(xPath, defaultValue, description, false);
 
-                return (T)Convert.ChangeType(returnVals, typeof(T));
+                return (T)Convert.ChangeType(defaultValue, typeof(T));
             }
             catch (Exception e) { Util.LogException(e); return (T)Convert.ChangeType(defaultValue, typeof(T)); }
         }
@@ -134,7 +134,7 @@ namespace Mag.Shared.Settings {
                 // save default setting to xml if it doesn't exist
                 PutSetting(xPath, defaultValue, description, false);
 
-                return (T)Convert.ChangeType(returnVals, typeof(T));
+                return (T)Convert.ChangeType(defaultValue, typeof(T));
             }
             catch (Exception e) { Util.LogException(e); return (T)Convert.ChangeType(defaultValue, typeof(T)); }
         }

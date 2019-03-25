@@ -159,6 +159,7 @@ namespace DoThingsBot {
         public static class Announcements {
             public static  Setting<bool> Enabled;
 
+            public static Setting<bool> EnableStatSpam;
             public static  Setting<string> StartupMessage;
             public static  Setting<int> SpamInterval;
 
@@ -172,12 +173,18 @@ namespace DoThingsBot {
 
             public static void Init() {
                 Enabled = new Setting<bool>("Config/Announcements/Enabled", "Enable startup / periodic announcements", true);
+                EnableStatSpam = new Setting<bool>("Config/Announcements/EnableStatSpam", "Enable stat spam in local chat", true);
 
-                StartupMessage = new Setting<string>("Config/Announcements/StartupMessage", "Puts a message/command into the chatbox when the bot starts (leave blank for none)", "/s Tinkerbot online. Tell me 'tinker' to get started.");
+                StartupMessage = new Setting<string>("Config/Announcements/StartupMessage", "Puts a message/command into the chatbox when the bot starts (leave blank for none)", "DoThingsBot Online. I can tinker/buff/summon portals. Tell me 'help' to get started.");
                 SpamInterval = new Setting<int>("Config/Announcements/SpamInterval", "The interval in minutes that announcements are sent out.", 15);
 
                 var defaultMessages = new List<string> {
-                        "I'm a dothingsbot. Tell me 'help' to get started."
+                        "I'm a DoThingsBot. I can tinker/buff/summon portals. Tell me 'help' to get started.",
+                        "I can buff you! Tell me 'profiles' to see what I can do.",
+                        "I can tinker your items, just stand nearby and tell me 'tinker'.",
+                        "I can summon portals! Tell me 'whereto' to see the details.",
+                        "Is your character on treestats? Just tell me 'buff' and I'll know what to buff you with.",
+                        "Tell me 'stats' to see bot stats about your character."
                     };
 
                 Messages = new Setting<List<string>>("Config/Announcements/Spam/Message", "Announcements go here. It will spam every `Config/Announcements/SpamInterval` seconds.", defaultMessages);

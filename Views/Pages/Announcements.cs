@@ -5,6 +5,7 @@ using VirindiViewService.Controls;
 namespace DoThingsBot.Views.Pages {
     class AnnouncementsPage : IDisposable {
         HudCheckBox UIAnnouncementsEnabled { get; set; }
+        HudCheckBox UIAnnouncementsEnableStatSpam { get; set; }
         HudTextBox UIAnnouncementsAnnounceInterval { get; set; }
         HudTextBox UIAnnouncementsNewMessage { get; set; }
         HudButton UIAnnouncementsAddNewMessage { get; set; }
@@ -14,6 +15,7 @@ namespace DoThingsBot.Views.Pages {
         public AnnouncementsPage(MainView mainView) {
             try {
                 UIAnnouncementsEnabled = mainView.view != null ? (HudCheckBox)mainView.view["UIAnnouncementsEnabled"] : new HudCheckBox();
+                UIAnnouncementsEnableStatSpam = mainView.view != null ? (HudCheckBox)mainView.view["UIAnnouncementsEnableStatSpam"] : new HudCheckBox();
                 UIAnnouncementsAnnounceInterval = mainView.view != null ? (HudTextBox)mainView.view["UIAnnouncementsAnnounceInterval"] : new HudTextBox();
                 UIAnnouncementsNewMessage = mainView.view != null ? (HudTextBox)mainView.view["UIAnnouncementsNewMessage"] : new HudTextBox();
                 UIAnnouncementsAddNewMessage = mainView.view != null ? (HudButton)mainView.view["UIAnnouncementsAddNewMessage"] : new HudButton();
@@ -21,11 +23,13 @@ namespace DoThingsBot.Views.Pages {
                 UIStartupCommand = mainView.view != null ? (HudTextBox)mainView.view["UIStartupCommand"] : new HudTextBox();
 
                 UIAnnouncementsEnabled.Checked = Config.Announcements.Enabled.Value;
+                UIAnnouncementsEnableStatSpam.Checked = Config.Announcements.EnableStatSpam.Value;
                 UIAnnouncementsAnnounceInterval.Text = Config.Announcements.SpamInterval.Value.ToString(CultureInfo.InvariantCulture);
                 UIAnnouncementsNewMessage.Text = "/s ";
                 UIStartupCommand.Text = Config.Announcements.StartupMessage.Value;
 
                 Config.Announcements.Enabled.Changed += obj => { UIAnnouncementsEnabled.Checked = obj.Value; };
+                Config.Announcements.EnableStatSpam.Changed += obj => { UIAnnouncementsEnableStatSpam.Checked = obj.Value; };
                 Config.Announcements.StartupMessage.Changed += obj => { UIStartupCommand.Text = obj.Value; };
                 Config.Announcements.SpamInterval.Changed += obj => { UIAnnouncementsAnnounceInterval.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
                 Config.Announcements.StartupMessage.Changed += obj => { UIStartupCommand.Text = obj.Value; };
@@ -34,6 +38,13 @@ namespace DoThingsBot.Views.Pages {
                 UIAnnouncementsEnabled.Change += (s, e) => {
                     try {
                         Config.Announcements.Enabled.Value = ((HudCheckBox)s).Checked;
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                };
+
+                UIAnnouncementsEnableStatSpam.Change += (s, e) => {
+                    try {
+                        Config.Announcements.EnableStatSpam.Value = ((HudCheckBox)s).Checked;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };

@@ -108,7 +108,8 @@
     </page>
     <page label="Announcements">
       <control progid="DecalControls.FixedLayout" clipped="">
-        <control progid="DecalControls.Checkbox" name="UIAnnouncementsEnabled" left="5" top="5" width="220" height="20" text="Enable Announcements"/>
+        <control progid="DecalControls.Checkbox" name="UIAnnouncementsEnabled" left="5" top="5" width="165" height="20" text="Enable Announcements"/>
+        <control progid="DecalControls.Checkbox" name="UIAnnouncementsEnableStatSpam" left="175" top="5" width="165" height="20" text="Enable Stats Spam"/>
 
         <control progid="DecalControls.StaticText" name="UIStartupCommandLabel" left="5" top="30" width="120" height="20" text="Startup Announce:"/>
         <control progid="DecalControls.Edit" name="UIStartupCommand" left="100" top="30" width="245" height="20" text="/s " />
