@@ -366,7 +366,7 @@ namespace DoThingsBot {
                     ChatManager.Tell(e.PlayerName, msg);
 
                     if (Config.BuffBot.EnableTreeStatsBuffs.Value) {
-                        ChatManager.Tell(e.PlayerName, "You can tell be 'buff' and I will buff you based on your TreeStats profile.");
+                        ChatManager.Tell(e.PlayerName, "You can tell me 'buff' and I will buff you based on your TreeStats profile.");
                     }
 
                     break;
