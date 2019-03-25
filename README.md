@@ -1,11 +1,14 @@
 # About
 A tinker/buff/portal bot plugin.
+![](https://i.gyazo.com/92f93e0ad0358d5011772af996abb551.mp4)
 
 # Installation:
  - Requires Decal / Virindi View System (comes with virindi bundle)
  - Install [DoThingsBotInstaller-1.1.0.0.exe](/uploads/2c9578cd83b38e88a859122ca3d9e06d/DoThingsBotInstaller-1.1.0.0.exe)
     
 # How to use:
+ - The AC window cannot be minimized while the bot is running.
+ - `/config UseCraftSuccessDialog` should be set to on
  - TODO, but hopefully fairly self explanitory.
 
 # Known Issues
