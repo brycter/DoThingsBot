@@ -530,7 +530,7 @@ namespace DoThingsBot.Stats {
             return portalsSummoned;
         }
 
-        internal object GetTotalBurnedComponents() {
+        internal int GetTotalBurnedComponents() {
             var count = 0;
 
             foreach (var component in burnedComponents.Keys) {

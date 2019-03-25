@@ -434,7 +434,7 @@ namespace DoThingsBot {
                 var spell = Spells.GetBestStaminaRecoverySpell(true);
 
                 //Util.WriteToChat(String.Format("Stamina is: {0}/{1}", currentStamina, effectiveStamina));
-                Util.WriteToChat("Trying to cast: " + spell.Id + " : " + spell.Name);
+                //Util.WriteToChat("Trying to cast: " + spell.Id + " : " + spell.Name);
                 CoreManager.Current.Actions.CastSpell(spell.Id, CoreManager.Current.CharacterFilter.Id);
                 return false;
             }
@@ -453,7 +453,7 @@ namespace DoThingsBot {
                 var spell = Spells.GetBestManaRecoverySpell(true);
 
                 //Util.WriteToChat(String.Format("Mana is: {0}/{1}", currentMana, effectiveMana));
-                Util.WriteToChat("Trying to cast: " + spell.Id + " : " + spell.Name);
+                //Util.WriteToChat("Trying to cast: " + spell.Id + " : " + spell.Name);
                 CoreManager.Current.Actions.CastSpell(spell.Id, CoreManager.Current.CharacterFilter.Id);
                 return false;
             }

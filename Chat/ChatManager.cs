@@ -7,6 +7,7 @@ using Decal.Adapter.Wrappers;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using DoThingsBot.Lib;
+using DoThingsBot.Stats;
 
 namespace DoThingsBot.Chat {
     public class ChatCommandEventArgs : EventArgs {
@@ -211,7 +212,14 @@ namespace DoThingsBot.Chat {
                 if (Config.Announcements.Enabled.Value == true) {
                     lastAnnouncementTime = DateTime.UtcNow;
 
-                    var announcements = Config.Announcements.Messages.Value;
+                    var announcements = new List<string>();
+                    announcements.AddRange(Config.Announcements.Messages.Value);
+
+                    var statAnnouncement = StatAnnouncements.GetRandom();
+
+                    if (!string.IsNullOrEmpty(statAnnouncement)) {
+                        announcements.Add("/s " + statAnnouncement);
+                    }
 
                     if (ComponentManager.IsLowOnComps() && Config.Bot.AnnounceLowComponents.Value) {
                         AddSpamToChatBox("/s " + ComponentManager.LowComponentAnnouncement());

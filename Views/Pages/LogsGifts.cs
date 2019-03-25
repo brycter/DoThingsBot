@@ -127,12 +127,11 @@ namespace DoThingsBot.Views.Pages {
                     string item = match.Groups["item"].Value;
 
                     Globals.Stats.AddPlayerDonation(player, lastCreateName, lastCreateAmount);
-                    var newBalance = Globals.Stats.GetPlayerBalance(player);
                     if (lastCreateAmount > 1) {
-                        ChatManager.Tell(player, String.Format("Thank you for the {0} x{1}! Your new balance is: {2:n0}", lastCreateName, lastCreateAmount, newBalance));
+                        ChatManager.Tell(player, String.Format("Thank you for the {0} x{1}!", lastCreateName, lastCreateAmount));
                     }
                     else {
-                        ChatManager.Tell(player, String.Format("Thank you for the {0}! Your new balance is: {1:n0}", lastCreateName, newBalance));
+                        ChatManager.Tell(player, String.Format("Thank you for the {0}!", lastCreateName));
                     }
 
                     Util.WriteGiftToLog(player, item);

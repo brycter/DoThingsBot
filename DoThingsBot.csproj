@@ -115,6 +115,7 @@
     <Compile Include="Salvage.cs" />
     <Compile Include="Spells.cs" />
     <Compile Include="Stats\GlobalStats.cs" />
+    <Compile Include="Stats\StatAnnouncements.cs" />
     <Compile Include="Stats\Stats.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="Views\Pages\Announcements.cs" />
