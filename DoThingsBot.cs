@@ -11,6 +11,7 @@ using DoThingsBot.FSM;
 using DoThingsBot.FSM.States;
 using System.Reflection;
 using System.Diagnostics;
+using DoThingsBot.Lib;
 
 namespace DoThingsBot {
     public class DoThingsBot {
@@ -330,6 +331,18 @@ namespace DoThingsBot {
 
                     break;
 
+                case "comps":
+                    List<string> comps = new List<string>();
+
+                    foreach (var comp in ComponentManager.trackedComponents) {
+                        if (comp.LowWarningAmount() > 0) {
+                            comps.Add(string.Format("{0}: {1}", comp.Name, comp.Count()));
+                        }
+                    }
+
+                    ChatManager.Tell(e.PlayerName, string.Format("My component levels: {0}", string.Join(", ", comps.ToArray())));
+                    break;
+
                 case "profiles":
                     if (!Config.BuffBot.Enabled.Value) {
                         ChatManager.Tell(e.PlayerName, "My buff bot functionality is currently disabled, sorry!");
@@ -549,6 +562,10 @@ namespace DoThingsBot {
                     ChatManager.Tell(playerName, "stats [global] - I will tell you some stats about yourself, or global stats about the bot.");
                     break;
 
+                case "comps":
+                    ChatManager.Tell(playerName, "comps - I will tell you my current component levels.");
+                    break;
+
                 case "buff":
                     ChatManager.Tell(playerName, "buff - I will automatically buff you based on your TreeStats profile.");
                     break;
@@ -558,7 +575,7 @@ namespace DoThingsBot {
                     break;
 
                 default:
-                    ChatManager.Tell(playerName, String.Format("I'm a DoThingsBot. Tell me 'tinker' or 'profiles'. Other commands: buff, lostitems, whereto, message, about.", Util.GetVersion()));
+                    ChatManager.Tell(playerName, String.Format("I'm a DoThingsBot. Tell me 'tinker' or 'profiles'. Other commands: buff, lostitems, whereto, message, about, stats, comps.", Util.GetVersion()));
                     break;
 
             }
