@@ -139,7 +139,6 @@ namespace DoThingsBot {
             try {
                 if (e.Text == "/dtb test") {
                     e.Eat = true;
-                    UpdateChecker.CheckForUpdate();
                 }
 
                 if (e.Text == "/dtb start") {

@@ -225,18 +225,22 @@ namespace DoThingsBot {
             switch (school.ToString()) {
                 case "Creature Enchantment":
                     fociName = "Foci of Enchantment";
+                    if (Globals.Core.CharacterFilter.GetCharProperty((int)Augmentations.InfusedCreature) == 1) return true;
                     break;
 
                 case "Life Magic":
                     fociName = "Foci of Verdancy";
+                    if (Globals.Core.CharacterFilter.GetCharProperty((int)Augmentations.InfusedLife) == 1) return true;
                     break;
 
                 case "Item Enchantment":
                     fociName = "Foci of Artifice";
+                    if (Globals.Core.CharacterFilter.GetCharProperty((int)Augmentations.InfusedItem) == 1) return true;
                     break;
 
                 case "War Magic":
                     fociName = "Foci of Strife";
+                    if (Globals.Core.CharacterFilter.GetCharProperty((int)Augmentations.InfusedWar) == 1) return true;
                     break;
 
                 case "Void Magic":
