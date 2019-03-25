@@ -4,7 +4,7 @@ A tinker/buff/portal bot plugin.
 
 # Installation:
  - Requires Decal / Virindi View System (comes with virindi bundle)
- - Install [DoThingsBotInstaller-1.1.1.0.exe](/uploads/aea1fdbe09f1f418300a153924fd67eb/DoThingsBotInstaller-1.1.1.0.exe)
+ - Install [DoThingsBotInstaller-1.1.2.0.exe](/uploads/321347870c982efddbc6fd7127e1ce2d/DoThingsBotInstaller-1.1.2.0.exe)
     
 # How to use:
  - The AC window cannot be minimized while the bot is running.
