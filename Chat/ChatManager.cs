@@ -209,7 +209,7 @@ namespace DoThingsBot.Chat {
             }
 
             // announcements
-            if (DateTime.UtcNow - lastAnnouncementTime > TimeSpan.FromSeconds(3) /*TimeSpan.FromMinutes(Config.Announcements.SpamInterval.Value)*/ && Config.Bot.Enabled.Value == true) {
+            if (DateTime.UtcNow - lastAnnouncementTime > TimeSpan.FromMinutes(Config.Announcements.SpamInterval.Value) && Config.Bot.Enabled.Value == true) {
                 if (DateTime.UtcNow - firstThought < TimeSpan.FromSeconds(5)) return;
 
                 if (Config.Announcements.Enabled.Value == true) {

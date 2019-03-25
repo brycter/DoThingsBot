@@ -8,6 +8,7 @@ using Decal.Filters;
 using System.Runtime.InteropServices;
 using Decal.Adapter.Messages;
 using Decal.Adapter.Wrappers;
+using DoThingsBot.Lib;
 
 namespace DoThingsBot {
     //Attaches events from core
@@ -138,6 +139,7 @@ namespace DoThingsBot {
             try {
                 if (e.Text == "/dtb test") {
                     e.Eat = true;
+                    UpdateChecker.CheckForUpdate();
                 }
 
                 if (e.Text == "/dtb start") {
