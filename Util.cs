@@ -574,9 +574,18 @@ namespace DoThingsBot
             return null;
         }
 
+        private static DateTime lastCombatStateCommand = DateTime.MinValue;
         public static bool EnsureCombatState(CombatState state) {
             if (CoreManager.Current.Actions.CombatMode != state) {
-                CoreManager.Current.Actions.SetCombatMode(state);
+                if (DateTime.UtcNow - lastCombatStateCommand > TimeSpan.FromMilliseconds(1000)) {
+                    lastCombatStateCommand = DateTime.UtcNow;
+                    CoreManager.Current.Actions.SetCombatMode(state);
+                }
+
+                return false;
+            }
+
+            if (DateTime.UtcNow - lastCombatStateCommand < TimeSpan.FromMilliseconds(1000)) {
                 return false;
             }
 
