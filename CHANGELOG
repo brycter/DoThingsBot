@@ -1,6 +1,7 @@
 CHANGELOG
 1.1.5.0
     - Added update checker for new versions on login
+    - Fix corrupted stats.json
 
 1.1.4.0
     - Exposed "restore stamina/mana at" settings
