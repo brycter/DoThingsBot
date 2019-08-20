@@ -1,9 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 
 namespace DoThingsBot.Lib {
@@ -17,16 +19,14 @@ namespace DoThingsBot.Lib {
         private static string json = "";
 
         public static void CheckForUpdate() {
-            //new Newtonsoft.Json.Serialization.Action(FetchGitlabData).BeginInvoke(new AsyncCallback(OnGitlabFetchComplete), null);
+            new Newtonsoft.Json.Serialization.Action(FetchGitlabData).BeginInvoke(new AsyncCallback(OnGitlabFetchComplete), null);
         }
 
         public static void FetchGitlabData() {
 
             // no tls 1.2 in dotnet 3.5???
             try {
-                var url = string.Format(@"https://gitlab.com/api/v4/projects/9782839/releases");
-
-                Util.WriteToChat("Fetching");
+                var url = string.Format(@"http://http.haxit.org/dtbupdatecheck.php");
 
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                 request.Timeout = 10000;
@@ -50,8 +50,18 @@ namespace DoThingsBot.Lib {
                         var tags = JsonConvert.DeserializeObject<GitLabTagData[]>(json);
 
                         foreach (var tag in tags) {
-                            var released = Util.GetFriendlyTimeDifference(DateTime.UtcNow - tag.created_at);
-                            Util.WriteToChat(string.Format("{0}: {1}", tag.tag_name.Replace("release-",""), released));
+                            try {
+                                Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+                                Version version = new Version(fvi.FileVersion);
+                                Version releaseVersion = new Version(tag.tag_name.Replace("release-", ""));
+
+                                if (releaseVersion.CompareTo(version) == 1) {
+                                    Globals.Host.Actions.AddChatText("[" + Globals.PluginName + "] " + "A new version of DoThingsBot is available for download! https://gitlab.com/trevis/dothingsbot", 3);
+                                    break;
+                                }
+                            }
+                            catch (Exception ex) { Util.LogException(ex); }
                         }
                     }
                     catch (Exception ex) { Util.LogException(ex); }

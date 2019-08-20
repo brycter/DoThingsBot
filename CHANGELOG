@@ -1,4 +1,7 @@
 CHANGELOG
+1.1.5.0
+    - Added update checker for new versions on login
+
 1.1.4.0
     - Exposed "restore stamina/mana at" settings
     - Added option to logoff when dangerous monsters are nearby

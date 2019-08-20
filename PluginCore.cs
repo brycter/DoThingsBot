@@ -113,6 +113,8 @@ namespace DoThingsBot {
 
                 Globals.ProfileManagerView = new ProfileManagerView();
                 Globals.ProfileManagerView.ReloadProfiles();
+
+                UpdateChecker.CheckForUpdate();
             }
             catch (Exception ex) { Util.LogException(ex); }
 		}
