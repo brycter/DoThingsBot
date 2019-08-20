@@ -641,6 +641,8 @@ namespace DoThingsBot {
                 }
 
                 if (isRunning) {
+                    DangerousMonsterDetector.Think();
+
                     if (_machine.IsInState("BotIdleState") && DateTime.UtcNow - lastDequeue > TimeSpan.FromMilliseconds(1000)) {
                         if (queue.Count > 0) {
                             lastDequeue = DateTime.UtcNow;

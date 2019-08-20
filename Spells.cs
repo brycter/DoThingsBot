@@ -431,8 +431,8 @@ namespace DoThingsBot {
 
             int effectiveStamina = CoreManager.Current.CharacterFilter.EffectiveVital[CharFilterVitalType.Stamina];
             int currentStamina = CoreManager.Current.CharacterFilter.Stamina;
-
-            if (currentStamina < effectiveStamina / 2) {
+            
+            if (currentStamina < effectiveStamina * (Config.BuffBot.GetStaminaAt.Value / 100f)) {
                 if (!readyToCast) return false;
 
                 var spell = Spells.GetBestStaminaRecoverySpell(true);
@@ -451,7 +451,7 @@ namespace DoThingsBot {
             int currentMana = CoreManager.Current.CharacterFilter.Mana;
 
             // stam to mana
-            if (currentMana < effectiveMana / 2) {
+            if (currentMana < effectiveMana * (Config.BuffBot.GetManaAt.Value / 100f)) {
                 if (!readyToCast) return false;
 
                 var spell = Spells.GetBestManaRecoverySpell(true);

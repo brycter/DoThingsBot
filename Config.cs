@@ -37,6 +37,8 @@ namespace DoThingsBot {
             public static Setting<int> PyrealScarabLowCount;
             public static Setting<int> PlatinumScarabLowCount;
             public static Setting<int> ManaScarabLowCount;
+            public static Setting<int> DangerousMonsterLogoffDistance;
+            public static Setting<List<int>> HarmlessMonsterWeenies;
 
             static Bot() {
             }
@@ -62,6 +64,78 @@ namespace DoThingsBot {
                 PyrealScarabLowCount = new Setting<int>("Config/Bot/PyrealScarabLowCount", "Warn when Pyreal Scarabs fall below this amount", 10);
                 PlatinumScarabLowCount = new Setting<int>("Config/Bot/PlatinumScarabLowCount", "Warn when Platinum Scarabs fall below this amount", 10);
                 ManaScarabLowCount = new Setting<int>("Config/Bot/ManaScarabLowCount", "Warn when Mana Scarabs fall below this amount", 10);
+
+                DangerousMonsterLogoffDistance = new Setting<int>("Config/Bot/DangerousMonsterLogoffDistance", "Log off when dangerous monsters are within this distance in meters", 20);
+
+                var defaultHarmlessWeenies = new List<int> {
+                    10950, // Aun Ralirea(10950)
+                    11508, // Aun Elder Shaman(11508)
+                    11509, // Aun Hunter(11509)
+                    11510, // Aun Itealuan(11510)
+                    11511, // Aun Nualuan(11511)
+                    12698, // Sparring Golem(12698)
+                    12704, // Carpenter Wasp(12704)
+                    14, // Cow(14)
+                    1617, // Amploth Lugian(1617)
+                    1618, // Gigas Lugian(1618)
+                    19256, // Young Banderling(19256)
+                    19257, // Drudge Skulker(19257)
+                    19258, // Drudge Slinker(19258)
+                    19259, // Mite Scion(19259)
+                    19260, // Mite Snippet(19260)
+                    19261, // Creeper Mosswart(19261)
+                    19262, // Young Mosswart(19262)
+                    19263, // Gnawer Shreth(19263)
+                    19288, // Bronze Statue of a Drudge(19288)
+                    19291, // Bronze Statue of a Gromnie(19291)
+                    19294, // Bronze Statue of a Mosswart(19294)
+                    19297, // Bronze Statue of a Reedshark(19297)
+                    19436, // Old Bones(19436)
+                    205, // Obeloth Lugian(205)
+                    206, // Lithos Lugian(206)
+                    21162, // Stringent(21162)
+                    21166, // Flake(21166)
+                    220, // Brown Rat(220)
+                    24284, // Lugian Juggernaut(24284)
+                    24286, // Lugian Titan(24286)
+                    24937, // Chicken(24937)
+                    25283, // Rooster(25283)
+                    2566, // Black Rabbit(2566)
+                    2567, // Brown Rabbit(2567)
+                    25709, // Bandit(25709)
+                    25756, // Sam(25756)
+                    26676, // Chick(26676)
+                    26677, // Dire Mattie(26677)
+                    28662, // Penguin(28662)
+                    29332, // Young Olthoi(29332)
+                    29333, // Thieving Thrungus(29333)
+                    29489, // Sir Belfelor(29489)
+                    29490, // Sir Coretto(29490)
+                    29491, // Guard(29491)
+                    29504, // Red Bull of Sanamar(29504)
+                    35273, // Tower Guardian(35273)
+                    4125, // Pile O' Bones(4125)
+                    4126, // Accursed Miner(4126)
+                    4131, // Tan Rat(4131)
+                    4132, // Russet Rat(4132)
+                    5, // Laigus Lugian(5)
+                    5429, // Desert Rabbit(5429)
+                    5687, // Alfrega the Reedshark(5687)
+                    5705, // Flicker(5705)
+                    5760, // Chilly the Snowman(5760)
+                    5761, // Snowman(5761)
+                    618, // Cow(618)
+                    6382, // Static(6382)
+                    70056, // Big Chief Hagra(70056)
+                    7100, // Extas Lugian(7100)
+                    7101, // Tiatus Lugian(7101)
+                    7401, // Smith Ejan(7401)
+                    8591, // Dark Revenant(8591)
+                    8595, // Cursed Bones(8595)
+                    949, // Red Rat(949)
+                };
+
+                HarmlessMonsterWeenies = new Setting<List<int>>("Config/Bot/HarmlessMonsterWeenies/wcid", "These monster wcids will be ignored by the dangerous monster logoff functionality", defaultHarmlessWeenies);
 
                 RecompVendorSellRate.Validate += ValidateVendorRate;
                 DefaultHeading.Validate += ValidateHeading;
@@ -261,6 +335,8 @@ namespace DoThingsBot {
             public static Setting<bool> EnableTreeStatsBuffs;
             public static Setting<bool> AlwaysEnableBanes;
             public static Setting<int> LimitBuffOtherLevel;
+            public static Setting<int> GetManaAt;
+            public static Setting<int> GetStaminaAt;
 
             static BuffBot() {
             }
@@ -271,8 +347,12 @@ namespace DoThingsBot {
                 EnableSingleBuffs = new Setting<bool>("Config/BuffBot/EnableSingleBuffs", "Enable single buffs (strength, focus, war magic, etc)", true);
                 AlwaysEnableBanes = new Setting<bool>("Config/BuffBot/AlwaysEnableBanes", "Enable banes even when target doesn't have a shield equipped. (keep off on GDLE)", false);
                 LimitBuffOtherLevel = new Setting<int>("Config/BuffBot/LimitBuffLevel", "Limit buff spell levels to this value", 7);
+                GetManaAt = new Setting<int>("Config/BuffBot/GetManaAt", "Restore mana when it reaches this percentage", 50);
+                GetStaminaAt = new Setting<int>("Config/BuffBot/GetStaminaAt", "Restore stamina when it reaches this percentage", 50);
 
                 LimitBuffOtherLevel.Validate += ValidateSpellLevel;
+                GetManaAt.Validate += ValidatePercentage;
+                GetStaminaAt.Validate += ValidatePercentage;
             }
         }
 
@@ -314,6 +394,11 @@ namespace DoThingsBot {
         private static void ValidateVendorRate(object sender, ValidateSettingEventArgs<double> e) {
             if (e.Value < 1) e.Invalidate("Should not be less than 1");
             if (e.Value > 2) e.Invalidate("Should not be greater than 2");
+        }
+
+        private static void ValidatePercentage(object sender, ValidateSettingEventArgs<int> e) {
+            if (e.Value < 0) e.Invalidate("Should not be less than 0");
+            if (e.Value > 100) e.Invalidate("Should not be greater than 100");
         }
     }
 }

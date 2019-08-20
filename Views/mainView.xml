@@ -64,8 +64,16 @@
         <control progid="DecalControls.StaticText" name="UIBotBuffBotLimitBuffLevelLabel" left="8" top="68" width="140" height="20" text="Limit other buffs to level:"/>
         <control progid="DecalControls.Edit" name="UIBotBuffBotLimitBuffOtherLevel" left="150" top="66" width="20" height="18" text="7"/>
 
+        <control progid="DecalControls.StaticText" name="UIBotBuffBotLabelGetManaAt" left="8" top="96" width="100" height="16" text="Get Mana At:"/>
+        <control progid="DecalControls.StaticText" name="UIBotBuffBotLabelGetStaminaAt" left="8" top="128" width="100" height="16" text="Get Stamina At:"/>
+        <control progid="DecalControls.Slider" name="UIBotBuffBotGetManaAt" left="110" top="96" width="180" height="16" minimum="0" maximum="100" textcolor="0" vertical="0"/>
+        <control progid="DecalControls.Slider" name="UIBotBuffBotGetStaminaAt" left="110" top="128" width="180" height="16" minimum="0" maximum="100" textcolor="0" vertical="0"/>
+        <control progid="DecalControls.StaticText" name="UIBotBuffBotGetManaAtDisplay" left="304" top="96" width="32" height="16" text="50%"/>
+        <control progid="DecalControls.StaticText" name="UIBotBuffBotGetStaminaAtDisplay" left="304" top="128" width="32" height="16" text="50%"/>
+        
         <control progid="DecalControls.PushButton" name="UIBotBuffBotReloadBuffProfiles" left="45" top="191" width="130" height="20" text="Reload Buff Profiles" fontstyle="bold"/>
         <control progid="DecalControls.PushButton" name="UIBotBuffBotManageBuffProfiles" left="185" top="191" width="120" height="20" text="Manage Buff Profiles" fontstyle="bold"/>
+
 
       </control>
     </page>
@@ -175,8 +183,11 @@
         <control progid="DecalControls.StaticText" name="UIKeepTinkerEquipmentWhileIdleDelayLabel" left="1" top="55" width="320" height="20" text="Keep equipment on after job delay (seconds, 0=disable):"/>
         <control progid="DecalControls.Edit" name="UIKeepTinkerEquipmentWhileIdleDelay" left="290" top="52" width="50" height="20" text="0" />
 
-        <control progid="DecalControls.StaticText" name="UIFastCastSelfBuffsLabel" left="1" top="78" width="320" height="20" text="Fastcast self buffs:"/>
-        <control progid="DecalControls.Checkbox" name="UIFastCastSelfBuffs" left="290" top="78" width="50" height="20" text=""/>
+        <control progid="DecalControls.StaticText" name="UIFastCastSelfBuffsLabel" left="1" top="78" width="80" height="18" text="Fastcast buffs:"/>
+        <control progid="DecalControls.Checkbox" name="UIFastCastSelfBuffs" left="85" top="80" width="40" height="18" text=""/>
+        <control progid="DecalControls.StaticText" name="UILogOffWhenMonstersNearbyLabel" left="132" top="78" width="145" height="16" text="LogOff when mobs within"/>
+        <control progid="DecalControls.Edit" name="UIDangerousMonsterLogoffDistance" left="275" top="78" width="24" height="16" imageportalsrc="4726" text="30"/>
+        <control progid="DecalControls.StaticText" name="UILogOffMetersLabel" left="304" top="78" width="40" height="16" text="meters."/>
         
         <control progid="DecalControls.StaticText" name="UILowComponentsHeader" left="95" top="98" width="180" height="20" text="Low Component Warning Levels"/>
 

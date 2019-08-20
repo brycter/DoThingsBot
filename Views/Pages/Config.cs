@@ -12,6 +12,7 @@ namespace DoThingsBot.Views.Pages {
         HudButton UIManageBotSpellProfiles { get; set; }
         HudCheckBox UIFastCastSelfBuffs { get; set; }
         HudFixedLayout UIConfigTabLayout;
+        HudTextBox UIDangerousMonsterLogoffDistance { get; set; }
 
         MainView mainView;
 
@@ -26,16 +27,20 @@ namespace DoThingsBot.Views.Pages {
                 UIRespondToUnknownCommands = mainView.view != null ? (HudCheckBox)mainView.view["UIRespondToUnknownCommands"] : new HudCheckBox();
                 UIKeepTinkerEquipmentWhileIdleDelay = mainView.view != null ? (HudTextBox)mainView.view["UIKeepTinkerEquipmentWhileIdleDelay"] : new HudTextBox();
                 UIFastCastSelfBuffs = (HudCheckBox)mainView.view["UIFastCastSelfBuffs"];
+                UIDangerousMonsterLogoffDistance = (HudTextBox)mainView.view["UIDangerousMonsterLogoffDistance"];
 
                 UIDefaultHeading.Text = Config.Bot.DefaultHeading.Value.ToString(CultureInfo.InvariantCulture);
                 UIRespondToUnknownCommands.Checked = Config.Bot.RespondToUnknownCommands.Value;
                 UIKeepTinkerEquipmentWhileIdleDelay.Text = Config.Tinkering.KeepEquipmentOnDelay.Value.ToString(CultureInfo.InvariantCulture);
                 UIFastCastSelfBuffs.Checked = Config.Bot.FastCastSelfBuffs.Value;
+                UIDangerousMonsterLogoffDistance.Text = Config.Bot.DangerousMonsterLogoffDistance.Value.ToString(CultureInfo.InvariantCulture);
+
 
                 Config.Bot.DefaultHeading.Changed += obj => { UIDefaultHeading.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
                 Config.Bot.RespondToUnknownCommands.Changed += obj => { UIRespondToUnknownCommands.Checked = obj.Value; };
                 Config.Tinkering.KeepEquipmentOnDelay.Changed += obj => { UIKeepTinkerEquipmentWhileIdleDelay.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
                 Config.Bot.FastCastSelfBuffs.Changed += obj => { UIFastCastSelfBuffs.Checked = obj.Value; };
+                Config.Bot.DangerousMonsterLogoffDistance.Changed += obj => { UIDangerousMonsterLogoffDistance.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
 
                 UIDefaultHeading.LostFocus += (s, e) => {
                     try {
@@ -60,6 +65,15 @@ namespace DoThingsBot.Views.Pages {
                 UIFastCastSelfBuffs.Change += (s, e) => { try { Config.Bot.FastCastSelfBuffs.Value = ((HudCheckBox)s).Checked; } catch (Exception ex) { Util.LogException(ex); } };
 
                 UIManageBotSpellProfiles.Hit += UIManageBotSpellProfiles_Hit;
+
+                UIDangerousMonsterLogoffDistance.LostFocus += (s, e) => {
+                    try {
+                        if (!int.TryParse(UIDangerousMonsterLogoffDistance.Text, out int value))
+                            value = Config.Bot.DangerousMonsterLogoffDistance.Value;
+                        Config.Bot.DangerousMonsterLogoffDistance.Value = value;
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                };
 
                 DrawTrackedComponents();
             }
