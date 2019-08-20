@@ -1,6 +1,7 @@
 CHANGELOG
 1.1.4.0
     - Exposed "restore stamina/mana at" settings
+    - Added option to logoff when dangerous monsters are nearby
 
 1.1.3.0
     - Fix tinker success/fail message matching on ACE servers
