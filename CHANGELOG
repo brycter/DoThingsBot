@@ -1,4 +1,8 @@
 CHANGELOG
+1.1.6.0
+    - Ignore player summoned combat pets (dangerous monster logoff)
+    - Fix exception during add item to trade event, this should help with bot eating items
+
 1.1.5.0
     - Added update checker for new versions on login
     - Fix corrupted stats.json
