@@ -1,4 +1,5 @@
 ﻿using Decal.Adapter;
+using Decal.Adapter.Wrappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,11 @@ namespace DoThingsBot.Lib {
                 double shortestDistance = 1000;
                 
                 foreach (var obj in CoreManager.Current.WorldFilter.GetByObjectClass(Decal.Adapter.Wrappers.ObjectClass.Monster)) {
+                    // ignore player summoned pets
+                    if (Util.IsCombatPet(obj)) {
+                        continue;
+                    }
+                    
                     var distance = Util.GetDistanceFromPlayer(obj);
                     if (distance <= Config.Bot.DangerousMonsterLogoffDistance.Value && !Config.Bot.HarmlessMonsterWeenies.Value.Contains(obj.Type)) {
                         if (distance < shortestDistance) {

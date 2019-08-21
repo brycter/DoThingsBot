@@ -190,6 +190,10 @@ namespace DoThingsBot
             }
         }
 
+        public static bool IsCombatPet(WorldObject obj) {
+            return (obj != null && obj.ObjectClass == ObjectClass.Monster && (obj.Values(LongValueKey.Behavior, 0) & 67108864) > 0);
+        }
+
         public static PlayerData GetPlayerData(string playerName) {
             try {
                 PlayerData playerData;

@@ -49,11 +49,12 @@ namespace DoThingsBot.Lib {
                     try {
                         var tags = JsonConvert.DeserializeObject<GitLabTagData[]>(json);
 
+                        Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                        FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+                        Version version = new Version(fvi.FileVersion);
+
                         foreach (var tag in tags) {
                             try {
-                                Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-                                Version version = new Version(fvi.FileVersion);
                                 Version releaseVersion = new Version(tag.tag_name.Replace("release-", ""));
 
                                 if (releaseVersion.CompareTo(version) == 1) {
