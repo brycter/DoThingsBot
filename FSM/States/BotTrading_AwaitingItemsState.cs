@@ -48,7 +48,7 @@ namespace DoThingsBot.FSM.States {
 
                 WorldObject worldObject = CoreManager.Current.WorldFilter[e.ItemId];
 
-                if (worldObject.HasIdData) {
+                if (worldObject != null && worldObject.HasIdData) {
                     tradeItems.Add(worldObject);
                 }
                 else {
