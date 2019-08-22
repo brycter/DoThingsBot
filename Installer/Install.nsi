@@ -52,6 +52,9 @@ Section "" CoreSection
 	File "${BUILDPATH}\Newtonsoft.Json.dll"
 	;File "ADDITIONALFILES"
 
+	SetOutPath "$INSTDIR\Resources"
+	File "${BUILDPATH}\Resources\*.xml"
+
 	SetOutPath "$INSTDIR\Resources\BotProfiles"
 	File "${BUILDPATH}\Resources\BotProfiles\*.xml"
 

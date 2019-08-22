@@ -1,4 +1,6 @@
-﻿using DoThingsBot.Lib;
+﻿using Decal.Adapter;
+using Decal.Filters;
+using DoThingsBot.Lib;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -82,7 +84,8 @@ namespace DoThingsBot.Views.Pages {
 
         private void UIManageBotSpellProfiles_Hit(object sender, EventArgs e) {
             try {
-                Globals.ProfileManagerView.EditBotProfiles();
+                //Globals.ProfileManagerView.EditBotProfiles();
+                Util.WriteToChat($"Confirm Rare Usage? {(uint)(Globals.Core.CharacterFilter.CharacterOptionFlags & 0x40000) != 0}");
             }
             catch (Exception ex) { Util.LogException(ex); }
         }
@@ -103,7 +106,7 @@ namespace DoThingsBot.Views.Pages {
             }
         }
 
-        private void DrawTrackedComponent(Component trackedComponent, int row, int col) {
+        private void DrawTrackedComponent(Lib.Component trackedComponent, int row, int col) {
             int rowHeight = 20;
             int rowWidth = (mainView.view.Width / 3) + 12;
 

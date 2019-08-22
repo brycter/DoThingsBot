@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
-
+using System.Xml;
 using Decal.Adapter;
 using Decal.Adapter.Wrappers;
 using DoThingsBot.Lib;
@@ -51,6 +51,14 @@ namespace DoThingsBot
             System.IO.Directory.CreateDirectory(Util.GetResourcesDirectory());
             System.IO.Directory.CreateDirectory(Path.Combine(Util.GetResourcesDirectory(), "BuffProfiles"));
             System.IO.Directory.CreateDirectory(Path.Combine(Util.GetResourcesDirectory(), "BotProfiles"));
+        }
+
+        internal static bool IsRare(WorldObject worldObject) {
+            if (worldObject == null) return false;
+
+            if (worldObject.Values(LongValueKey.IconUnderlay, 0) == 23308) return true;
+
+            return false;
         }
 
         public static string GetVersion() {
@@ -138,6 +146,37 @@ namespace DoThingsBot
             File.AppendAllText(Path.Combine(Util.GetLogDirectory(), logFileName), message + Environment.NewLine);
         }
 
+        public static bool CanUseBuffItem(WorldObject wo) {
+            return !Spells.HasItemEnchantmentsAlready(wo);
+        }
+
+        public static bool IsValidBuffItem(WorldObject wo) {
+            var path = Path.Combine(Util.GetResourcesDirectory(), "buffitems.xml");
+            
+            if (!File.Exists(path)) {
+                Util.WriteToChat("Could not load " + path);
+                return false;
+            }
+
+            try {
+                XmlDocument doc = new XmlDocument();
+                doc.Load(path);
+
+                foreach (XmlNode node in doc.DocumentElement.ChildNodes) {
+                    try {
+                        if (node.Attributes["name"] != null && node.Attributes["name"].InnerText.Length > 0) {
+                            if (wo.Name == node.Attributes["name"].InnerText) {
+                                return true;
+                            }
+                        }
+                    }
+                    catch (Exception ex) { }
+                }
+            }
+            catch (Exception ex) { Util.LogException(ex); return false; }
+            return false;
+        }
+
         public static string GetFullLootName(WorldObject wo) {
             return String.Format("{0}:{1}", GetGameItemDisplayName(wo), wo.Values(LongValueKey.Value));
         }
@@ -166,11 +205,14 @@ namespace DoThingsBot
                     Math.Round(wo.Values(DoubleValueKey.SalvageWorkmanship) * 100) / 100
                     );
             }
-            else {
+            else if (wo.Values(LongValueKey.Material) > 0) {
                 return String.Format("{0} {1}",
                     d.MaterialName,
                     wo.Name
                     );
+            }
+            else {
+                return wo.Name;
             }
         }
 

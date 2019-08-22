@@ -29,7 +29,7 @@ namespace DoThingsBot.FSM.States {
             catch (Exception e) { Util.LogException(e); }
 
             _machine.SetParentState(this.Name);
-            _machine.ChangeState(new BotTinkering_TrySuccessState(itemBundle));
+            _machine.ChangeState(new BotTinkering_UseBuffItemsState(itemBundle));
             _machine.Start();
         }
 

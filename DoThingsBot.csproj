@@ -219,6 +219,7 @@
     <EmbeddedResource Include="Views\confirmView.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FSM\States\BotTinkering_UseBuffItemsState.cs" />
     <Content Include="Resources\BotProfiles\buff.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -228,6 +229,7 @@
     <Content Include="Resources\BotProfiles\tinker.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\buffitems.xml" />
     <Content Include="Resources\BuffProfiles\2h.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

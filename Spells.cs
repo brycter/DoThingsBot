@@ -464,5 +464,68 @@ namespace DoThingsBot {
 
             return true;
         }
+
+        public static bool CanUseRare() {
+            FileService fs = CoreManager.Current.Filter<FileService>();
+
+            for (var i = 0; i < CoreManager.Current.CharacterFilter.Enchantments.Count; i++) {
+                var enchantment = CoreManager.Current.CharacterFilter.Enchantments[i];
+                var spell = fs.SpellTable.GetById(enchantment.SpellId);
+                if (spell.Name.Contains("Prodigal") && enchantment.Duration - enchantment.TimeRemaining < 60 * 3) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static ulong GetTimeUntilCanUseRareAgain() {
+            FileService fs = CoreManager.Current.Filter<FileService>();
+            double shortest = double.MaxValue;
+
+            for (var i = 0; i < CoreManager.Current.CharacterFilter.Enchantments.Count; i++) {
+                var enchantment = CoreManager.Current.CharacterFilter.Enchantments[i];
+                var spell = fs.SpellTable.GetById(enchantment.SpellId);
+                if (spell.Name.Contains("Prodigal") && enchantment.Duration - enchantment.TimeRemaining < 60 * 3) {
+                    if (enchantment.Duration - enchantment.TimeRemaining < shortest) {
+                        shortest = enchantment.Duration - enchantment.TimeRemaining;
+                        Util.WriteToChat($"{enchantment.Duration} {enchantment.TimeRemaining} {enchantment.Duration - enchantment.TimeRemaining}");
+                    }
+                }
+            }
+
+            return (60*3) - (ulong)shortest;
+        }
+
+        public static string itemEnchantmentAlreadyHadReason = "";
+        public static bool HasItemEnchantmentsAlready(WorldObject wo) {
+            if (wo != null) {
+                FileService fs = CoreManager.Current.Filter<FileService>();
+
+                List<int> existingEnchantments = new List<int>();
+
+                for (var i = 0; i < CoreManager.Current.CharacterFilter.Enchantments.Count; i++) {
+                    var spell = CoreManager.Current.CharacterFilter.Enchantments[i];
+                    existingEnchantments.Add(spell.SpellId);
+                }
+
+                for (var i = 0; i < wo.SpellCount; i++) {
+                    if (existingEnchantments.Contains(wo.Spell(i))) {
+                        for (var x = 0; x < CoreManager.Current.CharacterFilter.Enchantments.Count; x++) {
+                            var enchantment = CoreManager.Current.CharacterFilter.Enchantments[x];
+                            if (enchantment.SpellId == wo.Spell(i)) {
+                                var spell = fs.SpellTable.GetById(enchantment.SpellId);
+                                var expires = Util.GetFriendlyTimeDifference(enchantment.Expires - DateTime.Now);
+
+                                itemEnchantmentAlreadyHadReason = $"I already have {spell.Name} cast on me from a {wo.Name}, it expires in {expires}.";
+                            }
+                        }
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
     }
 }

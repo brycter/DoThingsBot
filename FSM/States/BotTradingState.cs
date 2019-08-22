@@ -56,6 +56,11 @@ namespace DoThingsBot.FSM.States {
                     return;
                 }
                 else if (_machine.IsInState("BotTrading_FinishedState")) {
+                    if (itemBundle.GetCraftMode() == CraftMode.WeaponTinkering && itemBundle.HasOnlyBuffItems()) {
+                        machine.ChangeState(new BotTinkeringState(itemBundle));
+                        return;
+                    }
+
                     itemBundle.SetEquipMode(EquipMode.Tinker);
                     machine.ChangeState(new BotEquipItemsState(itemBundle));
                     return;

@@ -314,6 +314,8 @@ namespace DoThingsBot {
                 int targetId = GetTargetId();
                 WorldObject targetWo = CoreManager.Current.WorldFilter[targetId];
 
+                if (HasOnlyBuffItems()) return true;
+
                 // no target
                 if (targetId == 0) {
                     if (GetSalvages().Count > 0) {
@@ -376,6 +378,16 @@ namespace DoThingsBot {
 
         private bool CanAddWorldObject(WorldObject wo) {
             try {
+
+                if (Util.IsValidBuffItem(wo) && Util.CanUseBuffItem(wo)) {
+                    if (Util.IsRare(wo) && !Spells.CanUseRare()) {
+                        invalidReason = $"I need to wait {Util.GetFriendlyTimeDifference((ulong)Spells.GetTimeUntilCanUseRareAgain())} until I can use another rare.";
+                        return false;
+                    }
+
+                    return true;
+                }
+
                 if (!CheckValidItem(wo)) {
                     return false;
                 }
@@ -464,6 +476,13 @@ namespace DoThingsBot {
                     }
 
                     return true;
+                }
+
+                if (Util.IsValidBuffItem(wo)) {
+                    if (Util.CanUseBuffItem(wo)) return true;
+
+                    invalidReason = Spells.itemEnchantmentAlreadyHadReason;
+                    return false;
                 }
 
                 invalidReason = String.Format("I don't know how to work with that {0}.", Util.GetItemName(wo));
@@ -874,6 +893,46 @@ namespace DoThingsBot {
             catch (Exception e) { Util.LogException(e); }
 
             return CraftMode.Unknown;
+        }
+
+        internal bool HasBuffItems() {
+            foreach (var item in playerData.itemIds) {
+                var wo = CoreManager.Current.WorldFilter[item];
+
+                if (Util.IsValidBuffItem(wo)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        internal List<int> GetBuffItems() {
+            var buffItems = new List<int>();
+
+            foreach (var item in playerData.itemIds) {
+                var wo = CoreManager.Current.WorldFilter[item];
+
+                if (Util.IsValidBuffItem(wo)) {
+                    buffItems.Add(wo.Id);
+                }
+            }
+
+            return buffItems;
+        }
+
+        internal int GetBuffItem() {
+            var items = GetBuffItems();
+
+            if (items.Count > 0) return items[0];
+
+            return 0;
+        }
+
+        internal bool HasOnlyBuffItems() {
+            var buffItems = GetBuffItems();
+
+            return buffItems.Count == playerData.itemIds.Count;
         }
     }
 }
