@@ -74,6 +74,7 @@ namespace DoThingsBot.FSM.States {
 
         void WorldFilter_EndTrade(object sender, EndTradeEventArgs e) {
             try {
+                Util.WriteToDebugLog($"Got EndTrade: tradeAccepted? {tradeAccepted}");
                 if (tradeAccepted) return;
                 ChatManager.Tell(itemBundle.GetOwner(), "The trade was cancelled, you will need to send me a command to start again.");
                 _machine.ChangeState(new BotTrading_TradeCancelledState(itemBundle));

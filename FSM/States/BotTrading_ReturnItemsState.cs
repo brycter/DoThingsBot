@@ -17,6 +17,7 @@ namespace DoThingsBot.FSM.States {
         private ItemBundle itemBundle;
         private Machine _machine;
         private List<int> itemsToAddToTrade;
+        private List<int> itemsBeingAddedToTrade = new List<int>();
 
         public BotTrading_ReturnItemsState(ItemBundle items) {
             itemBundle = items;
@@ -50,6 +51,11 @@ namespace DoThingsBot.FSM.States {
             try {
                 Util.WriteToDebugLog("Added item " + itemBundle.GetCachedItemName(e.ItemId) + " to the trade.");
 
+                if (itemsBeingAddedToTrade.Contains(e.ItemId)) {
+                    itemsBeingAddedToTrade.Remove(e.ItemId);
+                    lastThought = DateTime.UtcNow - TimeSpan.FromSeconds(5);
+                }
+
                 if (!itemsIdsAdded.Contains(e.ItemId)) {
                     itemsIdsAdded.Add(e.ItemId);
                 }
@@ -71,8 +77,8 @@ namespace DoThingsBot.FSM.States {
         void WorldFilter_EndTrade(object sender, EndTradeEventArgs e) {
             try {
                 Util.WriteToDebugLog("Got WorldFilter_EndTrade");
-                //ChatManager.Tell(itemBundle.GetOwner(), "The trade was cancelled, tell me 'lostitems' and I will attempt to return your items again.");
-                //_machine.ChangeState(new BotTrading_TradeCancelledState(itemBundle));
+                ChatManager.Tell(itemBundle.GetOwner(), "The trade was cancelled, tell me 'lostitems' and I will attempt to return your items again.");
+                _machine.ChangeState(new BotTrading_TradeCancelledState(itemBundle));
             }
             catch (Exception ex) { Util.LogException(ex); }
         }
@@ -105,12 +111,17 @@ namespace DoThingsBot.FSM.States {
 
         public void Think(Machine machine) {
             try {
-                if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(300)) {
+                if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(500)) {
                     lastThought = DateTime.UtcNow;
 
-                    if (DateTime.UtcNow - startTime > TimeSpan.FromSeconds(10)) {
+                    if (DateTime.UtcNow - startTime > TimeSpan.FromSeconds(20)) {
                         ChatManager.Tell(itemBundle.GetOwner(), "The trade has timed out.  Tell me 'lostitems' to check for any items of yours that I still have.");
                         machine.ChangeState(new BotTrading_TradeCancelledState(itemBundle));
+                        return;
+                    }
+
+                    if (itemsBeingAddedToTrade.Count > 0) {
+                        // still waiting on items to be confirmed added to trade window.
                         return;
                     }
 
@@ -125,16 +136,21 @@ namespace DoThingsBot.FSM.States {
                             }
                             else {
                                 ChatManager.Tell(itemBundle.GetOwner(), "I was unable to confirm I gave you your items back.  Tell me 'lostitems' to check for any items of yours that I still have.");
-                                CoreManager.Current.Actions.TradeEnd();
+                                CoreManager.Current.Actions.TradeAccept();
+                                return;
                             }
                         }
                     }
 
                     if (itemsToAddToTrade.Count > 0) {
-                        Util.WriteToDebugLog(String.Format("Attempting to add {0} to the trade window", itemBundle.GetCachedItemName(itemsToAddToTrade[0])));
-                        CoreManager.Current.Actions.TradeAdd(itemsToAddToTrade[0]);
+                        foreach (var item in itemsToAddToTrade) {
+                            Util.WriteToDebugLog(String.Format("Attempting to add {0} to the trade window", itemBundle.GetCachedItemName(itemsToAddToTrade[0])));
+                            CoreManager.Current.Actions.TradeAdd(item);
 
-                        itemsToAddToTrade.RemoveAt(0);
+                            itemsBeingAddedToTrade.Add(item);
+                        }
+
+                        itemsToAddToTrade.Clear();
                         return;
                     }
                 }
