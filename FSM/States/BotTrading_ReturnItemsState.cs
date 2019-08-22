@@ -23,6 +23,8 @@ namespace DoThingsBot.FSM.States {
             itemBundle = items;
 
             itemsToAddToTrade = new List<int>(itemBundle.GetStolenItems().ToArray());
+
+            Util.WriteToDebugLog($"itemsToAddToTrade size is {itemsToAddToTrade.Count}");
         }
 
         public void Enter(Machine machine) {
@@ -53,12 +55,13 @@ namespace DoThingsBot.FSM.States {
 
                 if (itemsBeingAddedToTrade.Contains(e.ItemId)) {
                     itemsBeingAddedToTrade.Remove(e.ItemId);
-                    lastThought = DateTime.UtcNow - TimeSpan.FromSeconds(5);
                 }
 
                 if (!itemsIdsAdded.Contains(e.ItemId)) {
                     itemsIdsAdded.Add(e.ItemId);
                 }
+
+                Util.WriteToDebugLog($"itemsIdsAdded size is now {itemsIdsAdded.Count}");
             }
             catch (Exception ex) { Util.LogException(ex); }
         }
@@ -66,7 +69,6 @@ namespace DoThingsBot.FSM.States {
         // this only fires for the first person to hit accept.
         void WorldFilter_AcceptTrade(object sender, AcceptTradeEventArgs e) {
             try {
-                Util.WriteToDebugLog("Got WorldFilter_AcceptTrade");
                 Util.WriteToDebugLog("Got AcceptTrade: " + e.TargetId + " me: " + CoreManager.Current.CharacterFilter.Id);
 
                 return;
@@ -76,7 +78,7 @@ namespace DoThingsBot.FSM.States {
 
         void WorldFilter_EndTrade(object sender, EndTradeEventArgs e) {
             try {
-                Util.WriteToDebugLog("Got WorldFilter_EndTrade");
+                Util.WriteToDebugLog($"Got WorldFilter_EndTrade: {e.ReasonId}");
                 ChatManager.Tell(itemBundle.GetOwner(), "The trade was cancelled, tell me 'lostitems' and I will attempt to return your items again.");
                 _machine.ChangeState(new BotTrading_TradeCancelledState(itemBundle));
             }
@@ -86,6 +88,7 @@ namespace DoThingsBot.FSM.States {
         //private bool tradeWasResetByMe = false;
         void WorldFilter_ResetTrade(object sender, ResetTradeEventArgs e) {
             try {
+                Util.WriteToDebugLog($"Got WorldFilter_ResetTrade: {e.TraderId} me:{CoreManager.Current.CharacterFilter.Id}");
                 if (CoreManager.Current.CharacterFilter.Id != e.TraderId) {
                     Util.WriteToDebugLog("Trade was reset. I am ending the trade.");
                     CoreManager.Current.Actions.TradeEnd();
@@ -93,7 +96,7 @@ namespace DoThingsBot.FSM.States {
                     _machine.ChangeState(new BotTrading_FinishedState(itemBundle));
                 }
                 else {
-                    Util.WriteToDebugLog("Trade was ended, marking items as given.");
+                    Util.WriteToDebugLog("Trade was ended, marking all items as given.");
                     foreach (int id in itemsIdsAdded) {
                         itemBundle.RemoveItem(id);
                     }
@@ -115,6 +118,7 @@ namespace DoThingsBot.FSM.States {
                     lastThought = DateTime.UtcNow;
 
                     if (DateTime.UtcNow - startTime > TimeSpan.FromSeconds(20)) {
+                        Util.WriteToDebugLog("Trade timed out in ReturnItemsState::Think");
                         ChatManager.Tell(itemBundle.GetOwner(), "The trade has timed out.  Tell me 'lostitems' to check for any items of yours that I still have.");
                         machine.ChangeState(new BotTrading_TradeCancelledState(itemBundle));
                         return;
@@ -125,24 +129,8 @@ namespace DoThingsBot.FSM.States {
                         return;
                     }
 
-                    if (itemsToAddToTrade.Count == 0) {
-                        if (!didFinish) {
-                            didFinish = true;
-
-                            if (itemsIdsAdded.Count > 0) {
-                                //tradeWasResetByMe = true;
-                                CoreManager.Current.Actions.TradeAccept();
-                                return;
-                            }
-                            else {
-                                ChatManager.Tell(itemBundle.GetOwner(), "I was unable to confirm I gave you your items back.  Tell me 'lostitems' to check for any items of yours that I still have.");
-                                CoreManager.Current.Actions.TradeAccept();
-                                return;
-                            }
-                        }
-                    }
-
                     if (itemsToAddToTrade.Count > 0) {
+                        Util.WriteToDebugLog($"Attempting to add {itemsToAddToTrade.Count} items to the trade window");
                         foreach (var item in itemsToAddToTrade) {
                             Util.WriteToDebugLog(String.Format("Attempting to add {0} to the trade window", itemBundle.GetCachedItemName(itemsToAddToTrade[0])));
                             CoreManager.Current.Actions.TradeAdd(item);
@@ -152,6 +140,23 @@ namespace DoThingsBot.FSM.States {
 
                         itemsToAddToTrade.Clear();
                         return;
+                    }
+
+                    if (!didFinish) {
+                        didFinish = true;
+                        Util.WriteToDebugLog($"Finishing: itemsIdsAdded.Count:{itemsIdsAdded.Count} ");
+
+                        if (itemsIdsAdded.Count > 0) {
+                            Util.WriteToDebugLog($"Everything went OK? Accepting trade.");
+                            CoreManager.Current.Actions.TradeAccept();
+                            return;
+                        }
+                        else {
+                            Util.WriteToDebugLog($"Unable to confirm... Accepting trade.");
+                            ChatManager.Tell(itemBundle.GetOwner(), "I was unable to confirm I gave you your items back.  Tell me 'lostitems' to check for any items of yours that I still have.");
+                            CoreManager.Current.Actions.TradeAccept();
+                            return;
+                        }
                     }
                 }
             }
