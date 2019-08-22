@@ -84,8 +84,7 @@ namespace DoThingsBot.Views.Pages {
 
         private void UIManageBotSpellProfiles_Hit(object sender, EventArgs e) {
             try {
-                //Globals.ProfileManagerView.EditBotProfiles();
-                Util.WriteToChat($"Confirm Rare Usage? {(uint)(Globals.Core.CharacterFilter.CharacterOptionFlags & 0x40000) != 0}");
+                Globals.ProfileManagerView.EditBotProfiles();
             }
             catch (Exception ex) { Util.LogException(ex); }
         }
