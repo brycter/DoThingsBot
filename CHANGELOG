@@ -1,4 +1,8 @@
 CHANGELOG
+1.1.7.0
+    - Initial support for rares/beers/food
+    - Fix bug in lostitems
+
 1.1.6.0
     - Ignore player summoned combat pets (dangerous monster logoff)
     - Fix exception during add item to trade event, this should help with bot eating items
