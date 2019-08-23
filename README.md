@@ -4,7 +4,7 @@ A tinker/buff/portal bot plugin.
 
 # Installation:
  - Requires Decal / Virindi View System (comes with virindi bundle)
- - Install [DoThingsBotInstaller-1.1.6.0.exe](/uploads/9eecec25269748e26ae3b8ec96ae53a5/DoThingsBotInstaller-1.1.6.0.exe)
+ - Install [DoThingsBotInstaller-1.1.7.0.exe](/uploads/05cda7a10c298cc985038fda2efe08a8/DoThingsBotInstaller-1.1.7.0.exe)
     
 # How to use:
  - The AC window cannot be minimized while the bot is running.
@@ -20,8 +20,6 @@ A tinker/buff/portal bot plugin.
 ![](https://i.gyazo.com/2f1cbb53dda27fa07d2ab6b8bf2f53bb.png)
 
 # TODO
- - Beer support
- - Rare support (for tinkering, would disable all other bot functions while rares are active)
  - Calculate success chance on the bot instead of using ingame popup window
  - Use recipes.json so the bot can craft *anything*
  - Tradebot
