@@ -1,7 +1,7 @@
 ; Define your application name
 !define APPNAME "DoThingsBot"
 !define SOFTWARECOMPANY "SunnujDecalPlugins"
-!define VERSION	"1.1.7.0"
+!define VERSION	"1.1.8.0"
 !define APPGUID "{96A085A9-7A75-4D36-9437-07DB39EF0BA0}"
 
 !define ASSEMBLY "DoThingsBot.dll"
