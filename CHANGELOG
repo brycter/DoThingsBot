@@ -1,4 +1,7 @@
 CHANGELOG
+1.1.8.0
+    - Fix bug with trade timeouts (hacky)
+
 1.1.7.0
     - Initial support for rares/beers/food
     - Fix bug in lostitems
