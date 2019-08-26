@@ -229,6 +229,8 @@ namespace DoThingsBot {
 
                     if (message.Length > 0) ChatManager.Tell(e.PlayerName, message);
 
+                    ChatManager.Tell(e.PlayerName, "For more information about a recipe, tell me 'recipe Wedding Cake'");
+
                     break;
 
                 case "message":

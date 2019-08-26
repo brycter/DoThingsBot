@@ -54,7 +54,7 @@ namespace DoThingsBot.Lib.Recipes {
 
             foreach (XmlNode node in doc.DocumentElement.ChildNodes) {
                 try {
-                    if (node.Attributes["name"] != null && node.Attributes["name"].InnerText == tool) {
+                    if (node.Attributes["name"] != null && node.Attributes["name"].InnerText.ToLower() == tool.ToLower()) {
                         return node.Attributes["whereToAcquire"] != null ? node.Attributes["whereToAcquire"].InnerText : "";
                     }
                 }
@@ -127,7 +127,7 @@ namespace DoThingsBot.Lib.Recipes {
 
         public static Recipe FindByName(string name) {
             foreach (var recipe in recipes) {
-                if (recipe.name == name) return recipe;
+                if (recipe.name.ToLower() == name.ToLower()) return recipe;
             }
 
             return null;
