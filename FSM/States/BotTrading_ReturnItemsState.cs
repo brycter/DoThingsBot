@@ -51,7 +51,11 @@ namespace DoThingsBot.FSM.States {
 
         void WorldFilter_AddTradeItem(object sender, AddTradeItemEventArgs e) {
             try {
-                Util.WriteToDebugLog("Added item " + itemBundle.GetCachedItemName(e.ItemId) + " to the trade.");
+                var wo = CoreManager.Current.WorldFilter[e.ItemId];
+
+                if (wo != null) {
+                    Util.WriteToDebugLog("Added item " + wo.Name + " to the trade.");
+                }
 
                 if (itemsBeingAddedToTrade.Contains(e.ItemId)) {
                     itemsBeingAddedToTrade.Remove(e.ItemId);

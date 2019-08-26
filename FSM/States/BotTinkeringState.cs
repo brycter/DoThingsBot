@@ -12,6 +12,7 @@ namespace DoThingsBot.FSM.States {
         public string Name { get => "BotTinkeringState"; }
 
         private Machine _machine;
+        private Machine parentMachine;
         private bool IsRunning = false;
         private ItemBundle itemBundle;
 
@@ -22,6 +23,7 @@ namespace DoThingsBot.FSM.States {
         }
 
         public void Enter(Machine machine) {
+            parentMachine = machine;
             IsRunning = true;
             try {
                 PostMessageTools.ClickNo();
@@ -31,18 +33,37 @@ namespace DoThingsBot.FSM.States {
             _machine.SetParentState(this.Name);
             _machine.ChangeState(new BotTinkering_UseBuffItemsState(itemBundle));
             _machine.Start();
+
+            ChatManager.RaiseChatCommandEvent += new EventHandler<ChatCommandEventArgs>(ChatManager_ChatCommand);
         }
 
         public void Exit(Machine machine) {
             IsRunning = false;
             _machine.Stop();
+
+            ChatManager.RaiseChatCommandEvent -= new EventHandler<ChatCommandEventArgs>(ChatManager_ChatCommand);
         }
 
         DateTime firstThought = DateTime.UtcNow;
         DateTime lastThought = DateTime.UtcNow;
         bool didFail = false;
+        bool didCancel = false;
+
+        void ChatManager_ChatCommand(object sender, ChatCommandEventArgs e) {
+            try {
+                switch (e.Command) {
+                    case "cancel":
+                        didCancel = true;
+                        parentMachine.ChangeState(new BotFinishState(itemBundle));
+                        break;
+                }
+            }
+            catch (Exception ex) { Util.LogException(ex); }
+        }
 
         public void Think(Machine machine) {
+            if (didCancel) return;
+
             if (DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(180)) {
                 if (!didFail) {
                     didFail = true;

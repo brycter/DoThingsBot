@@ -255,8 +255,22 @@ namespace DoThingsBot.Chat {
                         lastChatCommandSentAt = DateTime.UtcNow;
 
                         chatMessageTimes.Add(DateTime.UtcNow);
-                        DecalProxy.DispatchChatToBoxWithPluginIntercept(command);
-                        Util.WriteToDebugLog(command);
+                        var parts = command.Split('\n');
+                        var prefix = "";
+                        foreach (var part in parts) {
+                            if (part.Length <= 0) continue;
+                            var message = part;
+
+                            if (PrivateChatMessageRegex.IsMatch(part.ToLower())) {
+                                prefix = part.Split(',')[0];
+                            }
+                            else if (prefix.Length > 0) {
+                                message = (prefix + ", " + part);
+                            }
+
+                            DecalProxy.DispatchChatToBoxWithPluginIntercept(message);
+                            Util.WriteToDebugLog(message);
+                        }
                     }
                     else {
                         Util.WriteToDebugLog("Skipping command because it's a dupe: " + command);

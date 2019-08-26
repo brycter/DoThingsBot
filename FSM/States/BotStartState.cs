@@ -46,6 +46,12 @@ namespace DoThingsBot.FSM.States {
                     itemBundle.SetEquipMode(EquipMode.Buff);
                     machine.ChangeState(new BotEquipItemsState(itemBundle));
                 }
+                else if (itemBundle.GetCraftMode() == CraftMode.Crafting && Spells.DoesAnySpellNeedRefresh(Config.Bot.GetWantedCraftingEnchantments())) {
+                    ChatManager.Tell(itemBundle.GetOwner(), "One moment please, I need to buff.");
+
+                    itemBundle.SetEquipMode(EquipMode.Buff);
+                    machine.ChangeState(new BotEquipItemsState(itemBundle));
+                }
                 else if (itemBundle.GetCraftMode() == CraftMode.Buff && Spells.DoesAnySpellNeedRefresh(Config.Bot.GetWantedBuffEnchantments())) {
                     ChatManager.Tell(itemBundle.GetOwner(), "One moment please, I need to buff.");
                     

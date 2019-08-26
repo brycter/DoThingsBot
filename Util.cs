@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using Decal.Adapter;
 using Decal.Adapter.Wrappers;
+using Decal.Filters;
 using DoThingsBot.Lib;
 using Newtonsoft.Json;
 
@@ -95,7 +96,15 @@ namespace DoThingsBot
 					writer.WriteLine("============================================================================");
 					writer.WriteLine("");
 					writer.Close();
-				}
+
+                    Util.WriteToChat("Error: " + ex.Message);
+                    Util.WriteToChat("Source: " + ex.Source);
+                    Util.WriteToChat("Stack: " + ex.StackTrace);
+                    if (ex.InnerException != null) {
+                        Util.WriteToChat("Inner: " + ex.InnerException.Message);
+                        Util.WriteToChat("Inner Stack: " + ex.InnerException.StackTrace);
+                    }
+                }
 			}
 			catch
 			{
@@ -310,6 +319,34 @@ namespace DoThingsBot
                     if (wo.Values(LongValueKey.StackCount) == 1) {
                         return wo;
                     }
+                }
+            }
+
+            return null;
+        }
+
+        public static WorldObject GetInventoryItemByName(string itemName) {
+            foreach (var wo in CoreManager.Current.WorldFilter.GetInventory()) {
+                if (wo != null && wo.Name == itemName) {
+                    return wo;
+                }
+            }
+
+            return null;
+        }
+
+        public static WorldObject GetInventoryItemByName(string itemName, ItemBundle bundle) {
+            if (itemName == "DYEABLE_ITEM") {
+                foreach (var id in bundle.playerData.itemIds) {
+                    var wo = CoreManager.Current.WorldFilter[id];
+                    if (wo != null && wo.Values(BoolValueKey.Dyeable, false) == true) {
+                        return wo;
+                    }
+                }
+            }
+            foreach (var wo in CoreManager.Current.WorldFilter.GetInventory()) {
+                if (wo != null && wo.Name == itemName) {
+                    return wo;
                 }
             }
 
@@ -721,6 +758,80 @@ namespace DoThingsBot
                 }
             }
             catch (Exception ex) { Util.LogException(ex); }
+        }
+
+        public static string GetObjectName(int id) {
+            if (!Globals.Core.Actions.IsValidObject(id)) {
+                return string.Format("<{0}>", id);
+            }
+            var wo = Globals.Core.WorldFilter[id];
+
+            if (wo == null) return string.Format("<{0}>", id);
+
+            if (wo.Values(LongValueKey.Material, 0) > 0) {
+                FileService service = Globals.Core.Filter<FileService>();
+                return string.Format("{0} {1}", service.MaterialTable.GetById(wo.Values(LongValueKey.Material, 0)), wo.Name);
+            }
+            else {
+                return string.Format("{0}", wo.Name);
+            }
+        }
+
+        private static int tryCount = 0;
+        private static Dictionary<int, DateTime> blacklistedItems = new Dictionary<int, DateTime>();
+        private static int movingObjectId = 0;
+        public static bool TryStackItemTo(WorldObject wo, WorldObject stackThis, int slot = 0) {
+            int woStackCount = wo.Values(LongValueKey.StackCount, 1);
+            int woStackMax = wo.Values(LongValueKey.StackMax, 1);
+            int stackThisCount = stackThis.Values(LongValueKey.StackCount, 1);
+
+            // not stackable?
+            if (woStackMax <= 1 || stackThis.Values(LongValueKey.StackMax, 1) <= 1) return false;
+
+            if (wo.Name == stackThis.Name && wo.Id != stackThis.Id && stackThisCount < woStackMax) {
+                // blacklist this item
+                if (tryCount > 10) {
+                    tryCount = 0;
+                    if (!blacklistedItems.ContainsKey(stackThis.Id)) {
+                        blacklistedItems.Add(stackThis.Id, DateTime.UtcNow);
+                    }
+                    return false;
+                }
+
+                if (woStackCount + stackThisCount <= woStackMax) {
+                    if (true) {
+                        Util.WriteToChat(string.Format("InventoryManager::AutoStack stack {0}({1}) on {2}({3})",
+                            Util.GetObjectName(stackThis.Id),
+                            stackThisCount,
+                            Util.GetObjectName(wo.Id),
+                            woStackCount));
+                    }
+                    Globals.Core.Actions.SelectItem(stackThis.Id);
+                    Globals.Core.Actions.MoveItem(stackThis.Id, wo.Container, slot, true);
+                }
+                else if (woStackMax - woStackCount == 0) {
+                    return false;
+                }
+                else {
+                    if (true) {
+                        Util.WriteToChat(string.Format("InventoryManager::AutoStack stack {0}({1}/{2}) on {3}({4})",
+                            Util.GetObjectName(stackThis.Id),
+                            woStackMax - woStackCount,
+                            stackThisCount,
+                            Util.GetObjectName(wo.Id),
+                            woStackCount));
+                    }
+                    Globals.Core.Actions.SelectItem(stackThis.Id);
+                    Globals.Core.Actions.SelectedStackCount = woStackMax - woStackCount;
+                    Globals.Core.Actions.MoveItem(stackThis.Id, wo.Container, slot, true);
+                }
+
+                tryCount++;
+                movingObjectId = stackThis.Id;
+                return true;
+            }
+
+            return false;
         }
     }
 }

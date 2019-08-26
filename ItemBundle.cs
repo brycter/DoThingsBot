@@ -1,5 +1,6 @@
 ﻿using Decal.Adapter;
 using Decal.Adapter.Wrappers;
+using DoThingsBot.Lib.Recipes;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,9 @@ namespace DoThingsBot {
         CheckSkills = 5,
         GiveBackItems = 6,
         Buff = 7,
-        PortalGem = 8
+        PortalGem = 8,
+        Recipe = 9,
+        Crafting = 10
     }
 
     public enum EquipMode {
@@ -24,7 +27,8 @@ namespace DoThingsBot {
         Idle = 1,
         Buff = 2,
         Tinker = 3,
-        SummonPortal = 4
+        SummonPortal = 4,
+        Craft = 5
     }
 
     public enum CraftTargetType {
@@ -61,6 +65,9 @@ namespace DoThingsBot {
 
         public PlayerData playerData;
         private EquipMode equipMode;
+        public Recipe recipe;
+        public List<RecipeStep> recipeSteps = new List<RecipeStep>();
+        public IngredientList recipeIngredients = new IngredientList();
 
         private bool forceBuff = false;
         public bool IsImbue = false;
@@ -83,6 +90,29 @@ namespace DoThingsBot {
                 return owner;
             }
             catch (Exception e) { Util.LogException(e); return "UnknownOwner"; }
+        }
+
+        internal IngredientList GetIngredientList() {
+            var ingredients = new IngredientList();
+
+            foreach (var item in GetItems()) {
+                var wo = CoreManager.Current.WorldFilter[item];
+
+                if (wo != null) {
+                    if (wo.Values(BoolValueKey.Dyeable, false)) {
+                        ingredients.Add("DYEABLE_ITEM", 1);
+                    }
+                    else {
+                        ingredients.Add(wo.Name, wo.Values(LongValueKey.StackCount, 1));
+                    }
+                }
+            }
+
+            return ingredients;
+        }
+
+        internal void SetRecipeIngredientList(IngredientList recipeIngredients) {
+            this.recipeIngredients = recipeIngredients.Clone();
         }
 
         internal void SetOwner(string name) {
@@ -161,6 +191,27 @@ namespace DoThingsBot {
 
         public EquipMode GetEquipMode() {
             return equipMode;
+        }
+
+        public void SetRecipe(Recipe recipe) {
+            this.recipe = recipe;
+            recipeSteps = recipe.GetSteps(GetIngredientList());
+        }
+
+        public Recipe GetRecipe() {
+            return recipe;
+        }
+
+        public RecipeStep GetCurrentRecipeStep() {
+            if (recipe == null) return null;
+
+            if (!HasRecipeStepsLeft()) recipeSteps = new List<RecipeStep>(recipe.GetSteps(GetIngredientList()));
+
+            return recipeSteps.Count > 0 ? recipeSteps[0] : null;
+        }
+
+        public bool HasRecipeStepsLeft() {
+            return recipeSteps.Count > 0;
         }
 
         private string GetJsonDataPathForOwner() {
@@ -301,6 +352,8 @@ namespace DoThingsBot {
                         return "Unknown";
                     case CraftMode.WeaponTinkering:
                         return "Weapon Tinkering";
+                    case CraftMode.Recipe:
+                        return "Recipe";
 
                     default:
                         return "Unknown";
@@ -309,8 +362,74 @@ namespace DoThingsBot {
             catch (Exception e) { Util.LogException(e); return "Unknown"; }
         }
 
+        public bool CheckValidRecipe() {
+            var ingredientsProvided = new IngredientList();
+            var hasDyeableItem = false;
+
+            foreach (var itemId in GetItems()) {
+                var wo = CoreManager.Current.WorldFilter[itemId];
+
+                if (wo != null) {
+                    if (wo.Values(BoolValueKey.Dyeable)) {
+                        if (hasDyeableItem == true) {
+                            invalidReason = "You already added a Dyeable item, please only add one at a time.";
+                            return false;
+                        }
+                        hasDyeableItem = true;
+                        ingredientsProvided.Add("DYEABLE_ITEM", 1);
+                    }
+                    else {
+                        ingredientsProvided.Add(wo.Name, wo.Values(LongValueKey.StackCount, 1));
+                    }
+                }
+            }
+
+            var results = Recipes.FindByIngredients(ingredientsProvided);
+
+            if (results.Count > 1) {
+                var hasIngredients = false;
+                if (results[0].HasAllIngredients(ingredientsProvided)) hasIngredients = true;
+
+                if (hasIngredients) {
+                    return true;
+                }
+                else {
+                    var possibleRecipes = new List<string>();
+                    var more = 0;
+                    foreach (var recipe in results) {
+                        if (possibleRecipes.Count < 5) possibleRecipes.Add(recipe.name);
+                        else more++;
+                    }
+
+                    string moreText = more > 0 ? $" (+{more} more)" : "";
+
+                    invalidReason = ("If you had more ingredients, I could make the following: " + String.Join(", ", possibleRecipes.ToArray()) + moreText);
+                    invalidReason += ("\nTell me 'recipe Wedding Cake' for more information about a recipe.");
+                    return false;
+                }
+            }
+            else if (results.Count == 1) {
+                var neededIngredients = results[0].GetNeededIngredients(ingredientsProvided);
+
+                if (neededIngredients.Count() == 0) {
+                    return true;
+                }
+                else {
+                    invalidReason = ("I am missing the following ingredients to make " + results[0].name + ": " + neededIngredients.Summary() + String.Join(", ", results[0].GetAllToolsNeeded().ToArray()));
+                    return false;
+                }
+            }
+
+            invalidReason = ("I don't know how to make anything with those ingredients: " + ingredientsProvided.Summary());
+            return false;
+        }
+
         public bool CheckIsValidFinal() {
             try {
+                if (GetSalvages().Count == 0) {
+                    return CheckValidRecipe();
+                }
+
                 int targetId = GetTargetId();
                 WorldObject targetWo = CoreManager.Current.WorldFilter[targetId];
 
@@ -459,6 +578,8 @@ namespace DoThingsBot {
 
         private bool CheckValidItem(WorldObject wo) {
             try {
+                return true;
+                /*
                 if (IsWandOrWeapon(wo) || wo.ObjectClass == ObjectClass.Armor || wo.ObjectClass == ObjectClass.Jewelry) {
                     if (IsWorldObjectTinkerable(wo)) {
                         return true;
@@ -488,6 +609,7 @@ namespace DoThingsBot {
                 invalidReason = String.Format("I don't know how to work with that {0}.", Util.GetItemName(wo));
 
                 return false;
+                */
             }
             catch (Exception e) { Util.LogException(e); return false; }
         }
@@ -531,7 +653,7 @@ namespace DoThingsBot {
                 List<int> idsIveSeen = new List<int>(playerData.itemNames.Keys);
 
                 foreach (var wo in CoreManager.Current.WorldFilter.GetInventory()) {
-                    if (idsIveSeen.Contains(wo.Id) && !stolenIds.Contains(wo.Id) && !destroyedIds.Contains(wo.Id)) {
+                    if (idsIveSeen.Contains(wo.Id) && !stolenIds.Contains(wo.Id) && !destroyedIds.Contains(wo.Id) || playerData.itemIds.Contains(wo.Id)) {
                         stolenIds.Add(wo.Id);
                     }
                 }

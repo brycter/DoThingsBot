@@ -81,6 +81,8 @@
     <Compile Include="FSM\States\BotBuffing_EnsureBuffedState.cs" />
     <Compile Include="FSM\States\BotBuffState.cs" />
     <Compile Include="FSM\States\BotCheckSkillsState.cs" />
+    <Compile Include="FSM\States\BotCraftingState.cs" />
+    <Compile Include="FSM\States\BotCrafting_TrySuccessState.cs" />
     <Compile Include="FSM\States\BotEquipItemsState.cs" />
     <Compile Include="FSM\States\BotBuffing_FinishedState.cs" />
     <Compile Include="FSM\States\BotCheckStolenItemsState.cs" />
@@ -105,6 +107,10 @@
     <Compile Include="Lib\DangerousMonsterDetector.cs" />
     <Compile Include="Lib\PortalGem.cs" />
     <Compile Include="Lib\PostMessageTools.cs" />
+    <Compile Include="Lib\Recipes\IngredientList.cs" />
+    <Compile Include="Lib\Recipes\Recipe.cs" />
+    <Compile Include="Lib\Recipes\Recipes.cs" />
+    <Compile Include="Lib\Recipes\RecipeStep.cs" />
     <Compile Include="Lib\UpdateChecker.cs" />
     <Compile Include="Lib\User32.cs" />
     <Compile Include="MagTools\Shared\Settings\Setting.cs" />
@@ -223,12 +229,13 @@
     <Content Include="Resources\BotProfiles\buff.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\BotProfiles\crafting.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\BotProfiles\idle.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\BotProfiles\tinker.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Resources\BotProfiles\tinker.xml" />
     <Content Include="Resources\buffitems.xml" />
     <Content Include="Resources\BuffProfiles\2h.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -270,6 +277,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\BuffProfiles\_melee.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\recipes.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\tools.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="Views\statsView.xml" />

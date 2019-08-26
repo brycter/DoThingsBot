@@ -166,11 +166,11 @@ namespace DoThingsBot.FSM.States {
         public void Think(Machine machine) {
             if (hasSentTimeoutWarning == false && DateTime.UtcNow - startedThinking > TimeSpan.FromSeconds(90)) {
                 hasSentTimeoutWarning = true;
-                ChatManager.Tell(itemBundle.GetOwner(), "This tinkering session will timeout in 30 seconds unless you complete the trade.");
+                ChatManager.Tell(itemBundle.GetOwner(), "This bot session will timeout in 30 seconds unless you complete the trade.");
             }
 
             if (DateTime.UtcNow - startedThinking > TimeSpan.FromSeconds(120)) {
-                ChatManager.Tell(itemBundle.GetOwner(), "This tinkering session has timed out.");
+                ChatManager.Tell(itemBundle.GetOwner(), "This bot session has timed out.");
                 CoreManager.Current.Actions.TradeEnd();
                 _machine.ChangeState(new BotTrading_TradeCancelledState(itemBundle));
                 return;
@@ -192,7 +192,7 @@ namespace DoThingsBot.FSM.States {
                         _machine.ChangeState(new BotTrading_FinishedState(itemBundle));
                     }
                     else {
-                        Util.WriteToChat("ItemBundle is invalid");
+                        Util.WriteToChat("ItemBundle is invalid: " + itemBundle.GetInvalidReason());
 
                         ChatManager.Tell(itemBundle.GetOwner(), itemBundle.GetInvalidReason());
                         _machine.ChangeState(new BotTrading_TradeCancelledState(itemBundle));

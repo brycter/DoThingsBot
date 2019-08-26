@@ -153,6 +153,10 @@ namespace DoThingsBot {
                 return Buffs.Buffs.GetBotProfile("tinker").familyIds;
             }
 
+            public static List<SpellClass> GetWantedCraftingEnchantments() {
+                return Buffs.Buffs.GetBotProfile("crafting").familyIds;
+            }
+
             public static void SetComponentLowWarningLevel(string configKey, int value) {
                 switch (configKey) {
                     case "PrismaticTaperLowCount":
@@ -353,6 +357,17 @@ namespace DoThingsBot {
                 LimitBuffOtherLevel.Validate += ValidateSpellLevel;
                 GetManaAt.Validate += ValidatePercentage;
                 GetStaminaAt.Validate += ValidatePercentage;
+            }
+        }
+
+        public static class CraftBot {
+            public static Setting<bool> Enabled;
+
+            static CraftBot() {
+            }
+
+            public static void Init() {
+                Enabled = new Setting<bool>("Config/CraftBot/Enabled", "Enable craft bot functionality", false);
             }
         }
 

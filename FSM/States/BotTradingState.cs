@@ -9,6 +9,7 @@ namespace DoThingsBot.FSM.States {
         public string PlayerName;
 
         private Machine _machine;
+        private Machine parentMachine;
         private bool IsRunning = false;
         private ItemBundle itemBundle;
 
@@ -18,7 +19,10 @@ namespace DoThingsBot.FSM.States {
         }
 
         public void Enter(Machine machine) {
+            parentMachine = machine;
             IsRunning = true;
+
+            ChatManager.RaiseChatCommandEvent += new EventHandler<ChatCommandEventArgs>(ChatManager_ChatCommand);
 
             _machine.SetParentState(this.Name);
             _machine.ChangeState(new BotTrading_OpenTradeState(itemBundle));
@@ -29,12 +33,28 @@ namespace DoThingsBot.FSM.States {
             IsRunning = false;
             _machine.Stop();
 
+            ChatManager.RaiseChatCommandEvent -= new EventHandler<ChatCommandEventArgs>(ChatManager_ChatCommand);
         }
 
         DateTime firstThought = DateTime.UtcNow;
         bool didFail = false;
+        bool didCancel = false;
+
+        void ChatManager_ChatCommand(object sender, ChatCommandEventArgs e) {
+            try {
+                switch (e.Command) {
+                    case "cancel":
+                        didCancel = true;
+                        parentMachine.ChangeState(new BotFinishState(itemBundle));
+                        break;
+                }
+            }
+            catch (Exception ex) { Util.LogException(ex); }
+        }
 
         public void Think(Machine machine) {
+            if (didCancel) return;
+
             if (DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(180)) {
                 if (!didFail) {
                     didFail = true;
@@ -58,6 +78,11 @@ namespace DoThingsBot.FSM.States {
                 else if (_machine.IsInState("BotTrading_FinishedState")) {
                     if (itemBundle.GetCraftMode() == CraftMode.WeaponTinkering && itemBundle.HasOnlyBuffItems()) {
                         machine.ChangeState(new BotTinkeringState(itemBundle));
+                        return;
+                    }
+
+                    if (itemBundle.GetCraftMode() == CraftMode.Crafting) {
+                        machine.ChangeState(new BotCraftingState(itemBundle));
                         return;
                     }
 

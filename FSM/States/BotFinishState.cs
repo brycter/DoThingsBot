@@ -1,4 +1,5 @@
-﻿using DoThingsBot.Chat;
+﻿using Decal.Adapter;
+using DoThingsBot.Chat;
 using DoThingsBot.Lib;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,8 @@ namespace DoThingsBot.FSM.States {
                 PostMessageTools.ClickNo();
             }
             catch (Exception e) { Util.LogException(e); }
+
+            CoreManager.Current.Actions.TradeEnd();
         }
 
         public void Enter(Machine machine) {

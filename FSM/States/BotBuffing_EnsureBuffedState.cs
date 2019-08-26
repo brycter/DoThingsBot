@@ -206,11 +206,15 @@ namespace DoThingsBot.FSM.States {
                 
                 WantedSpells.AddRange(Config.Bot.GetWantedIdleEnchantments());
                 if (Config.Tinkering.Enabled.Value) WantedSpells.AddRange(Config.Bot.GetWantedTinkerEnchantments());
+                if (Config.Tinkering.Enabled.Value) WantedSpells.AddRange(Config.Bot.GetWantedCraftingEnchantments());
                 if (Config.BuffBot.Enabled.Value) WantedSpells.AddRange(Config.Bot.GetWantedBuffEnchantments());
             }
             else if (itemBundle.HasOwner()) {
                 if (itemBundle.craftMode == CraftMode.Buff) {
                     WantedSpells.AddRange(Config.Bot.GetWantedBuffEnchantments());
+                }
+                else if (itemBundle.craftMode == CraftMode.Crafting) {
+                    WantedSpells.AddRange(Config.Bot.GetWantedCraftingEnchantments());
                 }
                 else {
                     WantedSpells.AddRange(Config.Bot.GetWantedTinkerEnchantments());

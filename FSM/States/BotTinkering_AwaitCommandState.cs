@@ -25,8 +25,7 @@ namespace DoThingsBot.FSM.States {
 
             ChatManager.RaiseChatCommandEvent += new EventHandler<ChatCommandEventArgs>(ChatManager_ChatCommand);
 
-            ChatManager.Tell(itemBundle.GetOwner(), String.Format("I {0}'", itemBundle.successChanceFullString));
-            ChatManager.Tell(itemBundle.GetOwner(), "Respond with 'go' or 'cancel'.");
+            ChatManager.Tell(itemBundle.GetOwner(), String.Format("I {0}'", itemBundle.successChanceFullString) + ". Respond with 'go' or 'cancel'.");
         }
 
         public void Exit(Machine machine) {

@@ -12,6 +12,7 @@ using DoThingsBot.FSM.States;
 using System.Reflection;
 using System.Diagnostics;
 using DoThingsBot.Lib;
+using DoThingsBot.Lib.Recipes;
 
 namespace DoThingsBot {
     public class DoThingsBot {
@@ -54,6 +55,8 @@ namespace DoThingsBot {
             }
             
             Globals.Stats = new Stats.Stats();
+
+            Recipes.Init();
 
             Util.WriteToChat("DoThingsBot Started");
 
@@ -193,6 +196,41 @@ namespace DoThingsBot {
                     PrintAboutMessage(e.PlayerName, e.Arguments);
                     break;
 
+                case "recipe":
+                    Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
+                    PrintRecipeDetails(e.PlayerName, e.Arguments);
+                    break;
+
+                case "tool":
+                    Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
+                    PrintToolDetails(e.PlayerName, e.Arguments);
+                    break;
+
+                case "recipes":
+                    Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
+                    var message = $"I can make {Recipes.recipes.Count} recipes: ";
+
+                    var names = new List<string>();
+
+                    foreach (var recipe in Recipes.recipes) {
+                        names.Add(recipe.name);
+                    }
+
+                    names.Sort();
+
+                    foreach (var name in names) {
+                        if (message.Length + name.Length + 2 > 230) {
+                            ChatManager.Tell(e.PlayerName, message);
+                            message = "";
+                        }
+
+                        message += $"{name}, ";
+                    }
+
+                    if (message.Length > 0) ChatManager.Tell(e.PlayerName, message);
+
+                    break;
+
                 case "message":
                     Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
                     break;
@@ -291,6 +329,25 @@ namespace DoThingsBot {
                     }
                     else {
                         AddToQueue(e.PlayerName, "tinker");
+                    }
+                    break;
+
+                case "craft":
+                    //if (!Config.Tinkering.Enabled.Value) {
+                    //    ChatManager.Tell(e.PlayerName, "My crafting bot functionality is currently disabled, sorry!");
+                    //    return;
+                    //}
+
+                    if (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) {
+                        var itemBundle = new ItemBundle(e.PlayerName);
+                        itemBundle.SetCraftMode(CraftMode.Crafting);
+                        currentItemBundle = itemBundle;
+                        Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
+
+                        _machine.ChangeState(new BotStartState(itemBundle));
+                    }
+                    else {
+                        AddToQueue(e.PlayerName, "craft");
                     }
                     break;
 
@@ -489,6 +546,28 @@ namespace DoThingsBot {
             }
         }
 
+        private void PrintToolDetails(string playerName, string arguments) {
+            var toolLocation = Recipes.GetToolLocation(arguments);
+
+            if (String.IsNullOrEmpty(toolLocation)) {
+                ChatManager.Tell(playerName, $"Unable to find a tool with the name '{arguments}'");
+            }
+            else {
+                ChatManager.Tell(playerName, $"{arguments} {toolLocation}");
+            }
+        }
+
+        private void PrintRecipeDetails(string playerName, string arguments) {
+            var recipe = Recipes.FindByName(arguments);
+
+            if (recipe == null) {
+                ChatManager.Tell(playerName, $"Unable to find a recipe with the name '{arguments}'");
+            }
+            else {
+                ChatManager.Tell(playerName, recipe.summary());
+            }
+        }
+
         internal void RespondToWhereTo(string playerName, string arguments="") {
             Globals.Stats.AddPlayerCommandIssued(playerName, "whereto");
 
@@ -550,6 +629,18 @@ namespace DoThingsBot {
                     ChatManager.Tell(playerName, "skills - I will tell you my current skill levels.");
                     break;
 
+                case "tool":
+                    ChatManager.Tell(playerName, "tool [tool name] - I will tell where to find a tool.");
+                    break;
+
+                case "recipe":
+                    ChatManager.Tell(playerName, "recipe [recipe name] - I will tell you information about a recipe.");
+                    break;
+
+                case "recipes":
+                    ChatManager.Tell(playerName, "recipes - I will tell you all the recipes I know. Careful, there are a lot of them!");
+                    break;
+
                 case "whereto":
                     ChatManager.Tell(playerName, "whereto [location] - I will tell you where my portals are currently tied to, and what portal gems I can use.");
                     break;
@@ -575,7 +666,7 @@ namespace DoThingsBot {
                     break;
 
                 default:
-                    ChatManager.Tell(playerName, String.Format("I'm a DoThingsBot. Tell me 'tinker' or 'profiles'. Other commands: buff, lostitems, whereto, message, about, stats, comps.", Util.GetVersion()));
+                    ChatManager.Tell(playerName, String.Format("I'm a DoThingsBot. Tell me 'tinker', 'craft', or 'profiles'. Other commands: buff, lostitems, whereto, message, about, stats, comps, recipes, recipe, tool.  You can also try 'help [command]' to get more information.", Util.GetVersion()));
                     break;
 
             }
