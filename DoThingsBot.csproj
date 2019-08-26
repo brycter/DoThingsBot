@@ -130,6 +130,7 @@
     <Compile Include="Views\Pages\BuffBot.cs" />
     <Compile Include="Views\Pages\Config.cs" />
     <Compile Include="Views\Pages\EquipmentBuffing.cs" />
+    <Compile Include="Views\Pages\EquipmentCrafting.cs" />
     <Compile Include="Views\Pages\EquipmentIdle.cs" />
     <Compile Include="Views\Pages\EquipmentTinkering.cs" />
     <Compile Include="Views\Pages\LogsGifts.cs" />
@@ -235,7 +236,9 @@
     <Content Include="Resources\BotProfiles\idle.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\BotProfiles\tinker.xml" />
+    <Content Include="Resources\BotProfiles\tinker.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\buffitems.xml" />
     <Content Include="Resources\BuffProfiles\2h.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

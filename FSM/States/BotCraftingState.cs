@@ -258,26 +258,15 @@ namespace DoThingsBot.FSM.States {
             }
 
             if (didFinish) return;
-
-            /*
-            if (DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(60)) {
-                if (!didFail) {
-                    didFail = true;
-                    ChatManager.Tell(itemBundle.GetOwner(), "The crafting request timed out.");
-                    if (itemBundle.GetItems().Count > 0) {
-                        itemBundle.SetCraftMode(CraftMode.GiveBackItems);
-                        machine.ChangeState(new BotTradingState(itemBundle));
-                    }
-                    else {
-                        machine.ChangeState(new BotFinishState(itemBundle));
-                    }
-                }
+            
+            if (DateTime.UtcNow - lastAction > TimeSpan.FromSeconds(30)) {
+                ChatManager.Tell(itemBundle.GetOwner(), "The crafting request timed out.");
+                Bail();
 
                 return;
             }
-            */
 
-            if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(200)) {
+            if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(300)) {
                 lastThought = DateTime.UtcNow;
 
                 if (!shouldCraft) return;

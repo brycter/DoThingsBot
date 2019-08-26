@@ -8,6 +8,7 @@ namespace DoThingsBot.Views.Pages {
         HudCheckBox UIBotEnabled { get; set; }
         HudCheckBox UIBotPortalsEnabled { get; set; }
         HudCheckBox UIBotBuffBotEnabled { get; set; }
+        HudCheckBox UIBotCraftBotEnabled { get; set; }
         HudCheckBox UIBotTinkerBotEnabled { get; set; }
         HudStaticText UIGitlabLink { get; set; }
 
@@ -21,6 +22,17 @@ namespace DoThingsBot.Views.Pages {
                 UIBotPortalsEnabled.Change += (s, e) => {
                     try {
                         Config.Portals.Enabled.Value = ((HudCheckBox)s).Checked;
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                };
+
+                UIBotCraftBotEnabled = mainView.view != null ? (HudCheckBox)mainView.view["UIBotCraftBotEnabled"] : new HudCheckBox();
+
+                UIBotCraftBotEnabled.Checked = Config.CraftBot.Enabled.Value;
+                Config.Portals.Enabled.Changed += obj => { UIBotCraftBotEnabled.Checked = obj.Value; };
+                UIBotCraftBotEnabled.Change += (s, e) => {
+                    try {
+                        Config.CraftBot.Enabled.Value = ((HudCheckBox)s).Checked;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };

@@ -298,7 +298,7 @@ namespace DoThingsBot.Buffs {
 
             if (!File.Exists(path)) {
                 isValid = false;
-                Util.WriteToChat("Invalid profile: " + profileName);
+                Util.WriteToChat("Invalid profile: " + profileName + ": " + path);
                 return;
             }
 

@@ -55,17 +55,17 @@ namespace DoThingsBot {
                 AnnounceLowComponents = new Setting<bool>("Config/Bot/AnnounceLowComponents", "Replace announcements with low component warnings when you are low", true);
                 AnnounceLowComponentsAfterJob = new Setting<bool>("Config/Bot/AnnounceLowComponentsAfterJob", "Announce low components after a job is finished and you are low", true);
 
-                PrismaticTaperLowCount = new Setting<int>("Config/Bot/PrismaticTaperLowCount", "Warn when Pristmatic Tapers fall below this amount", 100);
-                LeadScarabLowCount = new Setting<int>("Config/Bot/LeadScarabLowCount", "Warn when Lead Scarabs fall below this amount", 0);
-                IronScarabLowCount = new Setting<int>("Config/Bot/IronScarabLowCount", "Warn when Iron Scarabs fall below this amount", 0);
-                CopperScarabLowCount = new Setting<int>("Config/Bot/CopperScarabLowCount", "Warn when Copper Scarabs fall below this amount", 10);
-                SilverScarabLowCount = new Setting<int>("Config/Bot/SilverScarabLowCount", "Warn when Silver Scarabs fall below this amount", 10);
-                GoldScarabLowCount = new Setting<int>("Config/Bot/GoldScarabLowCount", "Warn when Gold Scarabs fall below this amount", 10);
-                PyrealScarabLowCount = new Setting<int>("Config/Bot/PyrealScarabLowCount", "Warn when Pyreal Scarabs fall below this amount", 10);
-                PlatinumScarabLowCount = new Setting<int>("Config/Bot/PlatinumScarabLowCount", "Warn when Platinum Scarabs fall below this amount", 10);
-                ManaScarabLowCount = new Setting<int>("Config/Bot/ManaScarabLowCount", "Warn when Mana Scarabs fall below this amount", 10);
+                PrismaticTaperLowCount = new Setting<int>("Config/Bot/PrismaticTaperLowCount", "Warn when Pristmatic Tapers fall below this amount (0 disables)", 100);
+                LeadScarabLowCount = new Setting<int>("Config/Bot/LeadScarabLowCount", "Warn when Lead Scarabs fall below this amount (0 disables)", 0);
+                IronScarabLowCount = new Setting<int>("Config/Bot/IronScarabLowCount", "Warn when Iron Scarabs fall below this amount (0 disables)", 0);
+                CopperScarabLowCount = new Setting<int>("Config/Bot/CopperScarabLowCount", "Warn when Copper Scarabs fall below this amount (0 disables)", 10);
+                SilverScarabLowCount = new Setting<int>("Config/Bot/SilverScarabLowCount", "Warn when Silver Scarabs fall below this amount (0 disables)", 10);
+                GoldScarabLowCount = new Setting<int>("Config/Bot/GoldScarabLowCount", "Warn when Gold Scarabs fall below this amount (0 disables)", 10);
+                PyrealScarabLowCount = new Setting<int>("Config/Bot/PyrealScarabLowCount", "Warn when Pyreal Scarabs fall below this amount (0 disables)", 10);
+                PlatinumScarabLowCount = new Setting<int>("Config/Bot/PlatinumScarabLowCount", "Warn when Platinum Scarabs fall below this amount (0 disables)", 10);
+                ManaScarabLowCount = new Setting<int>("Config/Bot/ManaScarabLowCount", "Warn when Mana Scarabs fall below this amount (0 disables)", 10);
 
-                DangerousMonsterLogoffDistance = new Setting<int>("Config/Bot/DangerousMonsterLogoffDistance", "Log off when dangerous monsters are within this distance in meters", 20);
+                DangerousMonsterLogoffDistance = new Setting<int>("Config/Bot/DangerousMonsterLogoffDistance", "Log off when dangerous monsters are within this distance in meters (0 disables)", 20);
 
                 var defaultHarmlessWeenies = new List<int> {
                     10950, // Aun Ralirea(10950)
@@ -139,6 +139,19 @@ namespace DoThingsBot {
 
                 RecompVendorSellRate.Validate += ValidateVendorRate;
                 DefaultHeading.Validate += ValidateHeading;
+                DefaultHeading.Validate += ValidatePositiveNumber;
+                RecompVendorSellRate.Validate += ValidatePositiveNumber;
+                BuffRefreshTime.Validate += ValidatePositiveNumber;
+                PrismaticTaperLowCount.Validate += ValidatePositiveNumber;
+                LeadScarabLowCount.Validate += ValidatePositiveNumber;
+                IronScarabLowCount.Validate += ValidatePositiveNumber;
+                CopperScarabLowCount.Validate += ValidatePositiveNumber;
+                SilverScarabLowCount.Validate += ValidatePositiveNumber;
+                GoldScarabLowCount.Validate += ValidatePositiveNumber;
+                PyrealScarabLowCount.Validate += ValidatePositiveNumber;
+                PlatinumScarabLowCount.Validate += ValidatePositiveNumber;
+                ManaScarabLowCount.Validate += ValidatePositiveNumber;
+                DangerousMonsterLogoffDistance.Validate += ValidatePositiveNumber;
             }
 
             public static List<SpellClass> GetWantedIdleEnchantments() {
@@ -219,7 +232,8 @@ namespace DoThingsBot {
         public static class Equipment {
             public static  Setting<List<int>> IdleEquipmentIds;
             public static  Setting<List<int>> BuffEquipmentIds;
-            public static  Setting<List<int>> TinkerEquipmentIds;
+            public static Setting<List<int>> TinkerEquipmentIds;
+            public static Setting<List<int>> CraftEquipmentIds;
 
             static Equipment() {
                 try {
@@ -231,6 +245,7 @@ namespace DoThingsBot {
                 IdleEquipmentIds = new Setting<List<int>>("Config/Equipment/Idle/Item", "These item ids will be equipped when you are idle. (everything else will be unequipped)", new List<int>());
                 BuffEquipmentIds = new Setting<List<int>>("Config/Equipment/Buffing/Item", "These item ids will be equipped when you are buffing. (everything else will be unequipped)", new List<int>());
                 TinkerEquipmentIds = new Setting<List<int>>("Config/Equipment/Tinkering/Item", "These item ids will be equipped when you are tinkering. (everything else will be unequipped)", new List<int>());
+                CraftEquipmentIds = new Setting<List<int>>("Config/Equipment/Crafting/Item", "These item ids will be equipped when you are crafting. (everything else will be unequipped)", new List<int>());
             }
         }
 
@@ -362,12 +377,20 @@ namespace DoThingsBot {
 
         public static class CraftBot {
             public static Setting<bool> Enabled;
+            public static Setting<bool> PauseSessionForOtherJobs;
+            public static Setting<int> LimitCraftingSessionsToSeconds;
+            public static Setting<bool> SkipMaxSuccessConfirmation;
 
             static CraftBot() {
             }
 
             public static void Init() {
                 Enabled = new Setting<bool>("Config/CraftBot/Enabled", "Enable craft bot functionality", false);
+                PauseSessionForOtherJobs = new Setting<bool>("Config/CraftBot/PauseSessionForOtherJobs", "If enabled, bot will pause crafting for tinkering/buffbot jobs and resume afterwards.", false);
+                LimitCraftingSessionsToSeconds = new Setting<int>("Config/CraftBot/LimitCraftingSessionsToSeconds", "Limit each crafting session to this many seconds.", 300);
+                SkipMaxSuccessConfirmation = new Setting<bool>("Config/CraftBot/SkipMaxSuccessConfirmation", "Skip user confirmation prompt if success chance is max.", true);
+
+                LimitCraftingSessionsToSeconds.Validate += ValidatePositiveNumber;
             }
         }
 
@@ -376,6 +399,7 @@ namespace DoThingsBot {
             public static  Setting<int> KeepEquipmentOnDelay;
 
             static Tinkering() {
+
             }
 
             public static void Init() {
@@ -392,13 +416,26 @@ namespace DoThingsBot {
                 Tinkering.Init();
                 Equipment.Init();
                 BuffBot.Init();
+                CraftBot.Init();
             }
             catch (Exception e) { Util.LogException(e); }
         }
 
+        private static void ValidatePositiveNumber(object sender, ValidateSettingEventArgs<int> e) {
+            if (e.Value < 0) e.Invalidate("Should not be less than 0");
+        }
+
+        private static void ValidatePositiveNumber(object sender, ValidateSettingEventArgs<double> e) {
+            if (e.Value < 0) e.Invalidate("Should not be less than 0");
+        }
+
+        private static void ValidatePositiveNumber(object sender, ValidateSettingEventArgs<float> e) {
+            if (e.Value < 0) e.Invalidate("Should not be less than 0");
+        }
+
         private static void ValidateHeading(object sender, ValidateSettingEventArgs<int> e) {
             if (e.Value < 0) e.Invalidate("Should not be less than 0");
-            if (e.Value > 360) e.Invalidate("Should be less than 360");
+            if (e.Value > 360) e.Invalidate("Should not be greater than 360");
         }
 
         private static void ValidateSpellLevel(object sender, ValidateSettingEventArgs<int> e) {

@@ -197,16 +197,28 @@ namespace DoThingsBot {
                     break;
 
                 case "recipe":
+                    if (!Config.CraftBot.Enabled.Value) {
+                        ChatManager.Tell(e.PlayerName, "My crafting bot functionality is currently disabled, sorry!");
+                        return;
+                    }
                     Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
                     PrintRecipeDetails(e.PlayerName, e.Arguments);
                     break;
 
                 case "tool":
+                    if (!Config.CraftBot.Enabled.Value) {
+                        ChatManager.Tell(e.PlayerName, "My crafting bot functionality is currently disabled, sorry!");
+                        return;
+                    }
                     Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
                     PrintToolDetails(e.PlayerName, e.Arguments);
                     break;
 
                 case "recipes":
+                    if (!Config.CraftBot.Enabled.Value) {
+                        ChatManager.Tell(e.PlayerName, "My crafting bot functionality is currently disabled, sorry!");
+                        return;
+                    }
                     Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
                     var message = $"I can make {Recipes.recipes.Count} recipes: ";
 
@@ -335,10 +347,10 @@ namespace DoThingsBot {
                     break;
 
                 case "craft":
-                    //if (!Config.Tinkering.Enabled.Value) {
-                    //    ChatManager.Tell(e.PlayerName, "My crafting bot functionality is currently disabled, sorry!");
-                    //    return;
-                    //}
+                    if (!Config.CraftBot.Enabled.Value) {
+                        ChatManager.Tell(e.PlayerName, "My crafting bot functionality is currently disabled, sorry!");
+                        return;
+                    }
 
                     if (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) {
                         var itemBundle = new ItemBundle(e.PlayerName);
