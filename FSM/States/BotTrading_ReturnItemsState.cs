@@ -141,6 +141,7 @@ namespace DoThingsBot.FSM.States {
 
                             itemsBeingAddedToTrade.Add(item);
                         }
+                        CoreManager.Current.Actions.TradeAccept();
 
                         itemsToAddToTrade.Clear();
                         return;
