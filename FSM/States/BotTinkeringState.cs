@@ -52,10 +52,12 @@ namespace DoThingsBot.FSM.States {
         void ChatManager_ChatCommand(object sender, ChatCommandEventArgs e) {
             try {
                 switch (e.Command) {
+                    /*
                     case "cancel":
                         didCancel = true;
                         parentMachine.ChangeState(new BotFinishState(itemBundle));
                         break;
+                    */
                 }
             }
             catch (Exception ex) { Util.LogException(ex); }
