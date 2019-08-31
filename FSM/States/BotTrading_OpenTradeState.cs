@@ -26,11 +26,11 @@ namespace DoThingsBot.FSM.States {
 
             ChatManager.Tell(itemBundle.GetOwner(), "I'm attempting to open a trade window with you, please stand close to me.");
 
-            CoreManager.Current.WorldFilter.ResetTrade += new EventHandler<ResetTradeEventArgs>(WorldFilter_ResetTrade);
+            CoreManager.Current.WorldFilter.EnterTrade += new EventHandler<EnterTradeEventArgs>(WorldFilter_EnterTrade);
         }
 
         public void Exit(Machine machine) {
-            CoreManager.Current.WorldFilter.ResetTrade -= new EventHandler<ResetTradeEventArgs>(WorldFilter_ResetTrade);
+            CoreManager.Current.WorldFilter.EnterTrade -= new EventHandler<EnterTradeEventArgs>(WorldFilter_EnterTrade);
         }
 
         public void TryToOpenTrade() {
@@ -60,7 +60,7 @@ namespace DoThingsBot.FSM.States {
             CoreManager.Current.Actions.UseItem(player.Id, 0);
         }
 
-        void WorldFilter_ResetTrade(object sender, ResetTradeEventArgs e) {
+        void WorldFilter_EnterTrade(object sender, EnterTradeEventArgs e) {
             try {
                 // trade has been opened
                 if (itemBundle.GetCraftMode() == CraftMode.GiveBackItems) {

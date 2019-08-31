@@ -206,6 +206,7 @@ namespace DoThingsBot.FSM.States {
 
                 switch (e.Command) {
                     case "cancel":
+                        ChatManager.Tell(itemBundle.GetOwner(), "I am cancelling this crafting session.");
                         PostMessageTools.ClickNo();
                         Bail();
                         break;

@@ -51,13 +51,16 @@ namespace DoThingsBot.FSM.States {
 
         void ChatManager_ChatCommand(object sender, ChatCommandEventArgs e) {
             try {
+                if (_machine.IsOrWillBeInState("BotTinkering_AwaitCommandState")) return;
+
                 switch (e.Command) {
-                    /*
                     case "cancel":
                         didCancel = true;
-                        parentMachine.ChangeState(new BotFinishState(itemBundle));
+                        ChatManager.Tell(itemBundle.GetOwner(), "Cancelling this tinkering session.");
+                        itemBundle.SavePlayerData();
+                        itemBundle.SetCraftMode(CraftMode.GiveBackItems);
+                        parentMachine.ChangeState(new BotTradingState(itemBundle));
                         break;
-                    */
                 }
             }
             catch (Exception ex) { Util.LogException(ex); }
