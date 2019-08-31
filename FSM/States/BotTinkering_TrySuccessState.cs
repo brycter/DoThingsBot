@@ -123,6 +123,16 @@ namespace DoThingsBot.FSM.States {
                         itemBundle.successChanceFullString = match.Groups["msg"].Value;
                         itemBundle.successChance = percent;
 
+                        var toolWo = CoreManager.Current.WorldFilter[useItem];
+                        var targetWo = CoreManager.Current.WorldFilter[targetItem];
+
+                        if (toolWo != null && targetWo != null) {
+                            var toolName = Util.GetItemName(toolWo);
+                            var targetName = Util.GetItemName(targetWo);
+
+                            itemBundle.successChanceFullString = $"I have a {percent}% chance of using {toolName} on {targetName} (tink {itemBundle.tinkerCount + 1})";
+                        }
+
                         var maxSuccess = Globals.Core.CharacterFilter.Augmentations.Contains((int)Augmentations.CharmedSmith) ? 38 : 38;
 
                         if (percent >= 100) {

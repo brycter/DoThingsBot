@@ -107,6 +107,11 @@ namespace DoThingsBot.FSM.States {
                     if (itemBundle.AddWorldObject(worldObject)) {
                         Util.WriteToDebugLog(itemBundle.GetOwner() + " showed me: " + "(" + worldObject.Id + ")" + Util.GetFullLootName(worldObject));
                         //RespondWithItemRemark(worldObject);
+
+                        if (e.Changed.ObjectClass == ObjectClass.Armor || e.Changed.ObjectClass == ObjectClass.Clothing || e.Changed.ObjectClass == ObjectClass.Jewelry || ItemBundle.IsWandOrWeapon(e.Changed)) {
+                            itemBundle.tinkerCount = e.Changed.Values(LongValueKey.NumberTimesTinkered, 0);
+                            Util.WriteToChat("Setting tinker count to: " + itemBundle.tinkerCount.ToString());
+                        }
                     }
                     else {
                         if (itemBundle.GetInvalidReason() != null) {

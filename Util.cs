@@ -210,14 +210,14 @@ namespace DoThingsBot
                 return String.Format("{0} {1} [w{2}]",
                     d.MaterialName,
                     wo.Name,
-                    //wo.Values(LongValueKey.UsesRemaining),
                     Math.Round(wo.Values(DoubleValueKey.SalvageWorkmanship) * 100) / 100
                     );
             }
             else if (wo.Values(LongValueKey.Material) > 0) {
-                return String.Format("{0} {1}",
+                return String.Format("{0} {1} [w{2}]",
                     d.MaterialName,
-                    wo.Name
+                    wo.Name,
+                    wo.Values(LongValueKey.Workmanship)
                     );
             }
             else {

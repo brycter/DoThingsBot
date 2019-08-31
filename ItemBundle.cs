@@ -62,6 +62,7 @@ namespace DoThingsBot {
 
         private int UseItemId;
         private int UseItemOnId;
+        public  int tinkerCount = 0;
 
         public PlayerData playerData;
         private EquipMode equipMode;
