@@ -260,7 +260,7 @@ namespace DoThingsBot.FSM.States {
 
             if (didFinish) return;
             
-            if (DateTime.UtcNow - lastAction > TimeSpan.FromSeconds(30)) {
+            if (DateTime.UtcNow - lastAction > TimeSpan.FromSeconds(15)) {
                 ChatManager.Tell(itemBundle.GetOwner(), "The crafting request timed out.");
                 Bail();
 
