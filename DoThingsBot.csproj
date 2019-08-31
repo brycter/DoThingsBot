@@ -105,6 +105,7 @@
     <Compile Include="Globals.cs" />
     <Compile Include="Lib\ComponentManager.cs" />
     <Compile Include="Lib\DangerousMonsterDetector.cs" />
+    <Compile Include="Lib\LostItems.cs" />
     <Compile Include="Lib\PortalGem.cs" />
     <Compile Include="Lib\PostMessageTools.cs" />
     <Compile Include="Lib\Recipes\IngredientList.cs" />

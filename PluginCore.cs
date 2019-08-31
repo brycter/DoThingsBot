@@ -22,7 +22,7 @@ namespace DoThingsBot {
         private DoThingsBot bot;
 
         // Views, depends on VirindiViewService.dll
-        MainView mainView;
+        internal MainView mainView;
 
         internal static DirectoryInfo PluginPersonalFolder {
             get {
@@ -100,6 +100,7 @@ namespace DoThingsBot {
                 Buffs.Buffs.LoadProfiles();
                 
                 mainView = new MainView();
+                Globals.MainView = mainView;
                 Globals.Stats = new Stats.Stats();
                 Globals.StatsView = new StatsView();
                 bot = new DoThingsBot();

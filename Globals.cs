@@ -24,6 +24,7 @@ namespace DoThingsBot
         public static CoreManager Core { get; private set; }
 
         public static Stats.Stats Stats { get; set; }
+        internal static MainView MainView { get; set; }
         public static ProfileManagerView ProfileManagerView { get; set; }
         public static StatsView StatsView { get; set; }
         public static DoThingsBot DoThingsBot { get; set; }

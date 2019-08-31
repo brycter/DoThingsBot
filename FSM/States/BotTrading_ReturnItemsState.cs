@@ -65,6 +65,10 @@ namespace DoThingsBot.FSM.States {
                     itemsIdsAdded.Add(e.ItemId);
                 }
 
+                if (itemsBeingAddedToTrade.Count == 0) {
+                    CoreManager.Current.Actions.TradeAccept();
+                }
+
                 Util.WriteToDebugLog($"itemsIdsAdded size is now {itemsIdsAdded.Count}");
             }
             catch (Exception ex) { Util.LogException(ex); }
@@ -136,7 +140,8 @@ namespace DoThingsBot.FSM.States {
                     if (itemsToAddToTrade.Count > 0) {
                         Util.WriteToDebugLog($"Attempting to add {itemsToAddToTrade.Count} items to the trade window");
                         foreach (var item in itemsToAddToTrade) {
-                            Util.WriteToDebugLog(String.Format("Attempting to add {0} to the trade window", itemBundle.GetCachedItemName(item)));
+                            var wo = CoreManager.Current.WorldFilter[item];
+                            Util.WriteToDebugLog(String.Format("Attempting to add {0} to the trade window", Util.GetItemShortName(wo)));
                             CoreManager.Current.Actions.TradeAdd(item);
 
                             itemsBeingAddedToTrade.Add(item);

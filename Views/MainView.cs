@@ -6,7 +6,7 @@ using DoThingsBot.Views.Pages;
 using VirindiViewService.Controls;
 
 namespace DoThingsBot.Views {
-    class MainView : IDisposable {
+    internal class MainView : IDisposable {
         public readonly VirindiViewService.ViewProperties properties;
         public readonly VirindiViewService.ControlGroup controls;
         public readonly VirindiViewService.HudView view;

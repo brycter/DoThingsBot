@@ -762,6 +762,7 @@ namespace DoThingsBot {
 
                     Globals.Stats.Think();
                     Globals.StatsView.Think();
+                    LostItems.Think();
                 }
             }
             catch (Exception ex) { Util.LogException(ex); }

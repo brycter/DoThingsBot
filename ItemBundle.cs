@@ -266,13 +266,6 @@ namespace DoThingsBot {
                         else {
                             playerData.itemDescriptions.Add(id, Util.GetFullLootName(wo));
                         }
-
-                        if (playerData.itemNames.ContainsKey(id)) {
-                            playerData.itemNames[id] = Util.GetItemShortName(wo);
-                        }
-                        else{
-                            playerData.itemNames.Add(id, Util.GetItemShortName(wo));
-                        }
                     }
                 }
 
@@ -300,17 +293,6 @@ namespace DoThingsBot {
                 return isValid;
             }
             catch (Exception e) { Util.LogException(e); return false; }
-        }
-
-        public string GetCachedItemName(int id) {
-            try {
-                if (playerData.itemNames.ContainsKey(id)) {
-                    return playerData.itemNames[id];
-                }
-            }
-            catch (Exception e) { Util.LogException(e); }
-
-            return "Unknown Item";
         }
 
         private void SetTargetCraftType(WorldObject wo) {
@@ -651,10 +633,10 @@ namespace DoThingsBot {
         public List<int> GetStolenItems() {
             try {
                 List<int> stolenIds = new List<int>();
-                List<int> idsIveSeen = new List<int>(playerData.itemNames.Keys);
+                List<int> idsIveSeen = new List<int>(playerData.itemDescriptions.Keys);
 
                 foreach (var wo in CoreManager.Current.WorldFilter.GetInventory()) {
-                    if (idsIveSeen.Contains(wo.Id) && !stolenIds.Contains(wo.Id) && !destroyedIds.Contains(wo.Id) || playerData.itemIds.Contains(wo.Id)) {
+                    if ((idsIveSeen.Contains(wo.Id) || playerData.itemIds.Contains(wo.Id)) && !stolenIds.Contains(wo.Id)) {
                         stolenIds.Add(wo.Id);
                     }
                 }
