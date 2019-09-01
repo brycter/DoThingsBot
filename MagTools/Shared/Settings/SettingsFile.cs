@@ -48,8 +48,13 @@ namespace Mag.Shared.Settings {
         }
 
         public static void SaveXmlDocument() {
-            Util.WriteToDebugLog("Saved config.xml");
-            XmlDocument.Save(_documentPath);
+            try {
+                XmlDocument.Save(_documentPath + ".new");
+                File.Copy(_documentPath + ".new", _documentPath, true);
+                File.Delete(_documentPath + ".new");
+                Util.WriteToDebugLog("Saved config.xml");
+            }
+            catch(Exception ex) { Util.LogException(ex); }
         }
 
         public static T GetSetting<T>(string xPath, T defaultValue = default(T), string description = "") {
@@ -304,7 +309,7 @@ namespace Mag.Shared.Settings {
                 childNode.InnerText = innerText;
             }
 
-            XmlDocument.Save(_documentPath);
+            SaveXmlDocument();
         }
 
         public static XmlNode GetNode(string xPath, bool createIfNull = false) {
@@ -340,7 +345,7 @@ namespace Mag.Shared.Settings {
                 }
             }
 
-            XmlDocument.Save(_documentPath);
+            SaveXmlDocument();
         }
     }
 }

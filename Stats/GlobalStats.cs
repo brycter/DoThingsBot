@@ -142,7 +142,9 @@ namespace DoThingsBot.Stats {
         internal void Save() {
             try {
                 string json = JsonConvert.SerializeObject(this, Formatting.Indented);
-                File.WriteAllText(GetGlobalsStatsFilePath(), json);
+                File.WriteAllText(GetGlobalsStatsFilePath() + ".new", json);
+                File.Copy(GetGlobalsStatsFilePath() + ".new", GetGlobalsStatsFilePath(), true);
+                File.Delete(GetGlobalsStatsFilePath() + ".new");
 
                 Globals.Stats.lastGlobalStatsSave = DateTime.UtcNow;
             }

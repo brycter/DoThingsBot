@@ -284,10 +284,6 @@ namespace DoThingsBot {
 
         public void SavePlayerData() {
             try {
-                //if (File.Exists(GetJsonDataPathForOwner())) {
-                //    File.Move(GetJsonDataPathForOwner(), Util.GetCharacterDataDirectory() + @"backups\" + GetOwner() + "-" + DateTime.Now.ToString("dd MMM yyy HH.mm.ss.ssss GMT") + ".json");
-                //}
-
                 if (recipe != null) {
                     playerData.recipe = recipe.name;
                 }
@@ -305,7 +301,9 @@ namespace DoThingsBot {
                 }
 
                 string json = JsonConvert.SerializeObject(playerData, Formatting.Indented);
-                File.WriteAllText(GetJsonDataPathForOwner(), json);
+                File.WriteAllText(GetJsonDataPathForOwner() + ".new", json);
+                File.Copy(GetJsonDataPathForOwner() + ".new", GetJsonDataPathForOwner(), true);
+                File.Delete(GetJsonDataPathForOwner() + ".new");
             }
             catch (Exception ex) { Util.LogException(ex); }
         }
