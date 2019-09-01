@@ -7,9 +7,6 @@ CHANGELOG
     - Split all bot buff/craft/portal/tinker ui into their own sections
     - Updates to trade event code to hopefully fix a few issues with prematurely closing trade
     - Added optional "reset" command to kill the client in the event it gets stuck
-    - TODO:
-        - Added config option to tinkering/crafting to automatically skip user confirmation when chance above xx%
-        - You can now 'cancel' the bot at any time
 
 1.1.8.0
     - Fix bug with trade timeouts (hacky)
