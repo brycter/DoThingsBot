@@ -819,6 +819,8 @@ namespace DoThingsBot {
 
         private void LoadQueue() {
             try {
+                if (!File.Exists(Path.Combine(Util.GetCharacterDataDirectory(), "queue.xml"))) return;
+
                 XmlDocument doc = new XmlDocument();
                 doc.Load(Path.Combine(Util.GetCharacterDataDirectory(), "queue.xml"));
 
