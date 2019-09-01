@@ -41,7 +41,10 @@ namespace DoThingsBot.FSM.States {
                 ChatManager.AddSpamToChatBox("/s " + ComponentManager.LowComponentAnnouncement());
             }
 
-            if (Config.Tinkering.KeepEquipmentOnDelay.Value > 0) {
+            if (itemBundle.playerData != null && itemBundle.playerData.jobType == "tinker" && Config.Tinkering.KeepEquipmentOnDelay.Value > 0) {
+                machine.ChangeState(new BotIdleState());
+            }
+            else if (itemBundle.playerData != null && itemBundle.playerData.jobType == "craft" && Config.CraftBot.KeepEquipmentOnDelay.Value > 0) {
                 machine.ChangeState(new BotIdleState());
             }
             else {

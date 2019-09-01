@@ -140,6 +140,7 @@
     <Compile Include="Views\Pages\Main.cs" />
     <Compile Include="Views\MainView.cs" />
     <Compile Include="Views\Pages\Portals.cs" />
+    <Compile Include="Views\Pages\TinkerBot.cs" />
     <Compile Include="Views\ProfileManagerView.cs" />
     <Compile Include="Views\StatsView.cs" />
     <Compile Include="VirindiViews\ViewSystemSelector.cs" />

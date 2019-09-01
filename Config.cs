@@ -380,6 +380,7 @@ namespace DoThingsBot {
             public static Setting<bool> PauseSessionForOtherJobs;
             public static Setting<int> LimitCraftingSessionsToSeconds;
             public static Setting<bool> SkipMaxSuccessConfirmation;
+            public static Setting<int> KeepEquipmentOnDelay;
 
             static CraftBot() {
             }
@@ -389,14 +390,17 @@ namespace DoThingsBot {
                 PauseSessionForOtherJobs = new Setting<bool>("Config/CraftBot/PauseSessionForOtherJobs", "If enabled, bot will pause crafting for tinkering/buffbot jobs and resume afterwards.", false);
                 LimitCraftingSessionsToSeconds = new Setting<int>("Config/CraftBot/LimitCraftingSessionsToSeconds", "Limit each crafting session to this many seconds.", 300);
                 SkipMaxSuccessConfirmation = new Setting<bool>("Config/CraftBot/SkipMaxSuccessConfirmation", "Skip user confirmation prompt if success chance is max.", true);
+                KeepEquipmentOnDelay = new Setting<int>("Config/CraftBot/KeepEquipmentOnDelay", "How long to keep crafting equipment equipped after a job is finished (in seconds)", 0);
 
                 LimitCraftingSessionsToSeconds.Validate += ValidatePositiveNumber;
+                KeepEquipmentOnDelay.Validate += ValidatePositiveNumber;
             }
         }
 
         public static class Tinkering {
             public static Setting<bool> Enabled;
-            public static  Setting<int> KeepEquipmentOnDelay;
+            public static Setting<int> KeepEquipmentOnDelay;
+            public static Setting<bool> SkipMaxSuccessConfirmation;
 
             static Tinkering() {
 
@@ -405,6 +409,9 @@ namespace DoThingsBot {
             public static void Init() {
                 Enabled = new Setting<bool>("Config/Tinkering/Enabled", "Enable tinker bot functionality", true);
                 KeepEquipmentOnDelay = new Setting<int>("Config/Tinkering/KeepEquipmentOnDelay", "How long to keep tinkering equipment equipped after a job is finished (in seconds)", 30);
+                SkipMaxSuccessConfirmation = new Setting<bool>("Config/Tinkering/SkipMaxSuccessConfirmation", "Skip user confirmation prompt if success chance is max.", true);
+                
+                KeepEquipmentOnDelay.Validate += ValidatePositiveNumber;
             }
         }
 

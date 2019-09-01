@@ -225,7 +225,7 @@ namespace DoThingsBot.FSM.States {
                         itemBundle.successChanceFullString = match.Groups["msg"].Value;
                         itemBundle.successChance = percent;
 
-                        if (percent >= 100 || skipConfirmations) {
+                        if (skipConfirmations || (percent >= 100 && Config.CraftBot.SkipMaxSuccessConfirmation.Value)) {
                             needsConfirmation = false;
                             needsYesClick = true;
                             gotCraftingSuccessDialogAt = DateTime.UtcNow;

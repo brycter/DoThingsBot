@@ -9,6 +9,7 @@ namespace DoThingsBot.Views.Pages {
         HudCheckBox UICraftBotPauseSessionForOtherJobs { get; set; }
         HudCheckBox UICraftBotSkipMaxSuccessConfirmations { get; set; }
         HudTextBox UICraftBotLimitCraftingSessionsToSeconds { get; set; }
+        HudTextBox UIKeepCraftEquipmentWhileIdleDelay { get; set; }
 
         MainView mainView;
 
@@ -19,6 +20,7 @@ namespace DoThingsBot.Views.Pages {
                 UICraftBotPauseSessionForOtherJobs = (HudCheckBox)mainView.view["UICraftBotPauseSessionForOtherJobs"];
                 UICraftBotSkipMaxSuccessConfirmations = (HudCheckBox)mainView.view["UICraftBotSkipMaxSuccessConfirmations"];
                 UICraftBotLimitCraftingSessionsToSeconds = (HudTextBox)mainView.view["UICraftBotLimitCraftingSessionsToSeconds"];
+                UIKeepCraftEquipmentWhileIdleDelay = (HudTextBox)mainView.view["UIKeepCraftEquipmentWhileIdleDelay"];
 
                 UICraftBotPauseSessionForOtherJobs.Checked = Config.CraftBot.PauseSessionForOtherJobs.Value;
                 Config.CraftBot.PauseSessionForOtherJobs.Changed += obj => { UICraftBotPauseSessionForOtherJobs.Checked = obj.Value; };
@@ -44,6 +46,17 @@ namespace DoThingsBot.Views.Pages {
                         if (!int.TryParse(UICraftBotLimitCraftingSessionsToSeconds.Text, out int value))
                             value = Config.CraftBot.LimitCraftingSessionsToSeconds.Value;
                         Config.CraftBot.LimitCraftingSessionsToSeconds.Value = value;
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                };
+
+                UIKeepCraftEquipmentWhileIdleDelay.Text = Config.CraftBot.KeepEquipmentOnDelay.Value.ToString(CultureInfo.InvariantCulture);
+                Config.CraftBot.KeepEquipmentOnDelay.Changed += obj => { UIKeepCraftEquipmentWhileIdleDelay.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
+                UIKeepCraftEquipmentWhileIdleDelay.LostFocus += (s, e) => {
+                    try {
+                        if (!int.TryParse(UIKeepCraftEquipmentWhileIdleDelay.Text, out int value))
+                            value = Config.CraftBot.KeepEquipmentOnDelay.Value;
+                        Config.CraftBot.KeepEquipmentOnDelay.Value = value;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
                 };

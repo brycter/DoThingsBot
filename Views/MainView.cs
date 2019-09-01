@@ -24,6 +24,7 @@ namespace DoThingsBot.Views {
         public ConfigPage configPage;
         public BuffBotPage buffBotPage;
         public CraftBotPage craftBotPage;
+        public TinkerBotPage tinkerBotPage;
 
         public MainView() {
             try {
@@ -47,6 +48,7 @@ namespace DoThingsBot.Views {
                 configPage = new ConfigPage(this);
                 buffBotPage = new BuffBotPage(this);
                 craftBotPage = new CraftBotPage(this);
+                tinkerBotPage = new TinkerBotPage(this);
 
             }
             catch (Exception ex) { Util.LogException(ex); }
@@ -80,6 +82,7 @@ namespace DoThingsBot.Views {
                     if (configPage != null) configPage.Dispose();
                     if (buffBotPage != null) buffBotPage.Dispose();
                     if (craftBotPage != null) craftBotPage.Dispose();
+                    if (tinkerBotPage != null) tinkerBotPage.Dispose();
                     if (mainPage != null) mainPage.Dispose();
 
                     //Remove the view
