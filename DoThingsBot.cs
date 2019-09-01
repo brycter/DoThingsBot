@@ -711,6 +711,10 @@ namespace DoThingsBot {
                     ChatManager.Tell(playerName, "recipes - I will tell you all the recipes I know. Careful, there are a lot of them!");
                     break;
 
+                case "reset":
+                    ChatManager.Tell(playerName, "I will reset my client, in case I am stuck.");
+                    break;
+
                 case "whereto":
                     ChatManager.Tell(playerName, "whereto [location] - I will tell you where my portals are currently tied to, and what portal gems I can use.");
                     break;
@@ -736,7 +740,7 @@ namespace DoThingsBot {
                     break;
 
                 default:
-                    ChatManager.Tell(playerName, String.Format("I'm a DoThingsBot. Tell me 'tinker', 'craft', or 'profiles'. Other commands: buff, lostitems, whereto, message, about, stats, comps, recipes, recipe, tool.  You can also try 'help [command]' to get more information.", Util.GetVersion()));
+                    ChatManager.Tell(playerName, String.Format("I'm a DoThingsBot. Tell me 'tinker', 'craft', or 'profiles'. Other commands: buff, lostitems, whereto, message, about, stats, comps, recipes, recipe, tool, reset.  You can also try 'help [command]' to get more information about a specific command.", Util.GetVersion()));
                     break;
 
             }
