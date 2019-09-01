@@ -83,7 +83,7 @@ namespace DoThingsBot {
         }
 
         private bool CheckSettings() {
-            if (Config.Tinkering.Enabled.Value && (Globals.Core.CharacterFilter.CharacterOptions & 0x80000000) == 0) {
+            if ((Config.Tinkering.Enabled.Value || Config.CraftBot.Enabled.Value) && (Globals.Core.CharacterFilter.CharacterOptions & 0x80000000) == 0) {
                 Util.WriteToChat("Error: You must enable the UseCraftSuccessDialog setting!");
                 return false;
             }
