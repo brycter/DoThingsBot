@@ -26,7 +26,7 @@ namespace DoThingsBot.FSM.States {
             }
 
             if (itemBundle.HasOwner()) {
-                itemBundle.SavePlayerData();
+                itemBundle.MarkAsActive();
 
                 if (Globals.StatsView.view.Visible && Globals.StatsView.StatTabs.CurrentTab == 2) {
                     Globals.StatsView.ShowCharacterStats(itemBundle.GetOwner());
@@ -41,19 +41,19 @@ namespace DoThingsBot.FSM.States {
                     }
                 }
                 else if (itemBundle.GetCraftMode() == CraftMode.WeaponTinkering && Spells.DoesAnySpellNeedRefresh(Config.Bot.GetWantedTinkerEnchantments())) {
-                    ChatManager.Tell(itemBundle.GetOwner(), "One moment please, I need to buff.");
+                    if (!itemBundle.WasPaused) ChatManager.Tell(itemBundle.GetOwner(), "One moment please, I need to buff.");
 
                     itemBundle.SetEquipMode(EquipMode.Buff);
                     machine.ChangeState(new BotEquipItemsState(itemBundle));
                 }
                 else if (itemBundle.GetCraftMode() == CraftMode.Crafting && Spells.DoesAnySpellNeedRefresh(Config.Bot.GetWantedCraftingEnchantments())) {
-                    ChatManager.Tell(itemBundle.GetOwner(), "One moment please, I need to buff.");
+                    if (!itemBundle.WasPaused) ChatManager.Tell(itemBundle.GetOwner(), "One moment please, I need to buff.");
 
                     itemBundle.SetEquipMode(EquipMode.Buff);
                     machine.ChangeState(new BotEquipItemsState(itemBundle));
                 }
                 else if (itemBundle.GetCraftMode() == CraftMode.Buff && Spells.DoesAnySpellNeedRefresh(Config.Bot.GetWantedBuffEnchantments())) {
-                    ChatManager.Tell(itemBundle.GetOwner(), "One moment please, I need to buff.");
+                    if (!itemBundle.WasPaused) ChatManager.Tell(itemBundle.GetOwner(), "One moment please, I need to buff.");
                     
                     itemBundle.SetEquipMode(EquipMode.Buff);
                     machine.ChangeState(new BotEquipItemsState(itemBundle));
@@ -68,8 +68,13 @@ namespace DoThingsBot.FSM.States {
                         machine.ChangeState(new BotEquipItemsState(itemBundle));
                     }
                     else {
-                        itemBundle.SetEquipMode(EquipMode.Idle);
-                        machine.ChangeState(new BotTradingState(itemBundle));
+                        if (itemBundle.WasPaused) {
+                            machine.ChangeState(new BotEquipItemsState(itemBundle));
+                        }
+                        else {
+                            itemBundle.SetEquipMode(EquipMode.Idle);
+                            machine.ChangeState(new BotTradingState(itemBundle));
+                        }
                     }
                 }
             }

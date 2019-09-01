@@ -250,7 +250,7 @@ namespace DoThingsBot.Lib.Recipes {
             foreach (var neededIngredients in GetIngredientSets()) {
                 var hasAll = true;
                 foreach (var ingredient in neededIngredients.ingredients) {
-                    if (ingredients.Get(ingredient.Key) < ingredient.Value) {
+                    if (ingredients.Count(ingredient.Key) < ingredient.Value) {
                         hasAll = false;
                         break;
                     }
@@ -267,7 +267,7 @@ namespace DoThingsBot.Lib.Recipes {
                 var hasAll = true;
 
                 foreach (var ingredient in neededIngredients.ingredients) {
-                    if (ingredients.Get(ingredient.Key) < ingredient.Value) {
+                    if (ingredients.Count(ingredient.Key) < ingredient.Value) {
                         hasAll = false;
                         break;
                     }
@@ -286,7 +286,7 @@ namespace DoThingsBot.Lib.Recipes {
             foreach (var neededIngredients in ingredientSets) {
                 var remainingIngredientsNeeded = neededIngredients.Clone();
                 foreach (var ingredient in ingredients.ingredients) {
-                    remainingIngredientsNeeded.Remove(ingredient.Key, Math.Min(ingredient.Value, remainingIngredientsNeeded.Get(ingredient.Key)));
+                    remainingIngredientsNeeded.Remove(ingredient.Key, Math.Min(ingredient.Value, remainingIngredientsNeeded.Count(ingredient.Key)));
                 }
 
                 if (remainingIngredientsNeeded.Count() == 0) {

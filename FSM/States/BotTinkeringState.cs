@@ -18,6 +18,7 @@ namespace DoThingsBot.FSM.States {
 
         public BotTinkeringState(ItemBundle items) {
             itemBundle = items;
+            itemBundle.playerData.jobType = "tinker";
 
             _machine = new Machine();
         }

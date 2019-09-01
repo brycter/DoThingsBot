@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Diagnostics;
 using DoThingsBot.Lib;
 using DoThingsBot.Lib.Recipes;
+using System.Xml;
 
 namespace DoThingsBot {
     public class DoThingsBot {
@@ -53,7 +54,9 @@ namespace DoThingsBot {
                 Config.Bot.Enabled.Value = false;
                 return;
             }
-            
+
+            LoadQueue();
+
             Globals.Stats = new Stats.Stats();
 
             Recipes.Init();
@@ -99,6 +102,7 @@ namespace DoThingsBot {
             ChatManager.RaiseChatCommandEvent -= new EventHandler<ChatCommandEventArgs>(ChatManager_ChatCommand);
 
             _machine.Stop();
+            queue.Clear();
             isRunning = false;
 
         }
@@ -560,6 +564,47 @@ namespace DoThingsBot {
             }
         }
 
+        internal bool HasBuffingJobInQueue() {
+            foreach (var qi in queue) {
+                if (IsBuffingJob(qi)) return true;
+            }
+
+            return false;
+        }
+
+        internal bool HasTinkeringJobInQueue() {
+            foreach (var qi in queue) {
+                if (IsTinkeringJob(qi)) return true;
+            }
+
+            return false;
+        }
+
+        internal bool HasLostItemsJobInQueue() {
+            foreach (var qi in queue) {
+                if (IsLostItemJob(qi)) return true;
+            }
+
+            return false;
+        }
+
+        internal bool IsBuffingJob(PlayerCommand command) {
+            var allBuffProfiles = Buffs.Buffs.GetAllProfileCommands();
+
+            if (command.Command.StartsWith("buff")) return true;
+            if (allBuffProfiles.Contains(command.Command.Split(' ')[0])) return true;
+
+            return false;
+        }
+
+        internal bool IsTinkeringJob(PlayerCommand command) {
+            return command.Command.StartsWith("tinker");
+        }
+
+        internal bool IsLostItemJob(PlayerCommand command) {
+            return command.Command.StartsWith("lostitems");
+        }
+
         private void PrintToolDetails(string playerName, string arguments) {
             var toolLocation = Recipes.GetToolLocation(arguments);
 
@@ -690,43 +735,88 @@ namespace DoThingsBot {
             ChatManager.Tell(playerName, String.Format("I'm a Bot running DoThingsBot v{0}. - Download the plugin yourself at https://gitlab.com/trevis/dothingsbot .", Util.GetVersion()));
         }
 
-        void RemoveFromQueue(string playerName) {
+        void RemoveFromQueue(string playerName, bool silent=false) {
             if (queue.Exists(x => x.Equals(playerName))) {
                 int index = queue.FindIndex(x => x.Equals(playerName));
                 queue.RemoveAt(index);
 
-                ChatManager.Tell(playerName, "You have been removed from the queue");
+                if (!silent) ChatManager.Tell(playerName, "You have been removed from the queue");
             }
             else {
-                ChatManager.Tell(playerName, "You aren't in line!");
+                if (!silent) ChatManager.Tell(playerName, "You aren't in line!");
             }
+
+            SaveQueue();
         }
 
         public void AddToQueue(string command) {
             queue.Add(new PlayerCommand(CoreManager.Current.CharacterFilter.Name, command));
+
+            SaveQueue();
         }
 
-        public void AddToQueue(string playerName, string command) {
+        public void AddToQueue(string playerName, string command, bool silent=false) {
             if (currentItemBundle != null && currentItemBundle.HasOwner() && currentItemBundle.GetOwner() == playerName) {
-                ChatManager.Tell(playerName, "I am already helping you.  Please wait until you are finished before issuing more commands.");
+                if (!silent) ChatManager.Tell(playerName, "I am already helping you.  Please wait until you are finished before issuing more commands.");
                 return;
             }
 
             foreach (PlayerCommand pc in queue) {
                 if (pc.PlayerName == playerName) {
-                    ChatManager.Tell(playerName, "You are already in line!");
+                    if (!silent) ChatManager.Tell(playerName, "You are already in line!");
                     return;
                 }
             }
 
             if (_machine.IsOrWillBeInState("BotBuffingState")) {
-                ChatManager.Tell(playerName, String.Format("I am currently buffing, but you have been added to the queue."));
+                if (!silent) ChatManager.Tell(playerName, String.Format("I am currently buffing, but you have been added to the queue."));
             }
             else {
-                ChatManager.Tell(playerName, String.Format("I am currently helping someone else, but you have been added to the queue.  There are currently {0} people ahead of you.", queue.Count + 1));
+                if (!silent) ChatManager.Tell(playerName, String.Format("I am currently helping someone else, but you have been added to the queue.  There are currently {0} people ahead of you.", queue.Count + 1));
             }
 
             queue.Add(new PlayerCommand(playerName, command));
+
+            SaveQueue();
+        }
+
+        private void SaveQueue() {
+            try {
+                XmlWriterSettings settings = new XmlWriterSettings();
+                settings.Indent = true;
+                settings.NewLineOnAttributes = true;
+
+                XmlWriter writer = XmlWriter.Create(Path.Combine(Util.GetCharacterDataDirectory(), "queue.xml"), settings);
+
+                writer.WriteStartElement("Queue");
+                foreach (var item in queue) {
+                    writer.WriteStartElement("Item");
+                    writer.WriteAttributeString("PlayerName", null, item.PlayerName);
+                    writer.WriteAttributeString("Command", null, item.Command);
+                    writer.WriteEndElement();
+                }
+                writer.WriteEndElement();
+
+                writer.Close();
+            }
+            catch (Exception ex) { Util.LogException(ex); }
+        }
+
+        private void LoadQueue() {
+            try {
+                XmlDocument doc = new XmlDocument();
+                doc.Load(Path.Combine(Util.GetCharacterDataDirectory(), "queue.xml"));
+
+                foreach (XmlNode node in doc.DocumentElement.ChildNodes) {
+                    try {
+                        if (node.Attributes["PlayerName"] != null && node.Attributes["PlayerName"].Value.Length > 0 && node.Attributes["Command"] != null && node.Attributes["Command"].Value.Length > 0) {
+                            AddToQueue(node.Attributes["PlayerName"].Value, node.Attributes["Command"].Value, true);
+                        }
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                }
+            }
+            catch (Exception ex) { Util.LogException(ex); }
         }
 
         DateTime lastUpdatedUptime = DateTime.UtcNow;
@@ -736,7 +826,6 @@ namespace DoThingsBot {
         void Think() {
             try {
                 if (!IsLoggedIn) return;
-
                 
                 if (Config.Bot.Enabled.Value == true && !isRunning) {
                     Start();
@@ -750,9 +839,17 @@ namespace DoThingsBot {
 
                     if (_machine.IsInState("BotIdleState") && DateTime.UtcNow - lastDequeue > TimeSpan.FromMilliseconds(1000)) {
                         if (queue.Count > 0) {
-                            lastDequeue = DateTime.UtcNow;
-                            ProcessCommand(new ChatCommandEventArgs(queue[0].PlayerName, queue[0].Command, queue[0].Command), true);
-                            queue.RemoveAt(0);
+                            if (!HasPausedJobs() || !TryResumePausedJob()) {
+                                lastDequeue = DateTime.UtcNow;
+                                ProcessCommand(new ChatCommandEventArgs(queue[0].PlayerName, queue[0].Command, queue[0].Command), true);
+                                queue.RemoveAt(0);
+                                SaveQueue();
+                            }
+                        }
+                        else {
+                            if (HasPausedJobs()) {
+                                TryResumePausedJob();
+                            }
                         }
                     }
 
@@ -766,6 +863,69 @@ namespace DoThingsBot {
                 }
             }
             catch (Exception ex) { Util.LogException(ex); }
+        }
+
+        private bool HasPausedJobs() {
+            DirectoryInfo d = new DirectoryInfo(Util.GetResumablePlayersDataDirectory());
+            FileInfo[] fileList = d.GetFiles("*.json");
+
+            return fileList.Length > 0;
+        }
+
+        private bool TryResumePausedJob() {
+            DirectoryInfo d = new DirectoryInfo(Util.GetResumablePlayersDataDirectory());
+            FileInfo[] fileList = d.GetFiles("*.json");
+
+            Array.Sort<FileInfo>(fileList, delegate (FileInfo m, FileInfo n) {
+                return (int)((n.LastWriteTimeUtc - m.LastWriteTimeUtc).TotalSeconds);
+            });
+
+            foreach (var file in fileList) {
+                var playerName = file.Name.Replace(".json", "");
+                var bundle = new ItemBundle(playerName);
+                var shouldBreak = false;
+
+                if (bundle.playerData.jobType == "craft" && Config.CraftBot.PauseSessionForOtherJobs.Value == true && queue.Count > 0) {
+                    return false;
+                }
+
+                Util.WriteToChat($"Attempting to resume job type '{bundle.playerData.jobType}' for player {playerName}");
+                
+                switch (bundle.playerData.jobType) {
+                    case "craft":
+                        bundle.SetCraftMode(CraftMode.Crafting);
+                        bundle.SetEquipMode(EquipMode.Craft);
+                        currentItemBundle = bundle;
+                        _machine.ChangeState(new BotStartState(bundle));
+                        shouldBreak = true;
+                        break;
+
+                    case "tinker":
+                        bundle.SetCraftMode(CraftMode.WeaponTinkering);
+                        bundle.SetEquipMode(EquipMode.Tinker);
+                        currentItemBundle = bundle;
+                        _machine.ChangeState(new BotStartState(bundle));
+                        shouldBreak = true;
+                        break;
+
+                    case "buff":
+                        bundle.SetCraftMode(CraftMode.Buff);
+                        bundle.SetEquipMode(EquipMode.Buff);
+                        currentItemBundle = bundle;
+                        _machine.ChangeState(new BotStartState(bundle));
+                        shouldBreak = true;
+                        break;
+
+                    default:
+                        Util.WriteToChat($"I don't know how to resume job type '{bundle.playerData.jobType}' for player {playerName}");
+                        bundle.Unpause();
+                        break;
+                }
+
+                if (shouldBreak) return true;
+            }
+
+            return false;
         }
     }
 }

@@ -42,7 +42,7 @@ namespace DoThingsBot.Lib.Recipes {
             return count;
         }
 
-        internal int Get(string ingredient) {
+        internal int Count(string ingredient) {
             if (ingredients.ContainsKey(ingredient)) return ingredients[ingredient];
 
             return 0;
@@ -50,7 +50,7 @@ namespace DoThingsBot.Lib.Recipes {
 
         internal bool ContainsAllOf(IngredientList ingredientList) {
             foreach (var i in ingredientList.ingredients) {
-                if (Get(i.Key) < i.Value) return false;
+                if (Count(i.Key) < i.Value) return false;
             }
 
             return true;
@@ -80,6 +80,10 @@ namespace DoThingsBot.Lib.Recipes {
             }
 
             return clone;
+        }
+
+        internal void RemoveAll(string key) {
+            Remove(key, Count(key));
         }
     }
 }

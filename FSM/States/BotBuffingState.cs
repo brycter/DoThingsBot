@@ -44,7 +44,17 @@ namespace DoThingsBot.FSM.States {
                     machine.ChangeState(new BotBuffState(_machine.CurrentState.GetItemBundle()));
                 }
                 else {
-                    machine.ChangeState(new BotTradingState(_machine.CurrentState.GetItemBundle()));
+                    if (itemBundle.WasPaused) {
+                        if (itemBundle.GetCraftMode() == CraftMode.Crafting) {
+                            machine.ChangeState(new BotCraftingState(_machine.CurrentState.GetItemBundle()));
+                        }
+                        else if (itemBundle.GetCraftMode() == CraftMode.WeaponTinkering) {
+                            machine.ChangeState(new BotTinkeringState(_machine.CurrentState.GetItemBundle()));
+                        }
+                    }
+                    else {
+                        machine.ChangeState(new BotTradingState(_machine.CurrentState.GetItemBundle()));
+                    }
                 }
 
                 return;

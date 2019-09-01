@@ -33,12 +33,16 @@ namespace DoThingsBot {
         public ulong totalTimeSpentBuffing = 0;
 
         public List<int> itemIds = new List<int>();
+        public List<int> buffIds = new List<int>();
         public List<int> stolenItemIds = new List<int>();
         public List<int> missingItemIds = new List<int>();
         public Dictionary<int, string> itemDescriptions = new Dictionary<int, string>();
         public Dictionary<int, string> itemNames = new Dictionary<int, string>();
         public Dictionary<string, int> burnedComponents = new Dictionary<string, int>();
         public Dictionary<string, int> donations = new Dictionary<string, int>();
+
+        public string recipe = "";
+        public string jobType = "";
 
         public PlayerData(string owner) {
             PlayerName = owner;

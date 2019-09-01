@@ -35,6 +35,7 @@ namespace DoThingsBot.FSM.States {
 
         public BotBuffState(ItemBundle items) {
             itemBundle = items;
+            itemBundle.playerData.jobType = "buff";
         }
 
         public void Enter(Machine machine) {
@@ -53,36 +54,58 @@ namespace DoThingsBot.FSM.States {
 
             itemBundle.SetOwner(player.Name);
 
-            if (itemBundle.GetBuffProfiles() == "treestats") {
-                waitingForTreeStatsData = true;
-                treeStatsProfile = new BuffProfile(player.Name, true);
+            if (itemBundle.WasPaused) {
+                buffIds = itemBundle.playerData.buffIds;
+                ChatManager.Tell(itemBundle.GetOwner(), $"I am resuming your buffing session, I still have {buffIds.Count} buff{(buffIds.Count==1?"":"s")} left to cast on you");
             }
             else {
-                var profiles = itemBundle.GetBuffProfiles().Split(' ');
-                List<string> invalidProfiles = new List<string>();
-                List<string> validProfiles = new List<string>();
+                if (itemBundle.GetBuffProfiles() == "treestats") {
+                    waitingForTreeStatsData = true;
+                    treeStatsProfile = new BuffProfile(player.Name, true);
+                }
+                else {
+                    var profiles = itemBundle.GetBuffProfiles().Split(' ');
+                    List<string> invalidProfiles = new List<string>();
+                    List<string> validProfiles = new List<string>();
 
-                foreach (var profile in profiles) {
-                    if (!Buffs.Buffs.IsValidProfile(profile)) {
-                        invalidProfiles.Add(profile);
-                        continue;
+                    foreach (var profile in profiles) {
+                        if (!Buffs.Buffs.IsValidProfile(profile)) {
+                            invalidProfiles.Add(profile);
+                            continue;
+                        }
+
+                        if (!validProfiles.Contains(profile)) {
+                            validProfiles.Add(profile);
+
+                            AddProfile(profile);
+                        }
                     }
 
-                    if (!validProfiles.Contains(profile)) {
-                        validProfiles.Add(profile);
-
-                        AddProfile(profile);
+                    if (invalidProfiles.Count > 0) {
+                        ChatManager.Tell(itemBundle.GetOwner(), string.Format("The following profiles were invalid: {0}", string.Join(", ", invalidProfiles.ToArray())));
                     }
-                }
 
-                if (invalidProfiles.Count > 0) {
-                    ChatManager.Tell(itemBundle.GetOwner(), string.Format("The following profiles were invalid: {0}", string.Join(", ", invalidProfiles.ToArray())));
-                }
+                    ChatManager.Tell(itemBundle.GetOwner(), string.Format("Casting {0} buffs on you ({1})", buffIds.Count, string.Join(", ", validProfiles.ToArray())));
 
-                ChatManager.Tell(itemBundle.GetOwner(), string.Format("Casting {0} buffs on you ({1})", buffIds.Count, string.Join(", ", validProfiles.ToArray())));
+                    SaveBuffState();
+                }
             }
 
             CoreManager.Current.ChatBoxMessage += new EventHandler<ChatTextInterceptEventArgs>(Current_ChatBoxMessage);
+        }
+
+        private void SaveBuffState() {
+
+            var ids = new List<int>();
+            foreach (var spellId in buffIds) {
+                var spellName = Spells.GetNameFromId(spellId);
+                if (CastedEnchantments.Contains(spellName)) continue;
+                if (SkippedEnchantments.Contains(spellId)) continue;
+                ids.Add(spellId);
+            }
+            itemBundle.playerData.buffIds = ids;
+
+            itemBundle.SavePlayerData();
         }
 
         private void AddProfile(BuffProfile buffProfile) {
@@ -133,6 +156,7 @@ namespace DoThingsBot.FSM.States {
                     castCount = 0;
                     readyToCast = true;
                     lastCasted = DateTime.UtcNow - TimeSpan.FromMinutes(1);
+                    SaveBuffState();
                 }
                 else if (e.Text.StartsWith("Your spell fizzled.")) {
                     readyToCast = true;
@@ -160,7 +184,7 @@ namespace DoThingsBot.FSM.States {
         }
 
         public void Think(Machine machine) {
-            if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(500)) {
+            if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(300)) {
                 lastThought = DateTime.UtcNow;
 
                 if (waitingForTreeStatsData && treeStatsProfile != null) {
@@ -179,6 +203,8 @@ namespace DoThingsBot.FSM.States {
                             lastUpdated = treeStatsProfile.treeStatsProfile.updated_at;
                         }
                         ChatManager.Tell(itemBundle.GetOwner(), string.Format("Casting {0} buffs on you, based on your treestats character profile (last updated {1}).", buffIds.Count, lastUpdated));
+
+                        SaveBuffState();
                     }
                     else {
                         return;
@@ -309,7 +335,7 @@ namespace DoThingsBot.FSM.States {
                         ChatManager.Tell(itemBundle.GetOwner(), response);
                     }
 
-                    machine.ChangeState(new BotFinishState(machine.CurrentState.GetItemBundle()));
+                    machine.ChangeState(new BotFinishState(itemBundle));
                 }
             }
         }

@@ -47,7 +47,7 @@ namespace DoThingsBot.FSM.States {
                     case EquipMode.Tinker:
                         return Config.Equipment.TinkerEquipmentIds.Value;
                     case EquipMode.Craft:
-                        return Config.Equipment.TinkerEquipmentIds.Value;
+                        return Config.Equipment.CraftEquipmentIds.Value;
                     default:
                         return Config.Equipment.IdleEquipmentIds.Value;
                 }

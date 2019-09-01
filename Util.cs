@@ -29,6 +29,10 @@ namespace DoThingsBot
             return Path.Combine(GetCharacterDataDirectory(), "users");
         }
 
+        public static string GetResumablePlayersDataDirectory() {
+            return Path.Combine(GetPlayerDataDirectory(), "resumable");
+        }
+
         internal static string GetDataDirectory() {
             return DataDirectory;
         }
@@ -49,6 +53,7 @@ namespace DoThingsBot
             System.IO.Directory.CreateDirectory(GetCharacterDataDirectory());
             System.IO.Directory.CreateDirectory(GetLogDirectory());
             System.IO.Directory.CreateDirectory(GetPlayerDataDirectory());
+            System.IO.Directory.CreateDirectory(GetResumablePlayersDataDirectory());
             System.IO.Directory.CreateDirectory(Util.GetResourcesDirectory());
             System.IO.Directory.CreateDirectory(Path.Combine(Util.GetResourcesDirectory(), "BuffProfiles"));
             System.IO.Directory.CreateDirectory(Path.Combine(Util.GetResourcesDirectory(), "BotProfiles"));

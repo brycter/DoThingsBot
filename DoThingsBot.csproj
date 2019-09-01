@@ -82,7 +82,6 @@
     <Compile Include="FSM\States\BotBuffState.cs" />
     <Compile Include="FSM\States\BotCheckSkillsState.cs" />
     <Compile Include="FSM\States\BotCraftingState.cs" />
-    <Compile Include="FSM\States\BotCrafting_TrySuccessState.cs" />
     <Compile Include="FSM\States\BotEquipItemsState.cs" />
     <Compile Include="FSM\States\BotBuffing_FinishedState.cs" />
     <Compile Include="FSM\States\BotCheckStolenItemsState.cs" />
@@ -130,6 +129,7 @@
     <Compile Include="Views\Pages\Announcements.cs" />
     <Compile Include="Views\Pages\BuffBot.cs" />
     <Compile Include="Views\Pages\Config.cs" />
+    <Compile Include="Views\Pages\CraftBot.cs" />
     <Compile Include="Views\Pages\EquipmentBuffing.cs" />
     <Compile Include="Views\Pages\EquipmentCrafting.cs" />
     <Compile Include="Views\Pages\EquipmentIdle.cs" />

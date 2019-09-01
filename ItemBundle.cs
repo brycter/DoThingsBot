@@ -69,9 +69,11 @@ namespace DoThingsBot {
         public Recipe recipe;
         public List<RecipeStep> recipeSteps = new List<RecipeStep>();
         public IngredientList recipeIngredients = new IngredientList();
-
+        public IngredientList originalRecipeIngredients = new IngredientList();
         private bool forceBuff = false;
         public bool IsImbue = false;
+        public bool WasPaused = false;
+        public bool IsPaused = false;
 
         private string portalCommand = "";
 
@@ -81,6 +83,11 @@ namespace DoThingsBot {
         public ItemBundle(string playerName) {
             try {
                 owner = playerName;
+
+                if (File.Exists(Path.Combine(Util.GetResumablePlayersDataDirectory(), GetOwner() + ".json"))) {
+                    WasPaused = true;
+                }
+
                 LoadPlayerData();
             }
             catch (Exception e) { Util.LogException(e); }
@@ -91,6 +98,23 @@ namespace DoThingsBot {
                 return owner;
             }
             catch (Exception e) { Util.LogException(e); return "UnknownOwner"; }
+        }
+
+        internal IngredientList GetOriginalIngredientList() {
+            return originalRecipeIngredients.Clone();
+        }
+
+        internal IngredientList GetValidRecipeIngredients() {
+            var ingredients = GetIngredientList();
+            var fullIngredients = recipe.GetFullIngredients().ingredients;
+
+            foreach (var ingredient in ingredients.Clone().ingredients) {
+                if (!fullIngredients.ContainsKey(ingredient.Key)) {
+                    ingredients.RemoveAll(ingredient.Key);
+                }
+            }
+
+            return ingredients;
         }
 
         internal IngredientList GetIngredientList() {
@@ -114,6 +138,7 @@ namespace DoThingsBot {
 
         internal void SetRecipeIngredientList(IngredientList recipeIngredients) {
             this.recipeIngredients = recipeIngredients.Clone();
+            this.originalRecipeIngredients = recipeIngredients.Clone();
         }
 
         internal void SetOwner(string name) {
@@ -216,6 +241,10 @@ namespace DoThingsBot {
         }
 
         private string GetJsonDataPathForOwner() {
+            if (File.Exists(Path.Combine(Util.GetResumablePlayersDataDirectory(), GetOwner() + ".json"))) {
+                return Path.Combine(Util.GetResumablePlayersDataDirectory(), GetOwner() + ".json");
+            }
+
             return Path.Combine(Util.GetPlayerDataDirectory(), GetOwner() + ".json");
         }
 
@@ -245,7 +274,9 @@ namespace DoThingsBot {
                     }
                 }
 
-                playerData.itemIds.Clear();
+                if (!WasPaused) {
+                    playerData.itemIds.Clear();
+                }
 
             }
             catch (Exception ex) { Util.LogException(ex); }
@@ -256,6 +287,10 @@ namespace DoThingsBot {
                 //if (File.Exists(GetJsonDataPathForOwner())) {
                 //    File.Move(GetJsonDataPathForOwner(), Util.GetCharacterDataDirectory() + @"backups\" + GetOwner() + "-" + DateTime.Now.ToString("dd MMM yyy HH.mm.ss.ssss GMT") + ".json");
                 //}
+
+                if (recipe != null) {
+                    playerData.recipe = recipe.name;
+                }
 
                 foreach (int id in playerData.itemIds) {
                     WorldObject wo = CoreManager.Current.WorldFilter[id];
@@ -455,6 +490,47 @@ namespace DoThingsBot {
             }
 
             catch (Exception e) { Util.LogException(e); return false; }
+        }
+
+        internal void Unpause() {
+            try {
+                IsPaused = false;
+                SavePlayerData();
+
+                var src = Path.Combine(Util.GetResumablePlayersDataDirectory(), GetOwner() + ".json");
+                var dest = Path.Combine(Util.GetPlayerDataDirectory(), GetOwner() + ".json");
+
+                if (!File.Exists(src)) return;
+                if (File.Exists(dest)) File.Delete(dest);
+
+                File.Move(src, dest);
+            }
+            catch (Exception ex) { Util.LogException(ex); }
+        }
+
+        internal void Pause() {
+            try {
+                IsPaused = true;
+                SavePlayerData();
+
+                var src = Path.Combine(Util.GetPlayerDataDirectory(), GetOwner() + ".json");
+                var dest = Path.Combine(Util.GetResumablePlayersDataDirectory(), GetOwner() + ".json");
+
+                File.Copy(src, dest, true);
+            }
+            catch (Exception ex) { Util.LogException(ex); }
+        }
+
+        internal void MarkAsActive() {
+            try {
+                SavePlayerData();
+
+                var src = Path.Combine(Util.GetPlayerDataDirectory(), GetOwner() + ".json");
+                var dest = Path.Combine(Util.GetResumablePlayersDataDirectory(), GetOwner() + ".json");
+
+                File.Copy(src, dest, true);
+            }
+            catch (Exception ex) { Util.LogException(ex); }
         }
 
         public bool CheckIsValid() {

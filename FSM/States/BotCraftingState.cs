@@ -24,10 +24,12 @@ namespace DoThingsBot.FSM.States {
         public List<Recipe> recipes;
         private bool shouldCraft = false;
         private bool isCrafting = false;
+        private bool shouldPause = false;
         private List<int> stackThese = new List<int>();
 
         public BotCraftingState(ItemBundle items) {
             itemBundle = items;
+            itemBundle.playerData.jobType = "craft";
         }
 
         public void Enter(Machine machine) {
@@ -46,20 +48,28 @@ namespace DoThingsBot.FSM.States {
                 }
                 catch (Exception e) { Util.LogException(e); }
 
-                recipes = Recipes.FindByItemBundle(itemBundle);
-
-                itemBundle.SetRecipeIngredientList(itemBundle.GetIngredientList());
-
-                if (recipes.Count > 1) {
-                    needsChoice = true;
-                    List<string> choices = GetRecipeChoices();
-
-                    Chat.ChatManager.Tell(itemBundle.GetOwner(), $"I am able to make multiple recipes with those ingredients.  Please respond with a number from the following list of recipes to make: ");
-                    Chat.ChatManager.Tell(itemBundle.GetOwner(), String.Join(" ", choices.ToArray()));
+                if (itemBundle.WasPaused) {
+                    shouldCraft = true;
+                    recipe = Recipes.FindByName(itemBundle.playerData.recipe);
+                    itemBundle.recipe = recipe;
+                    itemBundle.SetRecipeIngredientList(itemBundle.GetValidRecipeIngredients());
                 }
                 else {
-                    recipe = recipes[0];
-                    shouldCraft = true;
+                    recipes = Recipes.FindByItemBundle(itemBundle);
+                    itemBundle.SetRecipeIngredientList(itemBundle.GetIngredientList());
+
+                    if (recipes.Count > 1) {
+                        needsChoice = true;
+                        List<string> choices = GetRecipeChoices();
+
+                        Chat.ChatManager.Tell(itemBundle.GetOwner(), $"I am able to make multiple recipes with those ingredients.  Please respond with a number from the following list of recipes to make: ");
+                        Chat.ChatManager.Tell(itemBundle.GetOwner(), String.Join(" ", choices.ToArray()));
+                    }
+                    else {
+                        recipe = recipes[0];
+                        itemBundle.playerData.recipe = recipe.name;
+                        shouldCraft = true;
+                    }
                 }
             }
             catch (Exception e) { Util.LogException(e); }
@@ -138,8 +148,50 @@ namespace DoThingsBot.FSM.States {
 
                     Chat.ChatManager.Tell(itemBundle.GetOwner(), $"RecipeIngredients now: {itemBundle.recipeIngredients.Summary()}");
                 }
+
+                if (IsRunning && !itemBundle.HasRecipeStepsLeft()) {
+                    Util.WriteToChat("Now would be a good time to pause.");
+
+                    if (ShouldPause()) {
+                        shouldPause = true;
+                    }
+                }
             }
             catch (Exception ex) { Util.LogException(ex); }
+        }
+
+        private bool ShouldPause() {
+            var limit = Config.CraftBot.LimitCraftingSessionsToSeconds.Value;
+            if (limit > 0 && DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(limit)) {
+                return true;
+            }
+
+            if (Config.CraftBot.PauseSessionForOtherJobs.Value && (Globals.DoThingsBot.HasTinkeringJobInQueue() || Globals.DoThingsBot.HasBuffingJobInQueue() || Globals.DoThingsBot.HasLostItemsJobInQueue())) {
+                return true;
+            }
+
+            return false;
+        }
+
+        private void DoPause() {
+            // check crafting time limit
+            var limit = Config.CraftBot.LimitCraftingSessionsToSeconds.Value;
+            if (limit > 0 && DateTime.UtcNow - firstThought > TimeSpan.FromSeconds(limit)) {
+                var friendlyLimit = Util.GetFriendlyTimeDifference((ulong)(limit * 1000));
+                Util.WriteToChat($"Crafting session has hit its time limit of " + friendlyLimit);
+                ChatManager.Tell(itemBundle.GetOwner(), $"Your crafting session has hit the session time limit of {friendlyLimit}, please come pick up your items.");
+                Bail();
+                return;
+            }
+
+            // check if we have a tinkering/buffing job to do instead of this crafting
+            if (Config.CraftBot.PauseSessionForOtherJobs.Value && (Globals.DoThingsBot.HasTinkeringJobInQueue() || Globals.DoThingsBot.HasBuffingJobInQueue() || Globals.DoThingsBot.HasLostItemsJobInQueue())) {
+                ChatManager.Tell(itemBundle.GetOwner(), "I am pausing your crafting job for a higher priority job, I'll message you when your job is finished.");
+                itemBundle.Pause();
+                machine.ChangeState(new BotFinishState(itemBundle));
+                IsRunning = false;
+                return;
+            }
         }
 
         private List<string> GetRecipeChoices() {
@@ -168,7 +220,6 @@ namespace DoThingsBot.FSM.States {
 
         void EchoFilter_ServerDispatch(object sender, NetworkMessageEventArgs e) {
             try {
-                if (needsConfirmation) return;
 
                 if (e.Message.Type == 0xF7B0 && (int)e.Message["event"] == 0x0274 && e.Message.Value<int>("type") == 5) {
                     Match match = PercentConfirmation.Match(e.Message.Value<string>("text"));
@@ -230,6 +281,7 @@ namespace DoThingsBot.FSM.States {
                                 if (choice >= 1 && choice <= recipes.Count) {
                                     needsChoice = false;
                                     recipe = recipes[choice - 1];
+                                    itemBundle.playerData.recipe = recipe.name;
                                     shouldCraft = true;
                                     return;
                                 }
@@ -290,7 +342,9 @@ namespace DoThingsBot.FSM.States {
                         return;
                     }
 
-                    Chat.ChatManager.Tell(itemBundle.GetOwner(), "I will craft the following recipe: " + recipe.name);
+                    if (!itemBundle.WasPaused) {
+                        Chat.ChatManager.Tell(itemBundle.GetOwner(), "I will craft the following recipe: " + recipe.name);
+                    }
                 }
 
                 if (isCrafting) return;
@@ -308,6 +362,11 @@ namespace DoThingsBot.FSM.States {
                             return;
                         }
                     }
+                }
+
+                if (shouldPause) {
+                    DoPause();
+                    return;
                 }
 
                 var step = itemBundle.GetCurrentRecipeStep();

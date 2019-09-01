@@ -57,8 +57,6 @@ namespace DoThingsBot.FSM.States {
                 if (CraftSuccess.IsMatch(e.Text.Trim())) {
                     var match = CraftSuccess.Match(e.Text.Trim());
 
-                    Util.WriteToChat(string.Format("Success. is: {0}, max: {1}, c: {2}", itemBundle.successChance, maxSuccess, itemBundle.GetImbueSalvages().Count));
-
                     itemBundle.tinkerCount++;
 
                     // successful imbue

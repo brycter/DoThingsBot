@@ -1,4 +1,5 @@
-﻿using DoThingsBot.Chat;
+﻿using Decal.Adapter;
+using DoThingsBot.Chat;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -45,6 +46,7 @@ namespace DoThingsBot.FSM.States {
                 switch (e.Command) {
                     case "cancel":
                         didCancel = true;
+                        CoreManager.Current.Actions.TradeDecline();
                         parentMachine.ChangeState(new BotFinishState(itemBundle));
                         break;
                 }
@@ -82,7 +84,8 @@ namespace DoThingsBot.FSM.States {
                     }
 
                     if (itemBundle.GetCraftMode() == CraftMode.Crafting) {
-                        machine.ChangeState(new BotCraftingState(itemBundle));
+                        itemBundle.SetEquipMode(EquipMode.Craft);
+                        machine.ChangeState(new BotEquipItemsState(itemBundle));
                         return;
                     }
 
