@@ -27,6 +27,7 @@ namespace DoThingsBot {
             public static Setting<bool> FastCastSelfBuffs;
             public static Setting<bool> AnnounceLowComponents;
             public static Setting<bool> AnnounceLowComponentsAfterJob;
+            public static Setting<bool> EnableResetCommand;
 
             public static Setting<int> PrismaticTaperLowCount;
             public static Setting<int> LeadScarabLowCount;
@@ -54,6 +55,7 @@ namespace DoThingsBot {
                 FastCastSelfBuffs = new Setting<bool>("Config/Bot/FastCastSelfBuffs", "Enable fast casting of self buffs", false);
                 AnnounceLowComponents = new Setting<bool>("Config/Bot/AnnounceLowComponents", "Replace announcements with low component warnings when you are low", true);
                 AnnounceLowComponentsAfterJob = new Setting<bool>("Config/Bot/AnnounceLowComponentsAfterJob", "Announce low components after a job is finished and you are low", true);
+                EnableResetCommand = new Setting<bool>("Config/Bot/EnableResetCommand", "Allow users to tell the bot 'reset' to force close the client (in case of being stuck)", false);
 
                 PrismaticTaperLowCount = new Setting<int>("Config/Bot/PrismaticTaperLowCount", "Warn when Pristmatic Tapers fall below this amount (0 disables)", 100);
                 LeadScarabLowCount = new Setting<int>("Config/Bot/LeadScarabLowCount", "Warn when Lead Scarabs fall below this amount (0 disables)", 0);

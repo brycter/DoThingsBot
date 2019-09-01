@@ -92,6 +92,10 @@ namespace DoThingsBot.Lib {
             User32.PostMessage(CoreManager.Current.Decal.Hwnd, User32.WM_KEYUP, (IntPtr)VK_PAUSE, (UIntPtr)0xC0450001);
         }
 
+        public static void SendAltF4() {
+            User32.PostMessage(CoreManager.Current.Decal.Hwnd, User32.WM_DESTROY, new IntPtr(0), new UIntPtr(0));
+        }
+
         static Timer _spaceReleaseTimer;
         static DateTime _spaceSendTime;
         static int _spaceHoldTimeMilliseconds;

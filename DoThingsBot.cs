@@ -200,6 +200,17 @@ namespace DoThingsBot {
                     PrintAboutMessage(e.PlayerName, e.Arguments);
                     break;
 
+                case "reset":
+                    if (!Config.Bot.EnableResetCommand.Value) {
+                        ChatManager.Tell(e.PlayerName, "My reset command is disabled, sorry!");
+                        return;
+                    }
+                    Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
+                    ChatManager.Say("I am restarting.");
+                    Stop();
+                    PostMessageTools.SendAltF4();
+                    break;
+
                 case "recipe":
                     if (!Config.CraftBot.Enabled.Value) {
                         ChatManager.Tell(e.PlayerName, "My crafting bot functionality is currently disabled, sorry!");

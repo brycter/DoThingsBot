@@ -211,11 +211,12 @@
         <control progid="DecalControls.Edit" name="UIDefaultHeading" left="290" top="8" width="50" height="17" text="0" />
         <control progid="DecalControls.Checkbox" name="UIRespondToUnknownCommands" left="8" top="28" width="320" height="20" text="Respond to unknown commands"/>
         <control progid="DecalControls.Checkbox" name="UIFastCastSelfBuffs" left="8" top="48" width="320" height="18" text="Fastcast self buffs"/>
-        <control progid="DecalControls.StaticText" name="UILogOffWhenMonstersNearbyLabel" left="8" top="68" width="145" height="16" text="LogOff when mobs within"/>
-        <control progid="DecalControls.Edit" name="UIDangerousMonsterLogoffDistance" left="151" top="68" width="24" height="16" text=""/>
-        <control progid="DecalControls.StaticText" name="UILogOffMetersLabel" left="180" top="68" width="40" height="16" text="meters."/>
+        <control progid="DecalControls.Checkbox" name="UIEnableResetCommand" left="8" top="68" width="320" height="18" text="Enable 'reset' command to kill client"/>
+        <control progid="DecalControls.StaticText" name="UILogOffWhenMonstersNearbyLabel" left="8" top="86" width="145" height="16" text="LogOff when mobs within"/>
+        <control progid="DecalControls.Edit" name="UIDangerousMonsterLogoffDistance" left="151" top="86" width="24" height="16" text=""/>
+        <control progid="DecalControls.StaticText" name="UILogOffMetersLabel" left="180" top="86" width="40" height="16" text="meters."/>
         
-        <control progid="DecalControls.StaticText" name="UILowComponentsHeader" left="95" top="98" width="180" height="20" text="Low Component Warning Levels"/>
+        <control progid="DecalControls.StaticText" name="UILowComponentsHeader" left="95" top="102" width="180" height="20" text="Low Component Warning Levels"/>
 
         <control progid="DecalControls.PushButton" name="UIManageBotSpellProfiles" left="100" top="188" width="150" height="20" text="Manage Bot Spell Profiles" fontstyle="bold"/>
 

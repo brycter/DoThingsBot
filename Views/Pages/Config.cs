@@ -14,6 +14,7 @@ namespace DoThingsBot.Views.Pages {
         HudCheckBox UIFastCastSelfBuffs { get; set; }
         HudFixedLayout UIConfigTabLayout;
         HudTextBox UIDangerousMonsterLogoffDistance { get; set; }
+        HudCheckBox UIEnableResetCommand { get; set; }
 
         MainView mainView;
 
@@ -28,16 +29,19 @@ namespace DoThingsBot.Views.Pages {
                 UIRespondToUnknownCommands = mainView.view != null ? (HudCheckBox)mainView.view["UIRespondToUnknownCommands"] : new HudCheckBox();
                 UIFastCastSelfBuffs = (HudCheckBox)mainView.view["UIFastCastSelfBuffs"];
                 UIDangerousMonsterLogoffDistance = (HudTextBox)mainView.view["UIDangerousMonsterLogoffDistance"];
+                UIEnableResetCommand = (HudCheckBox)mainView.view["UIEnableResetCommand"];
 
                 UIDefaultHeading.Text = Config.Bot.DefaultHeading.Value.ToString(CultureInfo.InvariantCulture);
                 UIRespondToUnknownCommands.Checked = Config.Bot.RespondToUnknownCommands.Value;
                 UIFastCastSelfBuffs.Checked = Config.Bot.FastCastSelfBuffs.Value;
                 UIDangerousMonsterLogoffDistance.Text = Config.Bot.DangerousMonsterLogoffDistance.Value.ToString(CultureInfo.InvariantCulture);
-                
+                UIEnableResetCommand.Checked = Config.Bot.EnableResetCommand.Value;
+
                 Config.Bot.DefaultHeading.Changed += obj => { UIDefaultHeading.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
                 Config.Bot.RespondToUnknownCommands.Changed += obj => { UIRespondToUnknownCommands.Checked = obj.Value; };
                 Config.Bot.FastCastSelfBuffs.Changed += obj => { UIFastCastSelfBuffs.Checked = obj.Value; };
                 Config.Bot.DangerousMonsterLogoffDistance.Changed += obj => { UIDangerousMonsterLogoffDistance.Text = obj.Value.ToString(CultureInfo.InvariantCulture); };
+                Config.Bot.EnableResetCommand.Changed += obj => { UIEnableResetCommand.Checked = obj.Value; };
 
                 UIDefaultHeading.LostFocus += (s, e) => {
                     try {
@@ -58,7 +62,15 @@ namespace DoThingsBot.Views.Pages {
                 UIFastCastSelfBuffs.Change += (s, e) => {
                     try {
                         Config.Bot.FastCastSelfBuffs.Value = ((HudCheckBox)s).Checked;
-                    } catch (Exception ex) { Util.LogException(ex); }
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                };
+
+                UIEnableResetCommand.Change += (s, e) => {
+                    try {
+                        Config.Bot.EnableResetCommand.Value = ((HudCheckBox)s).Checked;
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
                 };
 
                 UIManageBotSpellProfiles.Hit += UIManageBotSpellProfiles_Hit;
