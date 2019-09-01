@@ -39,7 +39,6 @@ namespace DoThingsBot.FSM.States {
                 CoreManager.Current.ChatBoxMessage += Current_ChatBoxMessage;
                 CoreManager.Current.EchoFilter.ServerDispatch += new EventHandler<NetworkMessageEventArgs>(EchoFilter_ServerDispatch);
                 CoreManager.Current.WorldFilter.CreateObject += WorldFilter_CreateObject;
-                CoreManager.Current.WorldFilter.ChangeObject += WorldFilter_ChangeObject;
 
                 IsRunning = true;
 
@@ -73,15 +72,6 @@ namespace DoThingsBot.FSM.States {
                 }
             }
             catch (Exception e) { Util.LogException(e); }
-        }
-
-        private void WorldFilter_ChangeObject(object sender, ChangeObjectEventArgs e) {
-            try {
-                if (itemBundle.playerData.itemIds.Contains(e.Changed.Id) && e.Change == WorldChangeType.SizeChange) {
-                    Util.WriteToChat("Got SizeChange for: " + e.Changed.Name);
-                }
-            }
-            catch (Exception ex) { Util.LogException(ex); }
         }
 
         private void WorldFilter_CreateObject(object sender, CreateObjectEventArgs e) {
@@ -150,8 +140,6 @@ namespace DoThingsBot.FSM.States {
                 }
 
                 if (IsRunning && !itemBundle.HasRecipeStepsLeft()) {
-                    Util.WriteToChat("Now would be a good time to pause.");
-
                     if (ShouldPause()) {
                         shouldPause = true;
                     }
@@ -213,10 +201,12 @@ namespace DoThingsBot.FSM.States {
             CoreManager.Current.ChatBoxMessage -= Current_ChatBoxMessage;
             CoreManager.Current.EchoFilter.ServerDispatch -= new EventHandler<NetworkMessageEventArgs>(EchoFilter_ServerDispatch);
             CoreManager.Current.WorldFilter.CreateObject -= WorldFilter_CreateObject;
-            CoreManager.Current.WorldFilter.ChangeObject -= WorldFilter_ChangeObject;
         }
+
         private static readonly Regex PercentConfirmation = new Regex("^You (?<msg>have a (?<percent>.+)% chance of using .*)");
         private bool needsConfirmation = false;
+        private bool needsYesClick = false;
+        private DateTime gotCraftingSuccessDialogAt = DateTime.UtcNow;
 
         void EchoFilter_ServerDispatch(object sender, NetworkMessageEventArgs e) {
             try {
@@ -237,7 +227,8 @@ namespace DoThingsBot.FSM.States {
 
                         if (percent >= 100 || skipConfirmations) {
                             needsConfirmation = false;
-                            PostMessageTools.ClickYes();
+                            needsYesClick = true;
+                            gotCraftingSuccessDialogAt = DateTime.UtcNow;
                         }
                         else {
                             needsConfirmation = true;
@@ -321,6 +312,16 @@ namespace DoThingsBot.FSM.States {
 
             if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(300)) {
                 lastThought = DateTime.UtcNow;
+
+                if (needsYesClick) {
+                    if (DateTime.UtcNow - gotCraftingSuccessDialogAt > TimeSpan.FromMilliseconds(100)) {
+                        needsYesClick = false;
+                        PostMessageTools.ClickYes();
+                    }
+                    else {
+                        return;
+                    }
+                }
 
                 if (!shouldCraft) return;
 
