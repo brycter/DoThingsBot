@@ -4,7 +4,7 @@ A tinker/buff/portal bot plugin.
 
 # Installation:
  - Requires Decal / Virindi View System (comes with virindi bundle)
- - Install [DoThingsBotInstaller-1.1.8.0.exe](/uploads/55304ad344e93091c64cefae9707a949/DoThingsBotInstaller-1.1.8.0.exe)
+ - Install [DoThingsBotInstaller-2.0.0.0.exe](/uploads/cb48b859c0b9deabf67cdc2ea438dd6d/DoThingsBotInstaller-2.0.0.0.exe)
     
 # How to use:
  - The AC window cannot be minimized while the bot is running.
@@ -13,6 +13,11 @@ A tinker/buff/portal bot plugin.
 
 # Known Issues
  - You must relog the bot after learning spells (from professors at least, untested with scrolls)
+ - The bot does not work if the ac window is minimized.  It does not have to be in focus.
+
+# Recipes
+- Recipes are stored in <install_dir>/Resources/recipes.xml
+- [Supported recipes](https://gitlab.com/trevis/dothingsbot/wikis/recipes)
 
 # Screenshots
 ![](https://i.gyazo.com/92f93e0ad0358d5011772af996abb551.mp4)
