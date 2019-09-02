@@ -141,10 +141,12 @@ namespace DoThingsBot.FSM.States {
                         Util.WriteToDebugLog($"Attempting to add {itemsToAddToTrade.Count} items to the trade window");
                         foreach (var item in itemsToAddToTrade) {
                             var wo = CoreManager.Current.WorldFilter[item];
-                            Util.WriteToDebugLog(String.Format("Attempting to add {0} to the trade window", Util.GetItemShortName(wo)));
-                            CoreManager.Current.Actions.TradeAdd(item);
+                            if (wo != null) {
+                                Util.WriteToDebugLog(String.Format("Attempting to add {0} to the trade window", Util.GetItemShortName(wo)));
+                                CoreManager.Current.Actions.TradeAdd(item);
 
-                            itemsBeingAddedToTrade.Add(item);
+                                itemsBeingAddedToTrade.Add(item);
+                            }
                         }
                         CoreManager.Current.Actions.TradeAccept();
 

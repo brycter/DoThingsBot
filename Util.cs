@@ -231,19 +231,24 @@ namespace DoThingsBot
         }
 
         public static string GetItemShortName(WorldObject wo) {
-            SalvageData d = Salvage.GetFromWorldObject(wo);
+            try {
+                if (wo == null) return "Unknown";
 
-            if (wo.ObjectClass == ObjectClass.Salvage) {
-                return String.Format("{0}[w{1}]",
-                    d.MaterialName,
-                    Math.Round(wo.Values(DoubleValueKey.SalvageWorkmanship) * 100) / 100
-                    );
+                if (wo.ObjectClass == ObjectClass.Salvage) {
+                    SalvageData d = Salvage.GetFromWorldObject(wo);
+
+                    return String.Format("{0}[w{1}]",
+                        d.MaterialName,
+                        Math.Round(wo.Values(DoubleValueKey.SalvageWorkmanship) * 100) / 100
+                        );
+                }
+                else {
+                    return String.Format("{0}",
+                        wo.Name
+                        );
+                }
             }
-            else {
-                return String.Format("{0}",
-                    wo.Name
-                    );
-            }
+            catch (Exception ex) { Util.LogException(ex); return "Unknown"; }
         }
 
         public static bool IsCombatPet(WorldObject obj) {
