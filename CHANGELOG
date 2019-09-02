@@ -1,4 +1,8 @@
 CHANGELOG
+2.0.0.1
+    - Fix recipes with two of the same item in the ingredients (Quality Pyreal Ingot)
+    - Fixed Hot Chocolate with Marshmallows recipe
+
 2.0.0.0
     - Added crafting support ('craft' command, 390 recipes currently supported)
     - Added ability for bot to recover in progress job and work queue after shutdown / stopping
