@@ -58,6 +58,15 @@ namespace DoThingsBot.Lib.Recipes {
         internal WorldObject GetTargetItem(ItemBundle bundle, WorldObject useItem) {
             if (useItem == null) return null;
 
+            if (on == "DYEABLE_ITEM") {
+                foreach (var id in bundle.playerData.itemIds) {
+                    var wo = CoreManager.Current.WorldFilter[id];
+                    if (wo != null && wo.Values(BoolValueKey.Dyeable, false) == true) {
+                        return wo;
+                    }
+                }
+            }
+
             foreach (var id in bundle.playerData.itemIds) {
                 var wo = CoreManager.Current.WorldFilter[id];
 
