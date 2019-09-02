@@ -1,4 +1,7 @@
 CHANGELOG
+2.0.0.2
+    - Fix issue when returning items that could throw an exception
+
 2.0.0.1
     - Fix recipes with two of the same item in the ingredients (Quality Pyreal Ingot)
     - Fixed Hot Chocolate with Marshmallows recipe
