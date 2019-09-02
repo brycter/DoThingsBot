@@ -84,7 +84,7 @@ namespace DoThingsBot.FSM.States {
                     Util.WriteToChat("Got created item: " + e.New.Name);
                     lastAction = DateTime.UtcNow;
                     if (!itemBundle.playerData.itemIds.Contains(e.New.Id)) {
-                        Util.WriteToChat("Adding " + e.New.Name + " to itemBundle");
+                        Util.WriteToChat($"Adding {e.New.Name}({e.New.Id}) to itemBundle");
                         itemBundle.playerData.itemIds.Add(e.New.Id);
 
                         itemBundle.SavePlayerData();
@@ -350,6 +350,9 @@ namespace DoThingsBot.FSM.States {
 
                 if (isCrafting) return;
 
+                if (CoreManager.Current.Actions.BusyState != 0) {
+                    return;
+                }
 
                 foreach (var stackThis in stackThese) {
                     var stackThisWo = CoreManager.Current.WorldFilter[stackThis];
@@ -373,6 +376,7 @@ namespace DoThingsBot.FSM.States {
                 var step = itemBundle.GetCurrentRecipeStep();
 
                 if (step != null) {
+
                     if (!Recipes.allTools.Contains(step.use) && !itemBundle.recipeIngredients.Contains(step.use)) {
                         Util.WriteToDebugLog($"I ran out of {step.use}.");
                         didFinish = true;
@@ -386,14 +390,11 @@ namespace DoThingsBot.FSM.States {
                         return;
                     }
 
-                    if (CoreManager.Current.Actions.BusyState != 0) {
-                        return;
-                    }
+                    var useItem = Recipes.allTools.Contains(step.use) ? Util.GetInventoryItemByName(step.use) : step.GetUseItem(itemBundle);
+                    var targetItem = Recipes.allTools.Contains(step.on) ? Util.GetInventoryItemByName(step.on) : step.GetTargetItem(itemBundle, useItem);
 
-                    Util.WriteToDebugLog($"Use {step.use} on {step.on} to get {step.result}");
+                    Util.WriteToDebugLog($"Use {step.use}({useItem != null}) on {step.on}({targetItem != null}) to get {step.result}");
 
-                    var useItem = Util.GetInventoryItemByName(step.use, itemBundle);
-                    var targetItem = Util.GetInventoryItemByName(step.on, itemBundle);
 
                     if (useItem == null || targetItem == null) {
                         Chat.ChatManager.Tell(itemBundle.GetOwner(), $"Something went wrong, could not find items to work on...");

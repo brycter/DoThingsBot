@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Decal.Adapter;
+using Decal.Adapter.Wrappers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -39,6 +41,32 @@ namespace DoThingsBot.Lib.Recipes {
             this.failDestroySourceAmount = failDestroySourceAmount;
             this.failDestroyTargetAmount = failDestroyTargetAmount;
 
+        }
+
+        internal WorldObject GetUseItem(ItemBundle bundle) {
+            foreach (var id in bundle.playerData.itemIds) {
+                var wo = CoreManager.Current.WorldFilter[id];
+
+                if (wo != null && wo.Name == use) {
+                    return wo;
+                }
+            }
+
+            return null;
+        }
+
+        internal WorldObject GetTargetItem(ItemBundle bundle, WorldObject useItem) {
+            if (useItem == null) return null;
+
+            foreach (var id in bundle.playerData.itemIds) {
+                var wo = CoreManager.Current.WorldFilter[id];
+
+                if (wo != null && wo.Name == on && wo.Id != useItem.Id) {
+                    return wo;
+                }
+            }
+
+            return null;
         }
     }
 }
