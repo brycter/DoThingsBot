@@ -26,7 +26,6 @@ A tinker/buff/portal bot plugin.
 
 # TODO
  - Calculate success chance on the bot instead of using ingame popup window
- - Use recipes.json so the bot can craft *anything*
  - Tradebot
  - Equipment mana managment
  - Brilliance
