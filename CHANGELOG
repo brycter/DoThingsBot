@@ -1,4 +1,7 @@
 CHANGELOG
+2.0.0.4
+* Add portal gems to low components warnings and comps command
+
 2.0.0.3
 * Small tweak for new ACE trade code.  Just a check to make sure a) we dont already have a trade window open, b) its with the right person.
 * Buggy bugs

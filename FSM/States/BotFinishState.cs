@@ -41,6 +41,9 @@ namespace DoThingsBot.FSM.States {
                 ChatManager.AddSpamToChatBox("/s " + ComponentManager.LowComponentAnnouncement());
             }
 
+            Util.WriteToChat($"IsLowOnComps? {ComponentManager.IsLowOnComps()} and afterJob {Config.Bot.AnnounceLowComponentsAfterJob.Value}");
+            Util.WriteToChat($"LowMessage: {ComponentManager.LowComponentAnnouncement()}");
+
             if (itemBundle.playerData != null && itemBundle.playerData.jobType == "tinker" && Config.Tinkering.KeepEquipmentOnDelay.Value > 0) {
                 machine.ChangeState(new BotIdleState());
             }

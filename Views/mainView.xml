@@ -119,11 +119,15 @@
             <control progid="DecalControls.Edit" name="UISecondaryPortalHeading" left="300" top="45" width="30" height="20" text=""/>
 
             <control progid="DecalControls.StaticText" name="UIPortalHeadingHelpLabel" left="32" top="65" width="315" height="20" text="(Heading 0 = North, 90 = East, 180 = South, 270 = West)"/>
-            <control progid="DecalControls.StaticText" name="UIPortalGemCommandsCommandLabel" left="4" top="85" width="75" height="20" text="Command"/>
-            <control progid="DecalControls.StaticText" name="UIPortalGemCommandsPortalGemLabel" left="122" top="85" width="100" height="20" text="Portal Gem"/>
-            <control progid="DecalControls.StaticText" name="UIPortalGemCommandsHeadingLabel" left="265" top="85" width="80" height="20" text="Heading"/>
+
+            <control progid="DecalControls.StaticText" name="UIPortalGemLowCountLabel" left="1" top="85" width="200" height="20" text="Portal Gem Low Comp Count (0 disables):"/>
+            <control progid="DecalControls.Edit" name="UIPortalGemLowCount" left="210" top="85" width="30" height="20" text=""/>
+            
+            <control progid="DecalControls.StaticText" name="UIPortalGemCommandsCommandLabel" left="4" top="105" width="75" height="20" text="Command"/>
+            <control progid="DecalControls.StaticText" name="UIPortalGemCommandsPortalGemLabel" left="122" top="105" width="100" height="20" text="Portal Gem"/>
+            <control progid="DecalControls.StaticText" name="UIPortalGemCommandsHeadingLabel" left="265" top="105" width="80" height="20" text="Heading"/>
         
-            <control progid="DecalControls.List" name="UIPortalGemCommands" top="102" width="350" height="76">
+            <control progid="DecalControls.List" name="UIPortalGemCommands" top="122" width="350" height="56">
               <column progid="DecalControls.TextColumn" name="UIPortalGemCommandsCommandCol" fixedwidth="90"/>
               <column progid="DecalControls.IconColumn" name="UIPortalGemCommandsPortalGemIconCol" fixedwith="15"/>
               <column progid="DecalControls.TextColumn" name="UIPortalGemCommandsPortalGemCol" fixedwidth="155"/>
@@ -157,7 +161,6 @@
         
         <control progid="DecalControls.StaticText" name="UIAnnouncementsAnnounceIntervalLabel" left="5" top="55" width="230" height="20" text="Announce Interval (minutes):" fontstyle="bold"/>
         <control progid="DecalControls.Edit" name="UIAnnouncementsAnnounceInterval" left="305" top="55" width="40" height="20" text="15"/>
-
         <control progid="DecalControls.Edit" name="UIAnnouncementsNewMessage" left="" top="80" width="300" height="20" text="/s "/>
         <control progid="DecalControls.PushButton" name="UIAnnouncementsAddNewMessage" left="305" top="80" width="40" height="20" text="Add" fontstyle="bold"/>
 

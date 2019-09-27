@@ -298,6 +298,7 @@ namespace DoThingsBot {
             public static Setting<string> SecondaryPortalExtraCommand;
 
             public static Setting<List<string>> PortalGems;
+            public static Setting<int> PortalGemLowCount;
 
             static Portals() {
             }
@@ -314,9 +315,23 @@ namespace DoThingsBot {
                 SecondaryPortalExtraCommand = new Setting<string>("Config/Portals/SecondaryPortalExtraCommand", "Bot will also respond to this command to summon primary portal (eg: tn)", "");
 
                 PortalGems = new Setting<List<string>>("Config/Portals/PortalGems/Gem", "Portal Gem summoning commands", new List<string>());
+                PortalGemLowCount = new Setting<int>("Config/Portals/PortalGemLowCount", "Portal Gem low count, 0 disables. Will spam when low.", 5);
 
                 PrimaryPortalHeading.Validate += ValidateHeading;
                 SecondaryPortalHeading.Validate += ValidateHeading;
+            }
+
+            internal static List<string> GetUniqueGemNames() {
+                var names = new List<string>();
+
+                foreach (var gem in PortalGems.Value) {
+                    var name = gem.Split('|')[1];
+                    if (!names.Contains(name)) {
+                        names.Add(name);
+                    }
+                }
+
+                return names;
             }
 
             public static string[] GetValidPortalGemCommands() {
