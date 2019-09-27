@@ -48,16 +48,21 @@ namespace DoThingsBot.Lib {
         }
 
         internal static bool IsLowOnComps() {
-            var isLow = false;
-
             foreach (var comp in trackedComponents) {
                 if (comp.IsLow()) {
-                    isLow = true;
-                    break;
+                    return true;
                 }
             }
 
-            return isLow;
+            var gems = Config.Portals.GetUniqueGemNames();
+            foreach (var gem in gems) {
+                var min = Config.Portals.PortalGemLowCount.Value;
+                if (min >= 0 && Util.GetItemCount(gem) <= min) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         internal static string LowComponentAnnouncement() {
@@ -72,6 +77,22 @@ namespace DoThingsBot.Lib {
                 }
                 else if (comp.IsLow()) {
                     lowComponents.Add(comp.Name + "s");
+                }
+            }
+
+            var gems = Config.Portals.GetUniqueGemNames();
+            foreach (var gem in gems) {
+                var min = Config.Portals.PortalGemLowCount.Value;
+
+                if (min <= 0) continue;
+                
+                var count = Util.GetItemCount(gem);
+
+                if (count == 0) {
+                    emptyComponents.Add(gem + "s");
+                }
+                else if (Util.GetItemCount(gem) <= min) {
+                    lowComponents.Add(gem + "s");
                 }
             }
 

@@ -15,6 +15,7 @@ namespace DoThingsBot.Views.Pages {
         HudTextBox UIPortalGemAddHeadingText { get; set; }
         HudButton UIPortalGemAddSelected { get; set; }
         HudList UIPortalGemCommands { get; set; }
+        HudTextBox UIPortalGemLowCount { get; set; }
 
         public PortalsPage(MainView mainView) {
             try {
@@ -31,6 +32,8 @@ namespace DoThingsBot.Views.Pages {
                 UIPortalGemAddSelected = (HudButton)mainView.view["UIPortalGemAddSelected"];
                 UIPortalGemCommands = (HudList)mainView.view["UIPortalGemCommands"];
 
+                UIPortalGemLowCount = (HudTextBox)mainView.view["UIPortalGemLowCount"];
+
                 UIPrimaryPortalLocation.Text = Config.Portals.PrimaryPortalTieLocation.Value;
                 UIPrimaryPortalHeading.Text = Config.Portals.PrimaryPortalHeading.Value.ToString();
                 UIPrimaryPortalExtraCommand.Text = Config.Portals.PrimaryPortalExtraCommand.Value.ToString();
@@ -39,12 +42,16 @@ namespace DoThingsBot.Views.Pages {
                 UISecondaryPortalHeading.Text = Config.Portals.SecondaryPortalHeading.Value.ToString();
                 UISecondaryPortalExtraCommand.Text = Config.Portals.SecondaryPortalExtraCommand.Value.ToString();
 
+                UIPortalGemLowCount.Text = Config.Portals.PortalGemLowCount.Value.ToString();
+
                 Config.Portals.PrimaryPortalTieLocation.Changed += obj => { UIPrimaryPortalLocation.Text = obj.Value; };
                 Config.Portals.PrimaryPortalHeading.Changed += obj => { UIPrimaryPortalHeading.Text = obj.Value.ToString(); };
                 Config.Portals.PrimaryPortalExtraCommand.Changed += obj => { UIPrimaryPortalExtraCommand.Text = obj.Value; };
 
                 Config.Portals.SecondaryPortalTieLocation.Changed += obj => { UISecondaryPortalLocation.Text = obj.Value; };
                 Config.Portals.SecondaryPortalHeading.Changed += obj => { UISecondaryPortalHeading.Text = obj.Value.ToString(); };
+
+                Config.Portals.PortalGemLowCount.Changed += obj => { UIPortalGemLowCount.Text = obj.Value.ToString(); };
 
                 UIPrimaryPortalLocation.LostFocus += (s, e) => {
                     try {
@@ -95,6 +102,15 @@ namespace DoThingsBot.Views.Pages {
                 UIPortalGemAddSelected.Hit += UIPortalGemAddSelected_Hit;
 
                 UIPortalGemCommands.Click += UIPortalGemCommands_Click;
+
+                UIPortalGemLowCount.LostFocus += (s, e) => {
+                    try {
+                        if (!int.TryParse(UIPortalGemLowCount.Text, out int value))
+                            value = Config.Portals.PortalGemLowCount.Value;
+                        Config.Portals.PortalGemLowCount.Value = value;
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                };
 
                 RefreshPortalGemsList();
             }

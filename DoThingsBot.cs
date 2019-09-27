@@ -14,6 +14,7 @@ using System.Diagnostics;
 using DoThingsBot.Lib;
 using DoThingsBot.Lib.Recipes;
 using System.Xml;
+using System.Linq;
 
 namespace DoThingsBot {
     public class DoThingsBot {
@@ -454,6 +455,15 @@ namespace DoThingsBot {
                     foreach (var comp in ComponentManager.trackedComponents) {
                         if (comp.LowWarningAmount() > 0) {
                             comps.Add(string.Format("{0}: {1}", comp.Name, comp.Count()));
+                        }
+                    }
+
+                    var gems = Config.Portals.GetUniqueGemNames();
+                    foreach (var gem in gems) {
+                        var lowCount = Config.Portals.PortalGemLowCount.Value;
+                        var count = Util.GetItemCount(gem);
+                        if (lowCount > 0 && count <= lowCount) {
+                            comps.Add($"{gem}: {count}");
                         }
                     }
 
