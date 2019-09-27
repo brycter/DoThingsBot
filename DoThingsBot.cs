@@ -38,6 +38,9 @@ namespace DoThingsBot {
 
         public ItemBundle currentItemBundle;
 
+        public bool hasTradeOpen = false;
+        public int tradePartnerId = 0;
+
         private enum DoThingType {
             Tinker
         }
@@ -47,6 +50,24 @@ namespace DoThingsBot {
             _machine = new Machine();
 
             CoreManager.Current.RenderFrame += new EventHandler<EventArgs>(Current_RenderFrame);
+            CoreManager.Current.WorldFilter.EnterTrade += WorldFilter_EnterTrade;
+            CoreManager.Current.WorldFilter.EndTrade += WorldFilter_EndTrade;
+        }
+
+        private void WorldFilter_EnterTrade(object sender, EnterTradeEventArgs e) {
+            try {
+                hasTradeOpen = true;
+                tradePartnerId = e.TradeeId == Globals.Core.CharacterFilter.Id ? e.TraderId : e.TradeeId;
+            }
+            catch (Exception ex) { Util.LogException(ex); }
+        }
+
+        private void WorldFilter_EndTrade(object sender, EndTradeEventArgs e) {
+            try {
+                hasTradeOpen = false;
+                tradePartnerId = 0;
+            }
+            catch (Exception ex) { Util.LogException(ex); }
         }
 
         public void Start() {
@@ -79,7 +100,15 @@ namespace DoThingsBot {
 
             ChatManager.ResetAnnouncementTimer();
             ChatManager.RaiseChatCommandEvent += new EventHandler<ChatCommandEventArgs>(ChatManager_ChatCommand);
-            
+
+        }
+
+        internal bool HasTradeOpen() {
+            return hasTradeOpen;
+        }
+
+        internal int GetTradePartner() {
+            return tradePartnerId;
         }
 
         private bool CheckSettings() {
@@ -177,6 +206,8 @@ namespace DoThingsBot {
             if (!_machine.IsRunning) {
                 return;
             }
+
+            Util.WriteToChat($"cnd:{e.Command} p:{e.PlayerName} a:{e.Arguments}");
 
             if (currentItemBundle != null && queue.Count > 0) {
                 currentItemBundle = null;
@@ -813,6 +844,7 @@ namespace DoThingsBot {
                 writer.WriteEndElement();
 
                 writer.Close();
+                Util.WriteToChat($"Queue count: {queue.Count}");
             }
             catch (Exception ex) { Util.LogException(ex); }
         }
@@ -858,7 +890,22 @@ namespace DoThingsBot {
                         if (queue.Count > 0) {
                             if (!HasPausedJobs() || !TryResumePausedJob()) {
                                 lastDequeue = DateTime.UtcNow;
-                                ProcessCommand(new ChatCommandEventArgs(queue[0].PlayerName, queue[0].Command, queue[0].Command), true);
+                                var parts = queue[0].Command.Split(' ');
+
+                                var command = "";
+                                var arguments = "";
+
+                                if (parts.Length == 1) {
+                                    command = parts[0];
+                                }
+                                else {
+                                    command = parts[0];
+                                    var p2 = (new List<string>(parts));
+                                    p2.RemoveAt(0);
+                                    arguments = string.Join(" ", p2.ToArray());
+                                }
+
+                                ProcessCommand(new ChatCommandEventArgs(queue[0].PlayerName, command, queue[0].Command, arguments), true);
                                 queue.RemoveAt(0);
                                 SaveQueue();
                             }

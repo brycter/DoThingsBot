@@ -24,7 +24,9 @@ namespace DoThingsBot.FSM.States {
         public void Enter(Machine machine) {
             _machine = machine;
 
-            ChatManager.Tell(itemBundle.GetOwner(), "I'm attempting to open a trade window with you, please stand close to me.");
+            if (!Globals.DoThingsBot.HasTradeOpen()) {
+                ChatManager.Tell(itemBundle.GetOwner(), "I'm attempting to open a trade window with you, please stand close to me.");
+            }
 
             CoreManager.Current.WorldFilter.EnterTrade += new EventHandler<EnterTradeEventArgs>(WorldFilter_EnterTrade);
         }
@@ -36,10 +38,9 @@ namespace DoThingsBot.FSM.States {
         public void TryToOpenTrade() {
             WorldObject player = Util.FindPlayerWorldObjectByName(itemBundle.GetOwner());
 
-            openTradeCount++;
-
-
             if (player == null || Util.GetDistanceFromPlayer(player) > 2) {
+                openTradeCount++;
+
                 if (openTradeCount > 1) {
                     ChatManager.Tell(itemBundle.GetOwner(), "I was unable to open a trade with you. You'll have to start over.");
 
@@ -50,13 +51,28 @@ namespace DoThingsBot.FSM.States {
                 }
                 return;
             }
+            else if (Globals.DoThingsBot.HasTradeOpen() && Globals.DoThingsBot.GetTradePartner() == player.Id) {
+                // trade has been opened
+                if (itemBundle.GetCraftMode() == CraftMode.GiveBackItems) {
+                    _machine.ChangeState(new BotTrading_ReturnItemsState(itemBundle));
+                }
+                else {
+                    _machine.ChangeState(new BotTrading_AwaitingItemsState(itemBundle));
+                }
+                return;
+            }
+            else if (Globals.DoThingsBot.HasTradeOpen() && Globals.DoThingsBot.GetTradePartner() != player.Id) {
+                Globals.Core.Actions.TradeEnd();
+                return;
+            }
 
             if (openTradeCount > 2) {
                 ChatManager.Tell(itemBundle.GetOwner(), "I was unable to open a trade with you. You'll have to start over.");
 
                 _machine.ChangeState(new BotTrading_TradeCancelledState(itemBundle));
             }
-            
+            openTradeCount++;
+
             CoreManager.Current.Actions.UseItem(player.Id, 0);
         }
 

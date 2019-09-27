@@ -142,7 +142,7 @@ namespace DoThingsBot.FSM.States {
                 if (Util.IsChat(e.Text, Util.ChatFlags.PlayerTellsYou)) {
                     string playerName = Util.GetSourceOfChat(e.Text);
                     string command = Util.GetMessageFromChat(e.Text);
-                    if (playerName == itemBundle.GetOwner() && command == "cancel" || command == "remove") {
+                    if (playerName == itemBundle.GetOwner() && command == "cancel") {
                         ChatManager.Tell(playerName, "Ok, cancelling your current buff queue.");
                         doneCasting = true;
                         return;

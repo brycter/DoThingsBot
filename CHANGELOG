@@ -1,4 +1,9 @@
 CHANGELOG
+2.0.0.3
+    - Small tweak for new ACE trade code.  Just a check to make sure a) we dont already have a trade window open, b) its with the right person.
+    - Buggy bugs
+    - Added recipes to make vials, instead of a full dye job
+
 2.0.0.2
     - Fix issue when returning items that could throw an exception
 

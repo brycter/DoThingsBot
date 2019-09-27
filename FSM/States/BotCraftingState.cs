@@ -64,10 +64,14 @@ namespace DoThingsBot.FSM.States {
                         Chat.ChatManager.Tell(itemBundle.GetOwner(), $"I am able to make multiple recipes with those ingredients.  Please respond with a number from the following list of recipes to make: ");
                         Chat.ChatManager.Tell(itemBundle.GetOwner(), String.Join(" ", choices.ToArray()));
                     }
-                    else {
+                    else if (recipes.Count == 1) {
                         recipe = recipes[0];
                         itemBundle.playerData.recipe = recipe.name;
                         shouldCraft = true;
+                    }
+                    else {
+                        ChatManager.Tell(itemBundle.GetOwner(), "Something went wrong and I don't know a recipe for that I guess... ");
+                        Bail();
                     }
                 }
             }
