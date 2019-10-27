@@ -40,7 +40,7 @@ namespace DoThingsBot.Lib {
                     }
                 }
             }
-            catch (Exception ex) { Util.LogException(ex); }
+            catch (Exception ex) { }
         }
 
         private static void OnGitlabFetchComplete(IAsyncResult result) {

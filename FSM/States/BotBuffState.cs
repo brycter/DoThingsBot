@@ -276,8 +276,8 @@ namespace DoThingsBot.FSM.States {
                         if (DateTime.UtcNow - lastCasted > TimeSpan.FromMilliseconds(1000)) {
                             lastCasted = DateTime.UtcNow;
                             CoreManager.Current.Actions.CastSpell(spellId, targetId);
+                            castCount++;
                         }
-                        castCount++;
                         return;
                     }
 

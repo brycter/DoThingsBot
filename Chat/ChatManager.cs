@@ -161,7 +161,7 @@ namespace DoThingsBot.Chat {
         }
 
         public static void AddSpamToChatBox(string message) {
-            if (!message.StartsWith("*") && PublicChatMessageRegex.IsMatch(message.ToLower())) {
+            if (!message.StartsWith("*") && (PublicChatMessageRegex.IsMatch(message.ToLower()) || !message.StartsWith("/"))) {
                 if (message.StartsWith("/s ") || (!message.StartsWith("/") && !message.StartsWith(":"))) {
                     message = string.Format("/e says, \"{0}\" -b-", message.Replace("/s ", ""));
                 }
