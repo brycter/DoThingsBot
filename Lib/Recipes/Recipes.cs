@@ -156,6 +156,9 @@ namespace DoThingsBot.Lib.Recipes {
         public static List<Recipe> FindByIngredients(IngredientList ingredients) {
             var results = new List<Recipe>();
 
+            var i = string.Join(", ", ingredients.ingredients.Select(s => s.Key).ToArray());
+            Util.WriteToChat($"Finding recipes for ingredients: {i}");
+
             foreach (var recipe in recipes) {
                 foreach (var ingredientSet in recipe.GetIngredientSets()) {
                     if (recipe.MatchesIngredients(ingredients)) {

@@ -19,6 +19,7 @@ namespace DoThingsBot.FSM.States {
         private int actionCount = 0;
         private List<RecipeStep> steps;
         private bool needsChoice = false;
+        private bool loadedRecipes = false;
 
         public Recipe recipe;
         public List<Recipe> recipes;
@@ -26,6 +27,8 @@ namespace DoThingsBot.FSM.States {
         private bool isCrafting = false;
         private bool shouldPause = false;
         private List<int> stackThese = new List<int>();
+        private List<int> itemsAwaitingIdentity = new List<int>();
+        private string waitingForItem = "";
 
         public BotCraftingState(ItemBundle items) {
             itemBundle = items;
@@ -39,6 +42,7 @@ namespace DoThingsBot.FSM.States {
                 CoreManager.Current.ChatBoxMessage += Current_ChatBoxMessage;
                 CoreManager.Current.EchoFilter.ServerDispatch += new EventHandler<NetworkMessageEventArgs>(EchoFilter_ServerDispatch);
                 CoreManager.Current.WorldFilter.CreateObject += WorldFilter_CreateObject;
+                CoreManager.Current.WorldFilter.ChangeObject += WorldFilter_ChangeObject;
 
                 IsRunning = true;
 
@@ -52,52 +56,77 @@ namespace DoThingsBot.FSM.States {
                     recipe = Recipes.FindByName(itemBundle.playerData.recipe);
                     itemBundle.recipe = recipe;
                     itemBundle.SetRecipeIngredientList(itemBundle.GetValidRecipeIngredients());
+                    loadedRecipes = true;
                 }
                 else {
-                    recipes = Recipes.FindByItemBundle(itemBundle);
-                    itemBundle.SetRecipeIngredientList(itemBundle.GetIngredientList());
+                    foreach (var item in itemBundle.GetItems()) {
+                        var wo = CoreManager.Current.WorldFilter[item];
+                        if (!wo.HasIdData) {
+                            itemsAwaitingIdentity.Add(wo.Id);
+                            CoreManager.Current.Actions.RequestId(wo.Id);
+                        }
+                    }
 
-                    if (recipes.Count > 1) {
-                        needsChoice = true;
-                        List<string> choices = GetRecipeChoices();
-
-                        Chat.ChatManager.Tell(itemBundle.GetOwner(), $"I am able to make multiple recipes with those ingredients.  Please respond with a number from the following list of recipes to make: ");
-                        Chat.ChatManager.Tell(itemBundle.GetOwner(), String.Join(" ", choices.ToArray()));
-                    }
-                    else if (recipes.Count == 1) {
-                        recipe = recipes[0];
-                        itemBundle.playerData.recipe = recipe.name;
-                        shouldCraft = true;
-                    }
-                    else {
-                        ChatManager.Tell(itemBundle.GetOwner(), "Something went wrong and I don't know a recipe for that I guess... ");
-                        Bail();
-                    }
+                    if (itemsAwaitingIdentity.Count == 0)
+                        FindRecipes();
                 }
             }
             catch (Exception e) { Util.LogException(e); }
+        }
+
+        private void FindRecipes() {
+            loadedRecipes = true;
+            recipes = Recipes.FindByItemBundle(itemBundle);
+            itemBundle.SetRecipeIngredientList(itemBundle.GetIngredientList());
+
+            if (recipes.Count > 1) {
+                needsChoice = true;
+                List<string> choices = GetRecipeChoices();
+
+                Chat.ChatManager.Tell(itemBundle.GetOwner(), $"I am able to make multiple recipes with those ingredients.  Please respond with a number from the following list of recipes to make: ");
+                Chat.ChatManager.Tell(itemBundle.GetOwner(), String.Join(" ", choices.ToArray()));
+            }
+            else if (recipes.Count == 1) {
+                recipe = recipes[0];
+                itemBundle.playerData.recipe = recipe.name;
+                shouldCraft = true;
+            }
+            else {
+                ChatManager.Tell(itemBundle.GetOwner(), "Something went wrong and I don't know a recipe for that I guess... ");
+                Bail();
+            }
+        }
+
+        private void WorldFilter_ChangeObject(object sender, ChangeObjectEventArgs e) {
+            try {
+                if (e.Change == WorldChangeType.IdentReceived && itemsAwaitingIdentity.Contains(e.Changed.Id))
+                    itemsAwaitingIdentity.Remove(e.Changed.Id);
+            }
+            catch (Exception ex) {
+                Util.LogException(ex);
+            }
         }
 
         private void WorldFilter_CreateObject(object sender, CreateObjectEventArgs e) {
             try {
                 var step = itemBundle.GetCurrentRecipeStep();
 
-                if (step == null) return;
+                //if (step == null) {
+                //    return;
+                //}
 
-                if (e.New.Name == step.result) {
-                    Util.WriteToChat("Got created item: " + e.New.Name);
-                    lastAction = DateTime.UtcNow;
-                    if (!itemBundle.playerData.itemIds.Contains(e.New.Id)) {
-                        Util.WriteToChat($"Adding {e.New.Name}({e.New.Id}) to itemBundle");
-                        itemBundle.playerData.itemIds.Add(e.New.Id);
+                // dont capture tools, those are ours
+                if (Recipes.allTools.Contains(e.New.Name))
+                    return;
 
-                        itemBundle.SavePlayerData();
+                if (!itemBundle.playerData.itemIds.Contains(e.New.Id)) {
+                    itemBundle.playerData.itemIds.Add(e.New.Id);
+                    itemBundle.SavePlayerData();
 
-                        foreach (var id in itemBundle.playerData.itemIds) {
-                            var wo = CoreManager.Current.WorldFilter[id];
-                            if (wo != null && wo.Name == e.New.Name) {
-                                stackThese.Add(e.New.Id);
-                            }
+                    foreach (var id in itemBundle.playerData.itemIds) {
+                        var wo = CoreManager.Current.WorldFilter[id];
+                        if (wo != null && wo.Name == e.New.Name) {
+                            stackThese.Add(e.New.Id);
                         }
                     }
                 }
@@ -112,7 +141,7 @@ namespace DoThingsBot.FSM.States {
                 if (step == null) return;
 
                 if (e.Text.StartsWith(step.successMessage)) {
-                    Util.WriteToChat("Got Success Message: " + step.successMessage);
+                    Util.WriteToDebugLog("Got Success Message: " + step.successMessage);
                     if (step.successDestroySourceAmount > 0) {
                         itemBundle.recipeIngredients.Remove(step.use, step.successDestroySourceAmount);
                     }
@@ -123,12 +152,12 @@ namespace DoThingsBot.FSM.States {
                     itemBundle.recipeIngredients.Add(step.result, step.successAmount);
                     itemBundle.recipeSteps.RemoveAt(0);
                     isCrafting = false;
-                    lastThought = DateTime.UtcNow;
+                    lastThought = DateTime.UtcNow + TimeSpan.FromMilliseconds(300);
 
                     //Chat.ChatManager.Tell(itemBundle.GetOwner(), $"RecipeIngredients now: {itemBundle.recipeIngredients.Summary()}");
                 }
                 else if (e.Text.StartsWith(step.failMessage)) {
-                    Util.WriteToChat("Got Fail Message: " + step.failMessage);
+                    Util.WriteToDebugLog("Got Fail Message: " + step.failMessage);
                     if (step.failDestroySourceAmount > 0) {
                         itemBundle.recipeIngredients.Remove(step.use, step.failDestroySourceAmount);
                     }
@@ -136,6 +165,7 @@ namespace DoThingsBot.FSM.States {
                         itemBundle.recipeIngredients.Remove(step.on, step.failDestroyTargetAmount);
                     }
 
+                    waitingForItem = "";
                     itemBundle.recipeSteps.RemoveAt(0);
                     isCrafting = false;
                     lastThought = DateTime.UtcNow;
@@ -205,9 +235,10 @@ namespace DoThingsBot.FSM.States {
             CoreManager.Current.ChatBoxMessage -= Current_ChatBoxMessage;
             CoreManager.Current.EchoFilter.ServerDispatch -= new EventHandler<NetworkMessageEventArgs>(EchoFilter_ServerDispatch);
             CoreManager.Current.WorldFilter.CreateObject -= WorldFilter_CreateObject;
+            CoreManager.Current.WorldFilter.ChangeObject -= WorldFilter_ChangeObject;
         }
 
-        private static readonly Regex PercentConfirmation = new Regex("^You (?<msg>have a (?<percent>.+)% chance of using .*)");
+        private static readonly Regex PercentConfirmation = new Regex("^You (determine that you )?(?<msg>have a (?<percent>.+)% .*)");
         private bool needsConfirmation = false;
         private bool needsYesClick = false;
         private DateTime gotCraftingSuccessDialogAt = DateTime.UtcNow;
@@ -238,6 +269,9 @@ namespace DoThingsBot.FSM.States {
                             needsConfirmation = true;
                             ChatManager.Tell(itemBundle.GetOwner(), String.Format("I {0}'", itemBundle.successChanceFullString) + ". Respond with 'go', 'always', or 'cancel'.");
                         }
+                    }
+                    else {
+                        Util.WriteToChat($"Did not match: {e.Message.Value<string>("text")}");
                     }
                 }
             }
@@ -314,18 +348,24 @@ namespace DoThingsBot.FSM.States {
                 return;
             }
 
+            if (itemsAwaitingIdentity.Count > 0)
+                return;
+
+            if (!loadedRecipes)
+                FindRecipes();
+
+            if (needsYesClick) {
+                if (DateTime.UtcNow - gotCraftingSuccessDialogAt > TimeSpan.FromMilliseconds(100)) {
+                    needsYesClick = false;
+                    PostMessageTools.ClickYes();
+                }
+                else {
+                    return;
+                }
+            }
+
             if (DateTime.UtcNow - lastThought > TimeSpan.FromMilliseconds(300)) {
                 lastThought = DateTime.UtcNow;
-
-                if (needsYesClick) {
-                    if (DateTime.UtcNow - gotCraftingSuccessDialogAt > TimeSpan.FromMilliseconds(100)) {
-                        needsYesClick = false;
-                        PostMessageTools.ClickYes();
-                    }
-                    else {
-                        return;
-                    }
-                }
 
                 if (!shouldCraft) return;
 
@@ -380,7 +420,6 @@ namespace DoThingsBot.FSM.States {
                 var step = itemBundle.GetCurrentRecipeStep();
 
                 if (step != null) {
-
                     if (!Recipes.allTools.Contains(step.use) && !itemBundle.recipeIngredients.Contains(step.use)) {
                         Util.WriteToDebugLog($"I ran out of {step.use}.");
                         didFinish = true;
@@ -397,15 +436,17 @@ namespace DoThingsBot.FSM.States {
                     var useItem = Recipes.allTools.Contains(step.use) ? Util.GetInventoryItemByName(step.use) : step.GetUseItem(itemBundle);
                     var targetItem = Recipes.allTools.Contains(step.on) ? Util.GetInventoryItemByName(step.on) : step.GetTargetItem(itemBundle, useItem);
 
-                    Util.WriteToDebugLog($"Use {step.use}({useItem != null}) on {step.on}({targetItem != null}) to get {step.result}");
-
 
                     if (useItem == null || targetItem == null) {
-                        Chat.ChatManager.Tell(itemBundle.GetOwner(), $"Something went wrong, could not find items to work on...");
-                        Bail();
+                        if (DateTime.UtcNow - lastAction > TimeSpan.FromMilliseconds(10000)) {
+                            Chat.ChatManager.Tell(itemBundle.GetOwner(), $"Something went wrong, could not find items to work on... {step.use} {step.on}");
+                            Bail();
+                        }
                         return;
                     }
+                    Util.WriteToDebugLog($"Using {step.use}({useItem.HasIdData}) on {step.on}({targetItem.HasIdData}) to get {step.result}");
 
+                    waitingForItem = step.result;
                     CoreManager.Current.Actions.ApplyItem(useItem.Id, targetItem.Id);
                     isCrafting = true;
                     lastAction = DateTime.UtcNow;

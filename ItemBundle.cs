@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace DoThingsBot {
@@ -122,9 +123,8 @@ namespace DoThingsBot {
 
             foreach (var item in GetItems()) {
                 var wo = CoreManager.Current.WorldFilter[item];
-
                 if (wo != null) {
-                    if (wo.Values(BoolValueKey.Dyeable, false)) {
+                    if (wo.ObjectClass == ObjectClass.Armor || wo.Values(BoolValueKey.Dyeable, false)) {
                         ingredients.Add("DYEABLE_ITEM", 1);
                     }
                     else {
@@ -230,8 +230,19 @@ namespace DoThingsBot {
 
         public RecipeStep GetCurrentRecipeStep() {
             if (recipe == null) return null;
+            var ingredients = GetIngredientList();
 
-            if (!HasRecipeStepsLeft()) recipeSteps = new List<RecipeStep>(recipe.GetSteps(GetIngredientList()));
+            if (!HasRecipeStepsLeft()) {
+                if (ingredients.Contains("DYEABLE_ITEM") && !hasAssignedSteps) {
+                    recipeSteps = new List<RecipeStep>(recipe.GetSteps(ingredients));
+                    hasAssignedSteps = true;
+                }
+                else if (!ingredients.Contains("DYEABLE_ITEM")) {
+                    recipeSteps = new List<RecipeStep>(recipe.GetSteps(ingredients));
+                }
+            }
+
+            //Util.WriteToChat($"Found {recipeSteps.Count} steps to perform on: {string.Join(", ", ingredients.ingredients.Select(i=>i.Key).ToArray())}");
 
             return recipeSteps.Count > 0 ? recipeSteps[0] : null;
         }
@@ -767,6 +778,7 @@ namespace DoThingsBot {
         }
 
         public string sortedSalvageNames;
+        private bool hasAssignedSteps;
 
         public void SetItemTargets() {
             try {
