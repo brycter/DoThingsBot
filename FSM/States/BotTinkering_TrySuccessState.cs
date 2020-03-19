@@ -102,7 +102,9 @@ namespace DoThingsBot.FSM.States {
         }
 
         // You determine that you have a 100 percent chance to succeed.
-        private static readonly Regex PercentConfirmation = new Regex("^You (?<msg>have a (?<percent>.+)% chance of using .*)");
+        // You (?<msg>determine that you have a (?<percent>.+)% chance to succeed. Continue?)
+        // You have a 33.3% chance of using Black Garnet Salvage (100) on Green Jade Heavy Crossbow.
+        private static readonly Regex PercentConfirmation = new Regex("^You (determine that you )?(?<msg>have a (?<percent>.+)% .*)");
         private bool didFinish = false;
 
         void EchoFilter_ServerDispatch(object sender, NetworkMessageEventArgs e) {

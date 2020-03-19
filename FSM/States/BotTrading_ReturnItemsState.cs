@@ -78,7 +78,8 @@ namespace DoThingsBot.FSM.States {
         void WorldFilter_AcceptTrade(object sender, AcceptTradeEventArgs e) {
             try {
                 Util.WriteToDebugLog("Got AcceptTrade: " + e.TargetId + " me: " + CoreManager.Current.CharacterFilter.Id);
-                CoreManager.Current.Actions.TradeAccept();
+                if (e.TargetId != CoreManager.Current.CharacterFilter.Id)
+                    CoreManager.Current.Actions.TradeAccept();
                 return;
             }
             catch (Exception ex) { Util.LogException(ex); }
@@ -148,7 +149,6 @@ namespace DoThingsBot.FSM.States {
                                 itemsBeingAddedToTrade.Add(item);
                             }
                         }
-                        CoreManager.Current.Actions.TradeAccept();
 
                         itemsToAddToTrade.Clear();
                         return;
@@ -157,16 +157,15 @@ namespace DoThingsBot.FSM.States {
                     if (!didFinish) {
                         didFinish = true;
                         Util.WriteToDebugLog($"Finishing: itemsIdsAdded.Count:{itemsIdsAdded.Count} ");
+                        CoreManager.Current.Actions.TradeAccept();
 
                         if (itemsIdsAdded.Count > 0) {
                             Util.WriteToDebugLog($"Everything went OK? Accepting trade.");
-                            CoreManager.Current.Actions.TradeAccept();
                             return;
                         }
                         else {
                             Util.WriteToDebugLog($"Unable to confirm... Accepting trade.");
                             ChatManager.Tell(itemBundle.GetOwner(), "I was unable to confirm I gave you your items back.  Tell me 'lostitems' to check for any items of yours that I still have.");
-                            CoreManager.Current.Actions.TradeAccept();
                             return;
                         }
                     }
