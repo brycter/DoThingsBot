@@ -21,11 +21,6 @@ namespace DoThingsBot.Views.Pages {
         HudButton UICancel { get; set; }
         HudButton UIConfirm { get; set; }
 
-        private string lastCreateName = "";
-        private int lastCreateAmount = 0;
-        private int lastCreateValue = 0;
-        private DateTime lastCreateTime = DateTime.MinValue;
-
         public LogsGiftsPage(MainView mainView) {
             try {
                 UILogsGiftsList = mainView.view != null ? (HudList)mainView.view["UILogsGiftsList"] : new HudList();
@@ -33,7 +28,6 @@ namespace DoThingsBot.Views.Pages {
                 UILogsGiftsClearLogFile = mainView.view != null ? (HudButton)mainView.view["UILogsGiftsClearLogFile"] : new HudButton();
 
                 CoreManager.Current.ChatBoxMessage += new EventHandler<ChatTextInterceptEventArgs>(Current_ChatBoxMessage);
-                CoreManager.Current.WorldFilter.CreateObject += WorldFilter_CreateObject;
 
                 UILogsGiftsOpenLogFile.Hit += (s, e) => {
                     try {
@@ -101,19 +95,7 @@ namespace DoThingsBot.Views.Pages {
             catch (Exception ex) { Util.LogException(ex); }
         }
 
-        private void WorldFilter_CreateObject(object sender, CreateObjectEventArgs e) {
-            try {
-                lastCreateTime = DateTime.UtcNow;
-                lastCreateName = e.New.Name;
-                lastCreateValue = e.New.Values(LongValueKey.Value);
-                lastCreateAmount = e.New.Values(LongValueKey.StackCount, 1);
-            }
-            catch (Exception ex) {
-                Util.LogException(ex);
-            }
-        }
-
-        private static readonly Regex GivesYouRegex = new Regex("^(?<player>[^\"]+) gives you (?<item>[^\"]+)\\.$");
+        private static readonly Regex GivesYouRegex = new Regex(@"^(?<player>[^""]+) gives you (?<amount>\d*) ?(?<item>[^""]+)\.$");
 
 
         private void Current_ChatBoxMessage(object sender, ChatTextInterceptEventArgs e) {
@@ -125,13 +107,30 @@ namespace DoThingsBot.Views.Pages {
                 if (match.Success) {
                     string player = match.Groups["player"].Value;
                     string item = match.Groups["item"].Value;
+                    string amountString = match.Groups["amount"].Value;
+                    int amount = 1;
+                    if (!string.IsNullOrEmpty(amountString))
+                        Int32.TryParse(amountString, out amount);
 
-                    Globals.Stats.AddPlayerDonation(player, lastCreateName, lastCreateAmount);
-                    if (lastCreateAmount > 1) {
-                        ChatManager.Tell(player, String.Format("Thank you for the {0} x{1}!", lastCreateName, lastCreateAmount));
+                    WorldObject wo = null;
+                    using (var wos = CoreManager.Current.WorldFilter.GetInventory()) {
+                        foreach (var iwo in wos) {
+                            if ((amount == 1 && iwo.Name == item) || (amount > 1 && iwo.Values(StringValueKey.SecondaryName, "") == item)) {
+                                wo = iwo;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (wo != null)
+                        item = wo.Name;
+
+                    Globals.Stats.AddPlayerDonation(player, item, amount);
+                    if (amount > 1) {
+                        ChatManager.Tell(player, String.Format("Thank you for the {0} x{1}!", item, amount));
                     }
                     else {
-                        ChatManager.Tell(player, String.Format("Thank you for the {0}!", lastCreateName));
+                        ChatManager.Tell(player, String.Format("Thank you for the {0}!", item));
                     }
 
                     Util.WriteGiftToLog(player, item);
@@ -198,7 +197,6 @@ namespace DoThingsBot.Views.Pages {
             try {
                 if (!disposed) {
                     if (disposing) {
-                        CoreManager.Current.WorldFilter.CreateObject -= WorldFilter_CreateObject;
                         CoreManager.Current.ChatBoxMessage -= new EventHandler<ChatTextInterceptEventArgs>(Current_ChatBoxMessage);
                     }
 
