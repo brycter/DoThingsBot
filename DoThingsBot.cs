@@ -83,7 +83,7 @@ namespace DoThingsBot {
 
             Recipes.Init();
 
-            Util.WriteToChat("DoThingsBot Started");
+            Util.WriteToChat($"DoThingsBot Started");
 
             CoreManager.Current.Actions.FaceHeading(Config.Bot.DefaultHeading.Value, true);
 
@@ -94,14 +94,13 @@ namespace DoThingsBot {
             _machine.ChangeState(new BotIdleState());
 
             if (Config.Announcements.Enabled.Value == true) {
-                if (Config.Announcements.StartupMessage.Value.Length > 0) {
+                if (!string.IsNullOrEmpty(Config.Announcements.StartupMessage.Value)) {
                     ChatManager.AddSpamToChatBox(Config.Announcements.StartupMessage.Value);
                 }
             }
 
             ChatManager.ResetAnnouncementTimer();
             ChatManager.RaiseChatCommandEvent += new EventHandler<ChatCommandEventArgs>(ChatManager_ChatCommand);
-
         }
 
         internal bool HasTradeOpen() {
@@ -453,18 +452,14 @@ namespace DoThingsBot {
                     List<string> comps = new List<string>();
 
                     foreach (var comp in ComponentManager.trackedComponents) {
-                        if (comp.LowWarningAmount() > 0) {
-                            comps.Add(string.Format("{0}: {1}", comp.Name, comp.Count()));
-                        }
+                        comps.Add(string.Format("{0}: {1}", comp.Name, comp.Count()));
                     }
 
                     var gems = Config.Portals.GetUniqueGemNames();
                     foreach (var gem in gems) {
                         var lowCount = Config.Portals.PortalGemLowCount.Value;
                         var count = Util.GetItemCount(gem);
-                        if (lowCount > 0 && count <= lowCount) {
-                            comps.Add($"{gem}: {count}");
-                        }
+                        comps.Add($"{gem}: {count}");
                     }
 
                     ChatManager.Tell(e.PlayerName, string.Format("My component levels: {0}", string.Join(", ", comps.ToArray())));
@@ -518,6 +513,67 @@ namespace DoThingsBot {
                         AddToQueue(e.PlayerName, "buff");
                     }
                     break;
+
+                case "rations":
+                    if (!Config.Bot.HasInfiniteRations()) {
+                        ChatManager.Tell(e.PlayerName, "Sorry, I don't have any infinite rations.");
+                        return;
+                    }
+                    if (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) {
+                        ItemBundle itemBundle = new ItemBundle(e.PlayerName);
+                        currentItemBundle = itemBundle;
+                        itemBundle.SetCraftMode(CraftMode.InfiniteRations);
+                        itemBundle.SetEquipMode(EquipMode.Idle);
+
+                        Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
+
+                        _machine.ChangeState(new BotStartState(itemBundle));
+                    }
+                    else {
+                        AddToQueue(e.PlayerName, "rations");
+                    }
+                    break;
+
+                case "leather":
+                    if (!Config.Bot.HasInfiniteLeather()) {
+                        ChatManager.Tell(e.PlayerName, "Sorry, I don't have any infinite leather.");
+                        return;
+                    }
+                    if (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) {
+                        ItemBundle itemBundle = new ItemBundle(e.PlayerName);
+                        currentItemBundle = itemBundle;
+                        itemBundle.SetCraftMode(CraftMode.InfiniteLeather);
+                        itemBundle.SetEquipMode(EquipMode.Idle);
+
+                        Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
+
+                        _machine.ChangeState(new BotStartState(itemBundle));
+                    }
+                    else {
+                        AddToQueue(e.PlayerName, "leather");
+                    }
+                    break;
+
+                case "dye":
+                    if (!Config.Bot.HasInfiniteDyes()) {
+                        ChatManager.Tell(e.PlayerName, "Sorry, I don't have any infinite leather.");
+                        return;
+                    }
+                    if (_machine.IsOrWillBeInState("BotIdleState") || skipQueue) {
+                        ItemBundle itemBundle = new ItemBundle(e.PlayerName);
+                        currentItemBundle = itemBundle;
+                        itemBundle.SetCraftMode(CraftMode.InfiniteDye);
+                        itemBundle.SetEquipMode(EquipMode.Idle);
+
+                        Globals.Stats.AddPlayerCommandIssued(e.PlayerName, e.Command);
+
+                        _machine.ChangeState(new BotStartState(itemBundle));
+                    }
+                    else {
+                        AddToQueue(e.PlayerName, "dye");
+                    }
+                    break;
+
 
                 default:
                     // check for buff command
@@ -610,6 +666,9 @@ namespace DoThingsBot {
                     }
                     
                     if (Config.Bot.RespondToUnknownCommands.Value == true) {
+                        if (!_machine.IsOrWillBeInState("BotIdleState") && currentItemBundle != null && currentItemBundle.GetOwner() == e.PlayerName)
+                            return;
+
                         ChatManager.Tell(e.PlayerName, "Sorry, I'm a bot and do not understand that command.  Please tell me \"help\" for a list of available commands.");
                     }
                     break;
@@ -781,10 +840,27 @@ namespace DoThingsBot {
                     break;
 
                 default:
-                    ChatManager.Tell(playerName, String.Format("I'm a DoThingsBot. Tell me 'tinker', 'craft', or 'profiles'. Other commands: buff, lostitems, whereto, message, about, stats, comps, recipes, recipe, tool, reset.  You can also try 'help [command]' to get more information about a specific command.", Util.GetVersion()));
+                    ChatManager.Tell(playerName, $"I'm a DoThingsBot. Tell me 'tinker', 'craft', or 'profiles'. Other commands: buff, lostitems, whereto, message, about, stats, comps, recipes, recipe, tool, reset.  You can also try 'help [command]' to get more information about a specific command.");
+                    DisplayInfinites(playerName);
                     break;
 
             }
+        }
+
+        private void DisplayInfinites(string playerName) {
+            var message = "";
+            if (Config.Bot.HasInfiniteLeather()) {
+                message += "I have Infinite Leather! Tell me 'leather' and add your item to trade, and i'll add the leather to it. ";
+            }
+            if (Config.Bot.HasInfiniteRations()) {
+                message += "I have infinite rations! Tell me 'rations' and I'll give you some. ";
+            }
+            if (Config.Bot.HasInfiniteDyes()) {
+                var colors = string.Join(", ", Config.Bot.InfiniteDyeColors().ToArray());
+                message += $"I have infinite dye ({colors})! Tell me 'dye' and I'll dye your stuff.";
+            }
+
+            ChatManager.Tell(playerName, message);
         }
 
         void PrintAboutMessage(string playerName, string arguments) {
@@ -959,8 +1035,14 @@ namespace DoThingsBot {
                 var bundle = new ItemBundle(playerName);
                 var shouldBreak = false;
 
+                if (bundle == null || bundle.playerData == null || !bundle.DidLoad) {
+                    Util.WriteToChat($"Unable to resume job for: {playerName}. Skipping.");
+                    File.Delete(Path.Combine(Util.GetResumablePlayersDataDirectory(), file.Name));
+                    continue;
+                }
+
                 if (bundle.playerData.jobType == "craft" && Config.CraftBot.PauseSessionForOtherJobs.Value == true && queue.Count > 0) {
-                    return false;
+                    continue;
                 }
 
                 Util.WriteToChat($"Attempting to resume job type '{bundle.playerData.jobType}' for player {playerName}");

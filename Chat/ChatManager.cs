@@ -70,6 +70,7 @@ namespace DoThingsBot.Chat {
         private static readonly Regex PrivateChatMessageRegex = new Regex("^([\\/@](tell|reply|rt|r|t) ).*$");
 
         private static string lastMessage = "";
+        private static bool lastMessageWasCompsWarning = false;
 
         public ChatManager() {
             try {
@@ -206,14 +207,14 @@ namespace DoThingsBot.Chat {
         }
 
         public static void Think() {
+            if (DateTime.UtcNow - firstThought < TimeSpan.FromSeconds(3)) return;
+
             if (DateTime.UtcNow - lastChatCommandSentAt > TimeSpan.FromSeconds(Config.Bot.DontResendDuplicateMessagesWindow.Value)) {
                 lastMessage = "";
             }
 
             // announcements
             if (DateTime.UtcNow - lastAnnouncementTime > TimeSpan.FromMinutes(Config.Announcements.SpamInterval.Value) && Config.Bot.Enabled.Value == true) {
-                if (DateTime.UtcNow - firstThought < TimeSpan.FromSeconds(5)) return;
-
                 if (Config.Announcements.Enabled.Value == true) {
                     lastAnnouncementTime = DateTime.UtcNow;
 
@@ -228,13 +229,15 @@ namespace DoThingsBot.Chat {
                         }
                     }
 
-                    if (ComponentManager.IsLowOnComps() && Config.Bot.AnnounceLowComponents.Value) {
+                    if (lastMessageWasCompsWarning == false && ComponentManager.IsLowOnComps() && Config.Bot.AnnounceLowComponents.Value) {
                         AddSpamToChatBox("/s " + ComponentManager.LowComponentAnnouncement());
+                        lastMessageWasCompsWarning = true;
                     }
                     else if (announcements.Count > 0) {
                         int r = rnd.Next(announcements.Count);
                         string message = announcements[r];
                         AddSpamToChatBox(message);
+                        lastMessageWasCompsWarning = false;
                     }
                 }
             }
@@ -269,7 +272,7 @@ namespace DoThingsBot.Chat {
                             else if (prefix.Length > 0) {
                                 message = (prefix + ", " + part);
                             }
-
+                            
                             DecalProxy.DispatchChatToBoxWithPluginIntercept(message);
                             Util.WriteToDebugLog(message);
                         }

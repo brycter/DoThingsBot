@@ -25,6 +25,8 @@ namespace DoThingsBot.Views {
         public BuffBotPage buffBotPage;
         public CraftBotPage craftBotPage;
         public TinkerBotPage tinkerBotPage;
+        public InfinitesPage infinitesPage;
+        public NavPage navPage;
 
         public MainView() {
             try {
@@ -49,7 +51,8 @@ namespace DoThingsBot.Views {
                 buffBotPage = new BuffBotPage(this);
                 craftBotPage = new CraftBotPage(this);
                 tinkerBotPage = new TinkerBotPage(this);
-
+                infinitesPage = new InfinitesPage(this);
+                navPage = new NavPage(this);
             }
             catch (Exception ex) { Util.LogException(ex); }
         }
@@ -70,6 +73,7 @@ namespace DoThingsBot.Views {
             if (!disposed) {
                 if (disposing) {
                     // children
+                    if (navPage != null) navPage.Dispose();
                     if (portalsPage != null) portalsPage.Dispose();
                     if (logsGiftsPage != null) logsGiftsPage.Dispose();
                     if (logsMessagesPage != null) logsMessagesPage.Dispose();

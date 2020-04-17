@@ -104,13 +104,15 @@ namespace DoThingsBot.FSM.States {
 
                     tradeItemsAwaitingIdentity.Remove(e.Changed.Id);
 
-                    if (itemBundle.AddWorldObject(worldObject)) {
+                   if (itemBundle.AddWorldObject(worldObject)) {
                         Util.WriteToDebugLog(itemBundle.GetOwner() + " showed me: " + "(" + worldObject.Id + ")" + Util.GetFullLootName(worldObject));
                         //RespondWithItemRemark(worldObject);
 
+                        if (itemBundle.GetCraftMode() == CraftMode.InfiniteLeather || itemBundle.craftMode == CraftMode.InfiniteDye)
+                            return;
+
                         if (e.Changed.ObjectClass == ObjectClass.Armor || e.Changed.ObjectClass == ObjectClass.Clothing || e.Changed.ObjectClass == ObjectClass.Jewelry || ItemBundle.IsWandOrWeapon(e.Changed)) {
                             itemBundle.tinkerCount = e.Changed.Values(LongValueKey.NumberTimesTinkered, 0);
-                            Util.WriteToChat("Setting tinker count to: " + itemBundle.tinkerCount.ToString());
                         }
                     }
                     else {

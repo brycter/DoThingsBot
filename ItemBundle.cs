@@ -20,7 +20,10 @@ namespace DoThingsBot {
         Buff = 7,
         PortalGem = 8,
         Recipe = 9,
-        Crafting = 10
+        Crafting = 10,
+        InfiniteRations = 11,
+        InfiniteLeather = 12,
+        InfiniteDye = 13
     }
 
     public enum EquipMode {
@@ -75,6 +78,7 @@ namespace DoThingsBot {
         public bool IsImbue = false;
         public bool WasPaused = false;
         public bool IsPaused = false;
+        public bool DidLoad = false;
 
         private string portalCommand = "";
 
@@ -116,6 +120,10 @@ namespace DoThingsBot {
             }
 
             return ingredients;
+        }
+
+        internal void SetInfiniteDye(string v) {
+            infiniteDye = v;
         }
 
         internal IngredientList GetIngredientList() {
@@ -266,11 +274,14 @@ namespace DoThingsBot {
                         string json = File.ReadAllText(GetJsonDataPathForOwner());
 
                         playerData = JsonConvert.DeserializeObject<PlayerData>(json);
+                        DidLoad = true;
                     }
                     catch (Exception ex) {
-                        Util.LogException(ex);
-
+                        //Util.LogException(ex);
                         playerData = new PlayerData(GetOwner());
+                        File.Delete(GetJsonDataPathForOwner());
+                        DidLoad = false;
+                        return;
                     }
                 }
                 else {
@@ -288,9 +299,11 @@ namespace DoThingsBot {
                 if (!WasPaused) {
                     playerData.itemIds.Clear();
                 }
-
             }
-            catch (Exception ex) { Util.LogException(ex); }
+            catch (Exception ex) {
+                Util.LogException(ex);
+                File.Delete(GetJsonDataPathForOwner());
+            }
         }
 
         public void SavePlayerData() {
@@ -319,20 +332,20 @@ namespace DoThingsBot {
             catch (Exception ex) { Util.LogException(ex); }
         }
 
-        public bool AddWorldObject(WorldObject wo) {
+        public bool AddWorldObject(WorldObject wo, bool skipCheck=false) {
             try {
-                if (!CanAddWorldObject(wo)) {
+                if (!skipCheck && !CanAddWorldObject(wo)) {
                     isValid = false;
                     return false;
                 }
 
                 playerData.itemIds.Add(wo.Id);
 
-                SetTargetCraftType(wo);
-
-                isValid = CheckIsValid();
-
-                if (isValid) SetItemTargets();
+                if (!skipCheck) {
+                    SetTargetCraftType(wo);
+                    isValid = CheckIsValid();
+                    if (isValid) SetItemTargets();
+                }
 
                 return isValid;
             }
@@ -453,6 +466,11 @@ namespace DoThingsBot {
 
         public bool CheckIsValidFinal() {
             try {
+                if (GetCraftMode() == CraftMode.InfiniteLeather)
+                    return true;
+                if (GetCraftMode() == CraftMode.InfiniteDye)
+                    return true;
+
                 if (GetSalvages().Count == 0) {
                     return CheckValidRecipe();
                 }
@@ -577,6 +595,26 @@ namespace DoThingsBot {
 
                 if (!CheckValidItem(wo)) {
                     return false;
+                }
+
+                if (GetCraftMode() == CraftMode.InfiniteLeather) {
+                    if (wo.Values(LongValueKey.Material, 0) > 0 && wo.Values(LongValueKey.Workmanship, 0) > 0) {
+                        return true;
+                    }
+                    else {
+                        invalidReason = "You can only add leather to lootgen items.";
+                        return false;
+                    }
+                }
+
+                if (GetCraftMode() == CraftMode.InfiniteDye) {
+                    if (wo.Values(BoolValueKey.Dyeable, false)) {
+                        return true;
+                    }
+                    else {
+                        invalidReason = $"That item doesn't appear to be dyeable: {Util.GetGameItemDisplayName(wo)}";
+                        return false;
+                    }
                 }
 
                 WorldObject targetItem = GetTargetItem();
@@ -779,6 +817,8 @@ namespace DoThingsBot {
 
         public string sortedSalvageNames;
         private bool hasAssignedSteps;
+
+        public string infiniteDye { get; private set; }
 
         public void SetItemTargets() {
             try {

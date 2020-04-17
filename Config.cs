@@ -5,11 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 using Mag.Shared.Settings;
 using static DoThingsBot.Spells;
 using DoThingsBot.Lib;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace DoThingsBot {
     public class BotConfigChangedEventArgs : EventArgs {
@@ -28,6 +30,10 @@ namespace DoThingsBot {
             public static Setting<bool> AnnounceLowComponents;
             public static Setting<bool> AnnounceLowComponentsAfterJob;
             public static Setting<bool> EnableResetCommand;
+            public static Setting<bool> EnableStickySpot;
+            public static Setting<double> StickySpotMaxDistance;
+            public static Setting<double> StickySpotNS;
+            public static Setting<double> StickySpotEW;
 
             public static Setting<int> PrismaticTaperLowCount;
             public static Setting<int> LeadScarabLowCount;
@@ -38,8 +44,11 @@ namespace DoThingsBot {
             public static Setting<int> PyrealScarabLowCount;
             public static Setting<int> PlatinumScarabLowCount;
             public static Setting<int> ManaScarabLowCount;
+
             public static Setting<int> DangerousMonsterLogoffDistance;
             public static Setting<List<int>> HarmlessMonsterWeenies;
+
+            public static Setting<List<int>> InfiniteItemIds;
 
             static Bot() {
             }
@@ -56,6 +65,10 @@ namespace DoThingsBot {
                 AnnounceLowComponents = new Setting<bool>("Config/Bot/AnnounceLowComponents", "Replace announcements with low component warnings when you are low", true);
                 AnnounceLowComponentsAfterJob = new Setting<bool>("Config/Bot/AnnounceLowComponentsAfterJob", "Announce low components after a job is finished and you are low", true);
                 EnableResetCommand = new Setting<bool>("Config/Bot/EnableResetCommand", "Allow users to tell the bot 'reset' to force close the client (in case of being stuck)", false);
+                EnableStickySpot = new Setting<bool>("Config/Bot/EnableStickySpot", "When enabled, the bot will attempt to stay within StickySpotMaxDistance of the bot starting position", true);
+                StickySpotMaxDistance = new Setting<double>("Config/Bot/StickySpotMaxDistance", "Max distance in meters away from the bot starting position until it will attempt to navigate back to its starting position.", 1);
+                StickySpotNS = new Setting<double>("Config/Bot/StickySpotNS", "NorthSouth coordinates for sticky spot.", 0);
+                StickySpotEW = new Setting<double>("Config/Bot/StickySpotEW", "EastWest coordinates for sticky spot.", 0);
 
                 PrismaticTaperLowCount = new Setting<int>("Config/Bot/PrismaticTaperLowCount", "Warn when Pristmatic Tapers fall below this amount (0 disables)", 100);
                 LeadScarabLowCount = new Setting<int>("Config/Bot/LeadScarabLowCount", "Warn when Lead Scarabs fall below this amount (0 disables)", 0);
@@ -139,6 +152,8 @@ namespace DoThingsBot {
 
                 HarmlessMonsterWeenies = new Setting<List<int>>("Config/Bot/HarmlessMonsterWeenies/wcid", "These monster wcids will be ignored by the dangerous monster logoff functionality", defaultHarmlessWeenies);
 
+                InfiniteItemIds = new Setting<List<int>>("Config/Bot/Infinites/Item", "These item ids (of infinite rares) will be available for use to players", new List<int>());
+
                 RecompVendorSellRate.Validate += ValidateVendorRate;
                 DefaultHeading.Validate += ValidateHeading;
                 DefaultHeading.Validate += ValidatePositiveNumber;
@@ -154,6 +169,71 @@ namespace DoThingsBot {
                 PlatinumScarabLowCount.Validate += ValidatePositiveNumber;
                 ManaScarabLowCount.Validate += ValidatePositiveNumber;
                 DangerousMonsterLogoffDistance.Validate += ValidatePositiveNumber;
+            }
+
+            public static bool HasInfiniteLeather() {
+                return InfiniteItemIds.Value.Any(i => {
+                    var wo = CoreManager.Current.WorldFilter[i];
+                    if (wo == null)
+                        return false;
+                    return wo.Name == "Infinite Leather";
+                });
+            }
+
+            public static bool HasInfiniteRations() {
+                return InfiniteItemIds.Value.Any(i => {
+                    var wo = CoreManager.Current.WorldFilter[i];
+                    if (wo == null)
+                        return false;
+                    if (wo.Name == "Infinite Elaborate Dried Rations")
+                        return true;
+                    if (wo.Name == "Infinite Simple Dried Rations")
+                        return true;
+
+                    return false;
+                });
+            }
+
+            public static bool HasInfiniteDyes() {
+                var re = new Regex("^Perennial (?<color>\\w+) Dye$");
+                return InfiniteItemIds.Value.Any(i => {
+                    var wo = CoreManager.Current.WorldFilter[i];
+                    if (wo == null)
+                        return false;
+
+                    if (re.IsMatch(wo.Name))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            public static bool HasInfiniteDye(string v) {
+                return InfiniteItemIds.Value.Any(i => {
+                    var wo = CoreManager.Current.WorldFilter[i];
+                    if (wo == null)
+                        return false;
+
+                    return wo.Name == v;
+                });
+            }
+
+            public static List<string> InfiniteDyeColors() {
+                var re = new Regex("^Perennial (?<color>\\w+) Dye$");
+                var colors = new List<string>();
+
+                InfiniteItemIds.Value.ForEach(i => {
+                    var wo = CoreManager.Current.WorldFilter[i];
+                    if (wo == null)
+                        return;
+
+                    if (re.IsMatch(wo.Name)) {
+                        var match = re.Match(wo.Name);
+                        colors.Add(match.Groups["color"].Value.ToLower());
+                    }
+                });
+
+                return colors;
             }
 
             public static List<SpellClass> GetWantedIdleEnchantments() {

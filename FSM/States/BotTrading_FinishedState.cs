@@ -14,7 +14,7 @@ namespace DoThingsBot.FSM.States {
         public BotTrading_FinishedState(ItemBundle items) {
             itemBundle = items;
             itemBundle.SavePlayerData();
-
+            
             if (itemBundle.GetCraftMode() != CraftMode.GiveBackItems) {
                 if (itemBundle.GetSalvages().Count > 6) {
                     ChatManager.Tell(items.GetOwner(), String.Format("I will apply the salvages to your {0} in the following order:", Util.GetItemName(items.GetTargetItem())));

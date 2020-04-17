@@ -68,7 +68,7 @@
         </page>
       </control>
     </page>
-    <page label="Bots">
+    <page label="Bot">
       <control progid="DecalControls.Notebook" name="botsTabView">
         <page label="Buff">
           <control progid="DecalControls.FixedLayout" clipped="" name="UIBuffBotLayout">
@@ -149,6 +149,30 @@
             <control progid="DecalControls.Edit" name="UIKeepTinkerEquipmentWhileIdleDelay" left="290" top="26" width="50" height="20" text="0" />
           </control>
         </page>
+        <page label="Infinites">
+          <control progid="DecalControls.FixedLayout" clipped="">
+            <control progid="DecalControls.List" name="UIInfinitesList" top="5" width="350" height="165">
+              <column progid="DecalControls.IconColumn" name="UIInfinitesIconCol" fixedwidth="15"/>
+              <column progid="DecalControls.TextColumn" name="UIInfinitesNameCol" fixedwidth="340"/>
+              <column progid="DecalControls.TextColumn" name="UIInfinitesIdCol" fixedwidth="10"/>
+            </control>
+
+            <control progid="DecalControls.StaticText" name="UIInfinitesLabel" left="5" top="175" width="230" height="40" text="Click on a listed item to remove."/>
+            <control progid="DecalControls.PushButton" name="UIInfinitesAddSelected" left="240" top="175" width="100" height="17" text="Add Selected Item" fontstyle="bold"/>
+          </control>
+        </page>
+      </control>
+    </page>
+    <page label="Nav">
+      <control progid="DecalControls.FixedLayout" clipped="">
+        <control progid="DecalControls.Checkbox" name="UIEnableNav" left="8" top="16" width="228" height="16" text="Enable Navigation"/>
+        
+        <control progid="DecalControls.StaticText" name="UINavStickyPointLabel" left="8" top="64" width="64" height="16" text="Sticky Point:"/>
+        <control progid="DecalControls.StaticText" name="UINavStickyPoint" left="80" top="64" width="160" height="16" text="None"/>
+        <control progid="DecalControls.PushButton" name="UINavSetStickyPoint" left="248" top="56" width="96" height="24" text="Set Sticky Point"/>
+        
+        <control progid="DecalControls.StaticText" name="UINavMinDistanceLabel" left="8" top="128" width="252" height="16" text="Max distance to StickyPoint before navigating:"/>
+        <control progid="DecalControls.Edit" name="UINavMaxDistance" left="260" top="128" width="84" height="16" text=""/>
       </control>
     </page>
     <page label="Announcements">
