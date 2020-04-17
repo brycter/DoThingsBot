@@ -35,15 +35,20 @@ namespace DoThingsBot.FSM.States {
 
                 Globals.DoThingsBot.needsEquipmentCheck = false;
 
-                Util.WriteToChat("Doing equip check");
-
                 machine.ChangeState(new BotEquipItemsState(itemBundle));
                 return;
             }
 
-            if (DateTime.UtcNow - lastThought > TimeSpan.FromSeconds(15)) {
+            if (DateTime.UtcNow - lastThought > TimeSpan.FromSeconds(5)) {
                 lastThought = DateTime.UtcNow;
 
+                var wanderDistance = BotStickyState.GetDistanceToStickySpot();
+                if (Config.Bot.EnableStickySpot.Value && wanderDistance > Config.Bot.StickySpotMaxDistance.Value && wanderDistance < 100) {
+                    Util.WriteToChat($"Bot has wandered {wanderDistance} (max {Config.Bot.StickySpotMaxDistance.Value}). Switching to BotStickyState");
+                    machine.ChangeState(new BotStickyState());
+                    return;
+                }
+                
                 Globals.Core.Actions.FaceHeading(Config.Bot.DefaultHeading.Value, true);
 
                 if (DateTime.UtcNow - machine.GetDateTimeValue("lastBuffCheck") > TimeSpan.FromSeconds(60)) {

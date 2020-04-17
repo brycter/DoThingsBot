@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
+using Decal.Adapter.Wrappers;
 using DoThingsBot.FSM.States;
 
 namespace DoThingsBot.FSM {

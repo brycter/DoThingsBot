@@ -1,4 +1,18 @@
 CHANGELOG
+2.0.0.6
+* Add support for the following infinite rares:
+  * Infinite Leather, Infinite Elaborate Dried Rations, Infinite Simple Dried Rations, Perennial Argenory Dye, Perennial Berimphur Dye, Perennial Botched Dye, Perennial Colban Dye, Perennial Hennacin Dye, Perennial Lapyan Dye, Perennial Minalim Dye, Perennial Relanim Dye, Perennial Thananim Dye, Perennial Verdalim Dye.
+  * To enable them on your bot, navigate to Bots -> Infinites in the main ui and add your infinite rare.  The bot will now respond to the following commands based on the item you added: dye, rations, leather
+* Add navigation support, this will nav your bot back to its stickyposition if it manages to wander.
+* Fix gift messages when amount greater than 999 (commas)
+* Fix issue where bot resumable job would get corrupt and bot would not do anything until manually cleared.
+* Fix issue where announcements would fully stop when low on components
+
+2.0.0.5
+* Fix ACE tinkering
+* Fix trade spamming where bot wasnt returning items properly
+* More better crafting on ACE (still kinda wonky, but mostly works?)
+
 2.0.0.4
 * Add portal gems to low components warnings and comps command
 

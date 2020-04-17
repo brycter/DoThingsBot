@@ -25,6 +25,33 @@ namespace DoThingsBot
             return DataDirectory + CoreManager.Current.CharacterFilter.Server + @"\" + CoreManager.Current.CharacterFilter.Name + @"\";
         }
 
+        internal static string FriendlyDyeColor(string v) {
+            switch (v.ToLower()) {
+                case "argenory":
+                    return "white";
+                case "berimphur":
+                    return "yellow";
+                case "botched":
+                    return "botched";
+                case "colban":
+                    return "darkblue";
+                case "hennacin":
+                    return "red";
+                case "lapyan":
+                    return "blue";
+                case "minalim":
+                    return "green";
+                case "relanim":
+                    return "purple";
+                case "thananim":
+                    return "black";
+                case "verdalim":
+                    return "darkgreen";
+                default:
+                    return "badcolor";
+            }
+        }
+
         public static string GetPlayerDataDirectory() {
             return Path.Combine(GetCharacterDataDirectory(), "users");
         }
@@ -129,6 +156,20 @@ namespace DoThingsBot
                 WriteToDebugLog(message);
             }
             catch (Exception ex) { LogException(ex); }
+        }
+
+        internal static bool HasWandEquipped() {
+            bool hasWand = false;
+            var wos = CoreManager.Current.WorldFilter.GetInventory();
+            wos.SetFilter(new ByObjectClassFilter(ObjectClass.WandStaffOrb));
+            foreach (var wo in wos) {
+                if (wo.Values(LongValueKey.EquippedSlots, -1) == 16777216) {
+                    hasWand = true;
+                    break;
+                }
+            }
+            wos.Dispose();
+            return hasWand;
         }
 
         public static void WriteToDebugLog(string message) {
@@ -670,15 +711,11 @@ namespace DoThingsBot
         private static DateTime lastCombatStateCommand = DateTime.MinValue;
         public static bool EnsureCombatState(CombatState state) {
             if (CoreManager.Current.Actions.CombatMode != state) {
-                if (DateTime.UtcNow - lastCombatStateCommand > TimeSpan.FromMilliseconds(1000)) {
+                if (DateTime.UtcNow - lastCombatStateCommand > TimeSpan.FromMilliseconds(2500)) {
                     lastCombatStateCommand = DateTime.UtcNow;
                     CoreManager.Current.Actions.SetCombatMode(state);
                 }
 
-                return false;
-            }
-
-            if (DateTime.UtcNow - lastCombatStateCommand < TimeSpan.FromMilliseconds(1000)) {
                 return false;
             }
 

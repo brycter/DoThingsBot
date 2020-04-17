@@ -95,7 +95,7 @@ namespace DoThingsBot.Views.Pages {
             catch (Exception ex) { Util.LogException(ex); }
         }
 
-        private static readonly Regex GivesYouRegex = new Regex(@"^(?<player>[^""]+) gives you (?<amount>\d*) ?(?<item>[^""]+)\.$");
+        private static readonly Regex GivesYouRegex = new Regex(@"^(?<player>[^""]+) gives you (?<amount>(\d|,)*) ?(?<item>[^""]+)\.$");
 
 
         private void Current_ChatBoxMessage(object sender, ChatTextInterceptEventArgs e) {
@@ -107,7 +107,7 @@ namespace DoThingsBot.Views.Pages {
                 if (match.Success) {
                     string player = match.Groups["player"].Value;
                     string item = match.Groups["item"].Value;
-                    string amountString = match.Groups["amount"].Value;
+                    string amountString = match.Groups["amount"].Value.Replace(",", "");
                     int amount = 1;
                     if (!string.IsNullOrEmpty(amountString))
                         Int32.TryParse(amountString, out amount);

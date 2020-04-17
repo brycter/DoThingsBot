@@ -49,6 +49,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Decal.Adapter">
@@ -86,6 +87,11 @@
     <Compile Include="FSM\States\BotBuffing_FinishedState.cs" />
     <Compile Include="FSM\States\BotCheckStolenItemsState.cs" />
     <Compile Include="FSM\States\BotFinishState.cs" />
+    <Compile Include="FSM\States\BotInfinites_ApplyDye.cs" />
+    <Compile Include="FSM\States\BotInfinites_ChooseDyeState.cs" />
+    <Compile Include="FSM\States\BotInfinites_LeatherState.cs" />
+    <Compile Include="FSM\States\BotInfinites_RationsState.cs" />
+    <Compile Include="FSM\States\BotStickyState.cs" />
     <Compile Include="FSM\States\BotTrading_ReturnItemsState.cs" />
     <Compile Include="FSM\States\BotIdleState.cs" />
     <Compile Include="FSM\States\BotStartState.cs" />
@@ -134,11 +140,13 @@
     <Compile Include="Views\Pages\EquipmentCrafting.cs" />
     <Compile Include="Views\Pages\EquipmentIdle.cs" />
     <Compile Include="Views\Pages\EquipmentTinkering.cs" />
+    <Compile Include="Views\Pages\Infinites.cs" />
     <Compile Include="Views\Pages\LogsGifts.cs" />
     <Compile Include="Views\Pages\LogsMessages.cs" />
     <Compile Include="Views\Pages\LostItems.cs" />
     <Compile Include="Views\Pages\Main.cs" />
     <Compile Include="Views\MainView.cs" />
+    <Compile Include="Views\Pages\Nav.cs" />
     <Compile Include="Views\Pages\Portals.cs" />
     <Compile Include="Views\Pages\TinkerBot.cs" />
     <Compile Include="Views\ProfileManagerView.cs" />
@@ -284,6 +292,7 @@
     <Content Include="Resources\BuffProfiles\_melee.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\infiniterares.xml" />
     <Content Include="Resources\recipes.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

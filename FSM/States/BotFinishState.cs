@@ -16,10 +16,7 @@ namespace DoThingsBot.FSM.States {
                 itemBundle.SavePlayerData();
             }
 
-            Util.WriteToChat($"ItemBundle at finish: WasPaused:{itemBundle.WasPaused} IsPaused:{itemBundle.IsPaused}");
-
             if (itemBundle.HasOwner() && !itemBundle.IsPaused) {
-                Util.WriteToChat("Unpausing at finish: " + itemBundle.GetOwner());
                 itemBundle.Unpause();
             }
 

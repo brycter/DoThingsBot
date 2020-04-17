@@ -82,10 +82,17 @@ namespace DoThingsBot.FSM.States {
                         machine.ChangeState(new BotTinkeringState(itemBundle));
                         return;
                     }
-
-                    if (itemBundle.GetCraftMode() == CraftMode.Crafting) {
+                    else if (itemBundle.GetCraftMode() == CraftMode.Crafting) {
                         itemBundle.SetEquipMode(EquipMode.Craft);
                         machine.ChangeState(new BotEquipItemsState(itemBundle));
+                        return;
+                    }
+                    else if (itemBundle.GetCraftMode() == CraftMode.InfiniteLeather) {
+                        machine.ChangeState(new BotInfinites_LeatherState(itemBundle));
+                        return;
+                    }
+                    else if (itemBundle.GetCraftMode() == CraftMode.InfiniteDye) {
+                        machine.ChangeState(new BotInfinites_ApplyDye(itemBundle));
                         return;
                     }
 

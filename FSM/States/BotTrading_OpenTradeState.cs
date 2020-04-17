@@ -82,6 +82,10 @@ namespace DoThingsBot.FSM.States {
                 if (itemBundle.GetCraftMode() == CraftMode.GiveBackItems) {
                     _machine.ChangeState(new BotTrading_ReturnItemsState(itemBundle));
                 }
+                else if (itemBundle.GetCraftMode() == CraftMode.InfiniteRations) {
+                    itemBundle.SetCraftMode(CraftMode.GiveBackItems);
+                    _machine.ChangeState(new BotTrading_ReturnItemsState(itemBundle));
+                }
                 else {
                     _machine.ChangeState(new BotTrading_AwaitingItemsState(itemBundle));
                 }

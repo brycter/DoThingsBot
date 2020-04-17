@@ -54,9 +54,18 @@ namespace DoThingsBot.FSM.States {
                 }
                 else if (itemBundle.GetCraftMode() == CraftMode.Buff && Spells.DoesAnySpellNeedRefresh(Config.Bot.GetWantedBuffEnchantments())) {
                     if (!itemBundle.WasPaused) ChatManager.Tell(itemBundle.GetOwner(), "One moment please, I need to buff.");
-                    
+
                     itemBundle.SetEquipMode(EquipMode.Buff);
                     machine.ChangeState(new BotEquipItemsState(itemBundle));
+                }
+                else if (itemBundle.GetCraftMode() == CraftMode.InfiniteRations) {
+                    machine.ChangeState(new BotInfinites_RationsState(itemBundle));
+                }
+                else if (itemBundle.GetCraftMode() == CraftMode.InfiniteLeather) {
+                    machine.ChangeState(new BotTradingState(itemBundle));
+                }
+                else if (itemBundle.GetCraftMode() == CraftMode.InfiniteDye) {
+                    machine.ChangeState(new BotInfinites_ChooseDyeState(itemBundle));
                 }
                 else {
                     if (itemBundle.GetCraftMode() == CraftMode.CheckSkills) {
