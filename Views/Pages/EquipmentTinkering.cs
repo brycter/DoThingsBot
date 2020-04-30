@@ -7,11 +7,13 @@ using VirindiViewService.Controls;
 namespace DoThingsBot.Views.Pages {
     class EquipmentTinkeringPage : IDisposable {
         HudButton UIEquipmentTinkeringAddSelected { get; set; }
+        HudButton UIEquipmentTinkeringAddEquipped { get; set; }
         HudList UIEquipmentTinkeringList { get; set; }
 
         public EquipmentTinkeringPage(MainView mainView) {
             try {
                 UIEquipmentTinkeringAddSelected = mainView.view != null ? (HudButton)mainView.view["UIEquipmentTinkeringAddSelected"] : new HudButton();
+                UIEquipmentTinkeringAddEquipped = mainView.view != null ? (HudButton)mainView.view["UIEquipmentTinkeringAddEquipped"] : new HudButton();
                 UIEquipmentTinkeringList = mainView.view != null ? (HudList)mainView.view["UIEquipmentTinkeringList"] : new HudList();
 
                 Config.Equipment.TinkerEquipmentIds.Changed += obj => {
@@ -25,6 +27,22 @@ namespace DoThingsBot.Views.Pages {
                         WorldObject selectedObject = Globals.Core.WorldFilter[Globals.Host.Actions.CurrentSelection];
                         List<int> newList = Config.Equipment.TinkerEquipmentIds.Value;
                         newList.Add(selectedObject.Id);
+                        Config.Equipment.TinkerEquipmentIds.Value = newList;
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                };
+
+                UIEquipmentTinkeringAddEquipped.Hit += (s, e) => {
+                    try {
+                        List<int> newList = new List<int>();
+                        var wos = CoreManager.Current.WorldFilter.GetInventory();
+                        foreach (var item in wos) {
+                            if (item.Values(LongValueKey.Slot, -1) == -1) {
+                                newList.Add(item.Id);
+                                Util.WriteToChat($"Adding: {item.Name}");
+                            }
+                        }
+                        wos.Dispose();
                         Config.Equipment.TinkerEquipmentIds.Value = newList;
                     }
                     catch (Exception ex) { Util.LogException(ex); }

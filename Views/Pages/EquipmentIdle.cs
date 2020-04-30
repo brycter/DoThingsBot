@@ -7,11 +7,13 @@ using VirindiViewService.Controls;
 namespace DoThingsBot.Views.Pages {
     class EquipmentIdlePage : IDisposable {
         HudButton UIEquipmentIdleAddSelected { get; set; }
+        HudButton UIEquipmentIdleAddEquipped { get; set; }
         HudList UIEquipmentIdleList { get; set; }
 
         public EquipmentIdlePage(MainView mainView) {
             try {
                 UIEquipmentIdleAddSelected = mainView.view != null ? (HudButton)mainView.view["UIEquipmentIdleAddSelected"] : new HudButton();
+                UIEquipmentIdleAddEquipped = mainView.view != null ? (HudButton)mainView.view["UIEquipmentIdleAddEquipped"] : new HudButton();
                 UIEquipmentIdleList = mainView.view != null ? (HudList)mainView.view["UIEquipmentIdleList"] : new HudList();
                 
                 Config.Equipment.IdleEquipmentIds.Changed += obj => {
@@ -25,6 +27,22 @@ namespace DoThingsBot.Views.Pages {
                         WorldObject selectedObject = Globals.Core.WorldFilter[Globals.Host.Actions.CurrentSelection];
                         List<int> newList = Config.Equipment.IdleEquipmentIds.Value;
                         newList.Add(selectedObject.Id);
+                        Config.Equipment.IdleEquipmentIds.Value = newList;
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                };
+
+                UIEquipmentIdleAddEquipped.Hit += (s, e) => {
+                    try {
+                        List<int> newList = new List<int>();
+                        var wos = CoreManager.Current.WorldFilter.GetInventory();
+                        foreach (var item in wos) {
+                            if (item.Values(LongValueKey.Slot, -1) == -1) {
+                                newList.Add(item.Id);
+                                Util.WriteToChat($"Adding: {item.Name}");
+                            }
+                        }
+                        wos.Dispose();
                         Config.Equipment.IdleEquipmentIds.Value = newList;
                     }
                     catch (Exception ex) { Util.LogException(ex); }

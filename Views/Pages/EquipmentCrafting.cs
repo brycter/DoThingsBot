@@ -7,11 +7,13 @@ using VirindiViewService.Controls;
 namespace DoThingsBot.Views.Pages {
     class EquipmentCraftingPage : IDisposable {
         HudButton UIEquipmentCraftingAddSelected { get; set; }
+        HudButton UIEquipmentCraftingAddEquipped { get; set; }
         HudList UIEquipmentCraftingList { get; set; }
 
         public EquipmentCraftingPage(MainView mainView) {
             try {
                 UIEquipmentCraftingAddSelected = mainView.view != null ? (HudButton)mainView.view["UIEquipmentCraftingAddSelected"] : new HudButton();
+                UIEquipmentCraftingAddEquipped = mainView.view != null ? (HudButton)mainView.view["UIEquipmentCraftingAddEquipped"] : new HudButton();
                 UIEquipmentCraftingList = mainView.view != null ? (HudList)mainView.view["UIEquipmentCraftingList"] : new HudList();
 
                 Config.Equipment.CraftEquipmentIds.Changed += obj => {
@@ -25,6 +27,22 @@ namespace DoThingsBot.Views.Pages {
                         WorldObject selectedObject = Globals.Core.WorldFilter[Globals.Host.Actions.CurrentSelection];
                         List<int> newList = Config.Equipment.CraftEquipmentIds.Value;
                         newList.Add(selectedObject.Id);
+                        Config.Equipment.CraftEquipmentIds.Value = newList;
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                };
+
+                UIEquipmentCraftingAddEquipped.Hit += (s, e) => {
+                    try {
+                        List<int> newList = new List<int>();
+                        var wos = CoreManager.Current.WorldFilter.GetInventory();
+                        foreach (var item in wos) {
+                            if (item.Values(LongValueKey.Slot, -1) == -1) {
+                                newList.Add(item.Id);
+                                Util.WriteToChat($"Adding: {item.Name}");
+                            }
+                        }
+                        wos.Dispose();
                         Config.Equipment.CraftEquipmentIds.Value = newList;
                     }
                     catch (Exception ex) { Util.LogException(ex); }

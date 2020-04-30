@@ -7,11 +7,13 @@ using VirindiViewService.Controls;
 namespace DoThingsBot.Views.Pages {
     class EquipmentBuffingPage : IDisposable {
         HudButton UIEquipmentBuffingAddSelected { get; set; }
+        HudButton UIEquipmentBuffingAddEquipped { get; set; }
         HudList UIEquipmentBuffingList { get; set; }
 
         public EquipmentBuffingPage(MainView mainView) {
             try {
                 UIEquipmentBuffingAddSelected = mainView.view != null ? (HudButton)mainView.view["UIEquipmentBuffingAddSelected"] : new HudButton();
+                UIEquipmentBuffingAddEquipped = mainView.view != null ? (HudButton)mainView.view["UIEquipmentBuffingAddEquipped"] : new HudButton();
                 UIEquipmentBuffingList = mainView.view != null ? (HudList)mainView.view["UIEquipmentBuffingList"] : new HudList();
                 
                 Config.Equipment.BuffEquipmentIds.Changed += obj => {
@@ -25,6 +27,22 @@ namespace DoThingsBot.Views.Pages {
                         WorldObject selectedObject = Globals.Core.WorldFilter[Globals.Host.Actions.CurrentSelection];
                         List<int> newList = Config.Equipment.BuffEquipmentIds.Value;
                         newList.Add(selectedObject.Id);
+                        Config.Equipment.BuffEquipmentIds.Value = newList;
+                    }
+                    catch (Exception ex) { Util.LogException(ex); }
+                };
+
+                UIEquipmentBuffingAddEquipped.Hit += (s, e) => {
+                    try {
+                        List<int> newList = new List<int>();
+                        var wos = CoreManager.Current.WorldFilter.GetInventory();
+                        foreach (var item in wos) {
+                            if (item.Values(LongValueKey.Slot, -1) == -1) {
+                                newList.Add(item.Id);
+                                Util.WriteToChat($"Adding: {item.Name}");
+                            }
+                        }
+                        wos.Dispose();
                         Config.Equipment.BuffEquipmentIds.Value = newList;
                     }
                     catch (Exception ex) { Util.LogException(ex); }
