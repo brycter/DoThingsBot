@@ -1,6 +1,9 @@
 # About
 A tinker/buff/portal bot plugin.
 
+# Contributors
+Schubaal
+
 # Installation:
  - Requires Decal / Virindi View System (comes with virindi bundle)
  - Install [DoThingsBotInstaller-2.0.0.6.exe](/uploads/d15cd820fbb19e85ae22b23479c1b236/DoThingsBotInstaller-2.0.0.6.exe)
