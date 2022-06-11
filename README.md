@@ -6,7 +6,7 @@ Schubaal
 
 # Installation:
  - Requires Decal / Virindi View System (comes with virindi bundle)
- - Install [DoThingsBotInstaller-2.0.0.6.exe](/uploads/d15cd820fbb19e85ae22b23479c1b236/DoThingsBotInstaller-2.0.0.6.exe)
+ - Install [DoThingsBotInstaller-2.0.0.7.exe](/uploads/023a0f5cd4e53533febf30ac5b994a0f/DoThingsBotInstaller-2.0.0.7.exe)
     
 # How to use:
  - The AC window cannot be minimized while the bot is running.
