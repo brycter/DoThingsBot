@@ -238,7 +238,6 @@ namespace DoThingsBot.FSM.States {
             CoreManager.Current.WorldFilter.ChangeObject -= WorldFilter_ChangeObject;
         }
 
-        private static readonly Regex PercentConfirmation = new Regex("^You (determine that you )?(?<msg>have a (?<percent>.+)% .*)");
         private bool needsConfirmation = false;
         private bool needsYesClick = false;
         private DateTime gotCraftingSuccessDialogAt = DateTime.UtcNow;
@@ -247,7 +246,7 @@ namespace DoThingsBot.FSM.States {
             try {
 
                 if (e.Message.Type == 0xF7B0 && (int)e.Message["event"] == 0x0274 && e.Message.Value<int>("type") == 5) {
-                    Match match = PercentConfirmation.Match(e.Message.Value<string>("text"));
+                    Match match = Globals.PercentConfirmation.Match(e.Message.Value<string>("text"));
 
                     Util.WriteToChat("I got: " + e.Message.Value<string>("text"));
                     // You have a 33.3% chance of using Black Garnet Salvage (100) on Green Jade Heavy Crossbow.

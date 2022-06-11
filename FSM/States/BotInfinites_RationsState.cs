@@ -54,13 +54,12 @@ namespace DoThingsBot.FSM.States {
         private DateTime lastThought = DateTime.UtcNow;
         private DateTime startTime = DateTime.UtcNow;
         private bool shouldClickYes;
-        private static readonly Regex PercentConfirmation = new Regex("^You (determine that you )?(?<msg>have a (?<percent>.+)% .*)");
 
         void EchoFilter_ServerDispatch(object sender, NetworkMessageEventArgs e) {
             try {
 
                 if (e.Message.Type == 0xF7B0 && (int)e.Message["event"] == 0x0274 && e.Message.Value<int>("type") == 5) {
-                    Match match = PercentConfirmation.Match(e.Message.Value<string>("text"));
+                    Match match = Globals.PercentConfirmation.Match(e.Message.Value<string>("text"));
 
                     Util.WriteToChat("I got: " + e.Message.Value<string>("text"));
                     if (match.Success) {
