@@ -1,13 +1,13 @@
 ; Define your application name
 !define APPNAME "DoThingsBot"
 !define SOFTWARECOMPANY "SunnujDecalPlugins"
-!define VERSION	"2.0.0.6"
+!define VERSION	"2.0.0.7"
 !define APPGUID "{96A085A9-7A75-4D36-9437-07DB39EF0BA0}"
 
 !define ASSEMBLY "DoThingsBot.dll"
 !define CLASSNAME "DoThingsBot.PluginCore"
 
-!define BUILDPATH "F:\projects\DoThingsBot\bin\x86\Release"
+!define BUILDPATH "..\bin\x86\Release"
 
 ; Main Install settings
 ; compressor goes first
