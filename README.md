@@ -10,7 +10,13 @@ Schubaal
     
 # How to use:
  - The AC window cannot be minimized while the bot is running.
- - `/config UseCraftSuccessDialog` should be set to on
+
+ - UseCraftSuccessDialog should be set to on.
+    -  Run `/config UseCraftSuccessDialog on` in the chat window.
+        -   If you get a message in the chat window that states 
+            - `The command "config" is not currently enabled on this server.`  
+        - The server admin will need to run the following command to turn player_config_command on.
+            - `/modifybool player_config_command true`
  - TODO, but hopefully fairly self explanitory.
 
 # Known Issues
